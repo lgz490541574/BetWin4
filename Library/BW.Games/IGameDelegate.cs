@@ -1,11 +1,11 @@
-﻿using BW.Game.Models;
+﻿using BW.Games.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BW.Game
+namespace BW.Gamess
 {
     /// <summary>
     /// 与外部逻辑通信的规范

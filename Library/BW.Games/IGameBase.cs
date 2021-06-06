@@ -1,10 +1,11 @@
-﻿using BW.Game.Models;
+﻿using BW.Games.Models;
+using BW.Gamess;
 using SP.StudioCore.Enums;
 using SP.StudioCore.Ioc;
 using SP.StudioCore.Model;
 using System.Collections.Generic;
 
-namespace BW.Game
+namespace BW.Games
 {
     public abstract class IGameBase : ISetting
     {

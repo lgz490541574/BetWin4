@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BW.Game.Models
+namespace BW.Games.Models
 {
     public enum GameType
     {

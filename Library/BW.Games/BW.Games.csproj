@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BW.Games\BW.Games.csproj" />
+    <ProjectReference Include="..\..\..\SP.StudioCore\SP.StudioCore.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿using BW.Game.Models;
+﻿using BW.Games.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BW.Game
+namespace BW.Games
 {
     /// <summary>
     /// 游戏实现工厂

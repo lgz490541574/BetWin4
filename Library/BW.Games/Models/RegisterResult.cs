@@ -4,29 +4,27 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BW.Game.Models
+namespace BW.Games.Models
 {
     /// <summary>
     /// 注册后的返回对象
     /// </summary>
-    public struct RegisterResult
+    public class RegisterResult : ResultBase
     {
-        public RegisterResult(string player, string password)
+        public RegisterResult(string player, string password) :base(APIResultType.Success)
         {
-            this.Success = true;
-            this.Player = player;
+            this.UserName = player;
             this.Password = password;
         }
 
-        /// <summary>
-        /// 是否成功
-        /// </summary>
-        public bool Success;
+        public RegisterResult(APIResultType code) : base(code)
+        {
+        }
 
         /// <summary>
         /// 玩家用户名
         /// </summary>
-        public string Player;
+        public string UserName;
 
         /// <summary>
         /// 密码（如果有的话）
@@ -35,7 +33,7 @@ namespace BW.Game.Models
 
         public static implicit operator bool(RegisterResult result)
         {
-            return result.Success;
+            return result.Code == APIResultType.Success;
         }
     }
 }

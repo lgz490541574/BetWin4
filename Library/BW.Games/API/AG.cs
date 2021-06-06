@@ -1,4 +1,4 @@
-﻿using BW.Game.Models;
+﻿using BW.Games.Models;
 using SP.StudioCore.Array;
 using SP.StudioCore.Net;
 using SP.StudioCore.Security;
@@ -15,7 +15,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace BW.Game.API
+namespace BW.Games.API
 {
     public sealed class AG : IGameBase
     {
@@ -57,7 +57,7 @@ namespace BW.Game.API
             Dictionary<string, string> data = new()
             {
                 { "cagent", this.Agent },
-                { "loginname", login.Player },
+                { "loginname", login.UserName },
                 { "password", login.Password },
                 { "dm", "NO_RETURN" },
                 { "sid", $"{this.Agent}{DateTime.Now:yyyyMMddHHmmss}{ WebAgent.GetRandom(1000, 9999) }" },
@@ -82,19 +82,21 @@ namespace BW.Game.API
 
         public override RegisterResult Register(RegisterRequest register)
         {
+            string userName = register.ToString();
+            string password = "a123456";
             Dictionary<string, string> data = new()
             {
                 { "cagent", Agent },
-                { "loginname", register.Player },
-                { "password", register.Password },
+                { "loginname", userName },
+                { "password", password },
                 { "actype", Actype.ToString() },//1:代表真钱账号，0：代表试玩账号
                 { "method", "lg" },
                 { "oddtype", "A" },  //盘口
                 { "cur", this.CurMoney }
             };
             bool? success = this._request(data, out string msg, out Dictionary<string, string> result);
-            if (success.HasValue && success.Value) return new RegisterResult(register.Player, register.Password);
-            return new RegisterResult() { Success = false };
+            if (success.HasValue && success.Value) return new RegisterResult(userName, password);
+            return new RegisterResult(APIResultType.Faild);
         }
 
 

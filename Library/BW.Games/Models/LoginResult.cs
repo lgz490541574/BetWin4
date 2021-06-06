@@ -6,36 +6,40 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BW.Game.Models
+namespace BW.Games.Models
 {
     /// <summary>
     /// 登录之后的返回内容
     /// </summary>
-    public struct LoginResult
+    public sealed class LoginResult : ResultBase
     {
         /// <summary>
         /// GET请求
         /// </summary>
         /// <param name="url"></param>
-        public LoginResult(string url)
+        public LoginResult(string url) : base(APIResultType.Success)
         {
             this.Url = url;
             this.Method = HttpMethod.Get;
             this.Data = null;
         }
 
-        public LoginResult(string url, Dictionary<string, object> data)
+        public LoginResult(APIResultType code) : base(code)
+        {
+        }
+
+        public LoginResult(string url, Dictionary<string, object> data) : base(APIResultType.Success)
         {
             this.Url = url;
             this.Method = HttpMethod.Post;
             this.Data = data;
         }
 
-        public string Url;
+        public string Url { get; set; }
 
-        public HttpMethod Method;
+        public HttpMethod Method { get; set; }
 
-        public Dictionary<string, object> Data;
+        public Dictionary<string, object> Data { get; set; }
 
         /// <summary>
         /// 转化成为JSON数据
@@ -43,10 +47,18 @@ namespace BW.Game.Models
         /// <returns></returns>
         public override string ToString()
         {
+            if (this.Code != APIResultType.Success)
+            {
+                return new
+                {
+                    this.Code,
+                }.ToJson();
+            }
             if (this.Method == HttpMethod.Post)
             {
                 return new
                 {
+                    this.Code,
                     this.Url,
                     Method = "Post",
                     this.Data
@@ -55,6 +67,7 @@ namespace BW.Game.Models
 
             return new
             {
+                this.Code,
                 this.Url
             }.ToJson();
         }
