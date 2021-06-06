@@ -1,0 +1,63 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>管理后台</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="shortcut icon" href="favicon.ico">
+    <style type="text/css">
+        #progress { position: fixed; left: 0px; top: 0px; height: 12px; transition: width .25s; background-color: #1E9FFF; border-radius: 6px; }
+        #LAY_app { transition: opacity .5s; }
+        #progress + #LAY_app { visibility: hidden; opacity: 0; }
+    </style>
+    <script type="text/javascript">
+        document.writeln("<script src=\"version.js?v=" + new Date().getTime() + "\"><" + "/script>");
+        let init = () => {
+            window["UI"] = new Object();
+            window["Utils"] = new Object();
+            let studio = "//studio.aviacdn.com",
+                css = ["studio/layadmin/css/layui.css", "studio/layadmin/css/layui.extend.css", "studio/styles/icon.css", "styles/index.css"],
+                js = ["studio/kindeditor/kindeditor-min.js", "studio/js/ChineseTraditionSimple-1.0.0.js",
+                    "studio/layadmin/layui.js", "studio/layadmin/layui.extend.js", "studio/layadmin/js/sortable.js",
+                    "studio/charts/fusioncharts.js", "studio/charts/fusioncharts.charts.js", "scripts/index.js"],
+                head = document.head,
+                progress = document.getElementById("progress");
+            if (/es2.com|es3.com|localhost/.test(location.host)) {
+                studio = "//studio.es3.com";
+            }
+            css.forEach(href => {
+                let link = document.createElement("link");
+                link.href = href.replace(/studio/g, studio) + "?v=" + _v;;
+                link.rel = "stylesheet";
+                head.appendChild(link);
+            });
+
+            let jsLoad = index => {
+                if (index === js.length) {
+                    progress.remove();
+                    return;
+                }
+                progress.style.width = ((index + 1) / js.length) * 100 + "%";
+
+                let path = js[index],
+                    script = document.createElement("script");
+                script.src = path.replace(/studio/g, studio) + "?v=" + _v;
+                script.onload = function (e) {
+                    jsLoad(index + 1);
+                }
+                head.appendChild(script);
+            };
+            jsLoad(0);
+        };
+    </script>
+</head>
+<body onload="init()">
+    <div id="progress"></div>
+    <div id="LAY_app"></div>
+    <div style="display:none;">
+        <audio id="sound_notify"></audio>
+    </div>
+</body>
+</html>

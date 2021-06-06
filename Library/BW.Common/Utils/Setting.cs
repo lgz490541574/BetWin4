@@ -25,10 +25,10 @@ namespace BW.Common.Utils
             RedisConnection = configuration.GetConnectionString("RedisConnection");
         }
 
-        public static DbExecutor WriteDbExecutor()
-        {
-            return new DbExecutor(DbConnection, DatabaseType.SqlServer);
-        }
+        public static DbExecutor WriteDbExecutor() => new DbExecutor(DbConnection, DatabaseType.SqlServer);
+
+        public static DbExecutor ReadDbExecutor() => new DbExecutor(DbConnection, DatabaseType.SqlServer);
+
 
         /// <summary>
         /// 可写库的EF配置库

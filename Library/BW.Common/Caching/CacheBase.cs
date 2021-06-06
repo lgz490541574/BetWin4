@@ -36,6 +36,7 @@ namespace BW.Common.Caching
         internal const int USER = 1;
 
         internal const int GAME = 2;
+
+        internal const int SYSTEM = 3;
     }
 }
- 

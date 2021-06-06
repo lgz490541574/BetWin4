@@ -44,6 +44,7 @@ namespace BW.Common.Startup
                 .AddSpLogging()
                 .AddScoped(t => this.WriteDataContext)
                 .AddScoped<IWriteRepository>(t => Setting.WriteDbExecutor())
+                .AddScoped<IReadRepository>(t => Setting.ReadDbExecutor())
                 //.AddSingleton(t => Setting.NewElasticClient())
                 .AddSingleton(t => new IPHeader(new[] { "X-Original-Forwarded-For" }))
                 .AddCors(opt => opt.AddPolicy("Api", policy =>

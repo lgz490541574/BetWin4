@@ -1,0 +1,144 @@
+﻿/* 市场的通用样式 */
+.layui-btn.layui-btn-primary[checked] { background-color: #5FB878; color: white; }
+
+/* 战队选择器的样式 */
+.market-team-item { transition: all .5s; background-color: #fff; width: 80px; height: 80px; display: inline-block; border: 1px solid #ccc; border-radius: 8px; position: relative; margin: 5px 5px 32px; }
+    .market-team-item.remove { transform: rotate( -1080deg ) scale(0.1); opacity: 0.1; }
+    .market-team-item em { position: absolute; left: 1px; top: 1px; right: 1px; bottom: 1px; background: no-repeat center center; background-size: contain; }
+    .market-team-item i { width: 18px; height: 18px; line-height: 18px; background-color: #FF5722; color: #fff; border-radius: 50%; position: absolute; text-align: center; right: 0px; top: 0px; transform: translate(50%,-50%); }
+    .market-team-item label { position: absolute; bottom: -24px; line-height: 24px; font-size: 12px; text-align: center; left: 0px; right: 0px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
+    .market-team-item[checked] { }
+        .market-team-item.checked::before,
+        .market-team-item[checked]::before { display: none; content: "\f058"; left: 0px; top: 0px; font-size: 26px; transform: translate(-33%,-33%); color: #5FB878; position: absolute; z-index: 1; background: #fff; border-radius: 50%; width: 26px; height: 26px; text-align: center; }
+.market-team-selector [data-content] .market-team-item.checked::before,
+.market-team-selector [data-content] .market-team-item[checked]::before { display: block; }
+.market-team-selector [data-content]::after { display: block; clear: both; content: " "; }
+
+[data-team-noclose] > .market-team-item i { display: none; }
+[data-team-size="sm"] > .market-team-item { width: 42px; height: 42px; margin: 2px 2px 18px; }
+
+
+/* 盘口模型设置 */
+.market-template [checked] { background-color: #5FB878; color: #fff; }
+
+/* 赛事的入口 */
+.market-match-link { color: #01AAED; border-radius: 4px; }
+    .market-match-link:hover { background-color: #01AAED; color: #fff; }
+.layui-layer-admin.diag.market-match .layui-layer-title { background-color: rgb(3,155,229) !important; }
+
+/* 订单的进行中状态 */
+order-processing { display: block; border: 1px solid #ccc; box-shadow: 0px 0px 3px rgb(0 0 0 / 50%); text-shadow: 1px 1px 0px #666; border-radius: 6px; line-height: 12px; padding: 3px 0px; background-color: #1E9FFF; color: #fff; }
+    order-processing:empty { display: none; }
+
+/* 玩法的串关配置 */
+.market-play-combo { }
+    .market-play-combo .layui-form-label { padding: 0px; width: 105px; }
+    .market-play-combo [data-content] [data-code] { margin: 5px; }
+        .market-play-combo [data-content] [data-code][checked] { background-color: #5FB878; color: #FFF; }
+
+/* 比赛弹出框 */
+.layui-layer-admin.diag.market-match .layui-layer-title { background-color: rgb(3,155,229) !important; }
+
+/* 订单弹出框 */
+.layui-layer-page.layui-layer-admin.diag.market-order .layui-layer-content { overflow: auto; }
+
+
+/* 盘口操作 */
+table.bet-items { width: 100%; box-shadow: 0px 0px 2px rgba(0,0,0,.8); }
+    table.bet-items thead th { text-align: center; border-bottom: 1px solid #AAA; }
+    table.bet-items td { padding: 0px !important; background-color: #fff; min-width: 32px; }
+    table.bet-items th.action { width: 50px; }
+
+    table.bet-items .odds { width: 100%; text-align: center; min-height: 32px; border: none; background-color: transparent; text-indent: 36px; }
+    table.bet-items td .action { position: absolute; left: 5px; top: 50%; transform: translateY(-50%); }
+    table.bet-items tbody tr:hover td { background-color: #d9fba1; }
+
+.bet-items .odds.warings { color: #f00; text-shadow: 1px 1px 0px #fff; }
+table.bet-items td.setting { position: relative; }
+table.bet-items .bet-setting { display: flex; padding: 2px 0px; margin-right: 32px; }
+table.bet-items .bet-setting-field { flex: 1; text-align: center; min-height: 22px; }
+    table.bet-items .bet-setting-field input { width: 80%; text-align: center; padding: 2px; }
+table.bet-items .bet-setting-submit { position: absolute; right: 8px; top: 1px; }
+
+/* 盘口显示控件（适用于 盘口管理 / 盘口添加 / 操盘页面）*/
+table.market-items { width: 100%; box-shadow: 0px 0px 2px rgba(0,0,0,.8); text-align: center; font-size: 12px; }
+    table.market-items thead th { text-align: center; border: 1px solid #aaa; width: auto; }
+        table.market-items thead th.title { width: 120px; }
+        table.market-items thead th.param { width: 50px; }
+        table.market-items thead th.bet-action { width: 42px; }
+
+    table.market-items tbody tr.extendSetting { display: none; }
+    table.market-items.extend tbody tr.extendSetting,
+    table.market-items tbody tr.defaultSetting { display: table-row; }
+    table.market-items.extend .am-icon-plus::before { content: "\f068"; }
+
+    table.market-items tbody td { padding: 0px !important; background-color: #fff; min-width: 32px; position: relative; border: 1px solid #ccc; }
+    table.market-items .item-odds { width: 100%; text-align: center; min-height: 32px; border: none; background-color: transparent; text-indent: 36px; }
+        table.market-items .item-odds.warings { color: #FF5722; text-shadow: 1px 1px 0px #fff; }
+        table.market-items .item-odds[readonly] { background-color: rgba(0,0,0,.2); }
+    table.market-items .market-action { width: 18px; height: 18px; line-height: 18px; padding: 0px; background-color: #fff; font-size: 12px; transition: .25s; }
+        table.market-items .market-action[disabled] { border-radius: 50%; animation: icon-spin 2s infinite linear; }
+        table.market-items .market-action + .market-action { margin-left: 2px; }
+        table.market-items .market-action[checked] { background-color: #5FB878; color: #fff; }
+            table.market-items .market-action[checked][data-lock] { background-color: #FF5722; }
+        table.market-items .market-action.item-action { position: absolute; left: 2px; top: 50%; transform: translateY(-50%) !important; }
+            table.market-items .market-action.item-action + .item-action { left: 20px; }
+
+
+/* 玩法选择器 */
+.market-play-selector { }
+    .market-play-selector [checked] { background-color: #0094ff; color: white; }
+.market-play-selector-list { overflow: auto; transition: height 0.5s; }
+    .market-play-selector-list a { text-overflow: ellipsis; overflow: hidden; }
+.market-play-selector .market-play-selector-list.hide { height: 0px; }
+
+/* 联赛选择器 */
+.ui-market-leagueSelector [checked] { background-color: #5FB878; color: #fff; }
+
+/* 盘口编辑器 用于盘口管理/添加盘口/操盘页面 */
+.market-bet-editor { width: 100%; text-align: center; border-collapse: collapse; font-size: 12px; border: 1px solid #ccc; transition: .25s; }
+    .market-bet-editor[data-status='ENDED'] .action,
+    .market-bet-editor[data-status='ENDED'] .setting { display: none; }
+    .market-bet-editor caption { background-color: #393D49; color: white; height: 22px; line-height: 22px; position: relative; }
+        .market-bet-editor caption .template { position: absolute; right: 0px; top: 0px; background-color: #fff; }
+            .market-bet-editor caption .template input { width: 64px; }
+        .market-bet-editor caption .action { position: absolute; left: 0px; top: 0px; background-color: #fff; }
+    .market-bet-editor thead { background: linear-gradient(to bottom, #fafafa 0%,#efefef 100%); }
+        .market-bet-editor thead th { font-weight: normal; color: #666; width: initial !important; }
+            .market-bet-editor thead th label:empty { display: block; min-height: 100%; max-width: 50%; margin: auto; background-color: #ccc; border-radius: 6px; }
+    .market-bet-editor tbody { }
+        .market-bet-editor tbody td { background-color: #fff; }
+            .market-bet-editor tbody td[data-item] { padding: 0px !important; position: relative; }
+        .market-bet-editor thead th,
+        .market-bet-editor tbody td { border: 1px solid #ccc; height: 28px; text-align: center !important; min-width: 150px; }
+            .market-bet-editor tbody td .market-bet-item-odds { width: 100%; border: none; height: 100%; font-size: 14px; text-align: center; }
+                .market-bet-editor tbody td .market-bet-item-odds.danger { color: #FF5722; }
+    .market-bet-editor tfoot td { padding: 5px; background-color: #FAFAFA; border: 1px solid #aaa; }
+        .market-bet-editor tfoot td [data-setting] { height: 20px; padding: 0px; vertical-align: middle; text-align: center; width: 50px; border: 1px solid #999; font-weight: normal; color: #666; margin-left: -1px; }
+        .market-bet-editor tfoot td .w80[data-setting] { width: 80px; }
+        .market-bet-editor tfoot td .w100[data-setting] { width: 100px; }
+        .market-bet-editor tfoot td .w150[data-setting] { width: 150px; }
+        .market-bet-editor tfoot td .w200[data-setting] { width: 200px; }
+        .market-bet-editor tfoot td [data-setting]:focus { background-color: #efd2d2; }
+    .market-bet-editor.loading { }
+        .market-bet-editor.loading td::after { content: " "; position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; background-color: rgba(255,255,255,.01); }
+        .market-bet-editor.loading td input { color: #000; }
+    /* 需要折叠的类型 */
+    .market-bet-editor.extend tbody tr,
+    .market-bet-editor tbody tr.current { display: table-row !important; }
+    .market-bet-editor.extend .am-icon-plus::before { content: "\f068"; }
+    .market-bet-editor.Handicap tbody tr,
+    .market-bet-editor.Total tbody tr,
+    .market-bet-editor.Time tbody tr,
+    .market-bet-editor.Round tbody tr { display: none; }
+    /* 状态操作按钮 */
+    .market-bet-editor .action { background-color: #fff; }
+    .market-bet-editor tbody tr .action.group { position: absolute; left: -44px; visibility: hidden; }
+    .market-bet-editor tbody tr:hover .action.group { visibility: visible; }
+    .market-bet-editor tbody tr .action.item { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
+    .market-bet-editor [data-bet-visible][checked],
+    .market-bet-editor [data-group-visible][checked],
+    .market-bet-editor [data-item-visible][checked] { background-color: #5FB878; color: white; }
+    .market-bet-editor [data-bet-lock][checked],
+    .market-bet-editor [data-group-lock][checked],
+    .market-bet-editor [data-item-lock][checked] { background-color: #FF5722; color: white; }

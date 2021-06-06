@@ -1,0 +1,14 @@
+<root ID="d447625878a246588a6805a5c1e70a98">
+  <memu name="商户会员" icon="am-icon-users" ID="ebf83955a2464aef9fb6f5c3158ab78f">
+    <menu name="商户管理" href="merchant/site" ID="67aa4d974305414d879233c817a6b735" />
+    <menu name="会员管理" href="merchant/user" ID="0e572d57836944f9a3a641e0b16e96c8" />
+  </memu>
+  <memu name="报表管理" icon="am-icon-pie-chart" ID="3f1f66b27f6846ef9e4b2413786c47cf">
+    <menu name="财务报表" href="report/settlement" ID="72a40410172e400dab36a06286128a40" />
+    <menu name="数据统计" href="report/statistics" ID="a8685a104fbf4c6faac366c2b6716f26" />
+  </memu>
+  <memu name="系统设置" icon="am-icon-gear" ID="bd7826541eda4ef381baacdedce78042">
+    <menu name="游戏配置" href="setting/game" ID="9084b3f9e72d4b459c1df714780fb5b5" />
+    <menu name="系统参数" href="setting/config" ID="a75510e4af4c48aa8bcd8088bedb07f9" />
+  </memu>
+</root>

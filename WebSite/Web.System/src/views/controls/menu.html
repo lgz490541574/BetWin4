@@ -1,0 +1,35 @@
+﻿<script type="text/html" template lay-url="config/menu" lay-type="post" lay-done="layui.element.render('nav', 'layadmin-system-side-menu');" id="TPL_layout">
+    <div class="layui-logo" lay-href="">
+        <span>{{ layui.setter.name || 'layuiAdmin' }}</span>
+    </div>
+    <ul class="layui-nav layui-nav-tree" lay-shrink="all" id="LAY-system-side-menu" lay-filter="layadmin-system-side-menu">
+        {{# if(d.success){ }}
+        {{# d.info.menu.forEach(item0=>{ }}
+        <li data-name="{{ item0.name }}" data-jump="{{ item0.href || '' }}" class="layui-nav-item">
+            <a href="javascript:;" {{ item0.menu ? '' : 'lay-href="'+ item0.href +'"' }} lay-tips="{{ item0.name }}" lay-direction="2">
+                <i class="layui-icon {{ item0.icon || "" }}"></i>
+                <cite>{{ item0.name }}</cite>
+            </a>
+            {{# if(item0.menu){ }}
+            <dl class="layui-nav-child">
+                {{# item0.menu.forEach(item1=>{ }}
+                <dd data-name="{{ item1.name || '' }}" data-jump="{{ item1.href || '' }}">
+                    <a href="javascript:;" {{ item1.menu ? '' : 'lay-href="'+ item1.href +'"' }}>{{ item1.name }}</a>
+                    {{# if(item1.menu){ }}
+                    <dl class="layui-nav-child">
+                        {{# layui.each(item1.menu, function(index2, item2){ }}
+                        <dd data-name="{{ item2.name || '' }}" data-jump="{{ item2.href || '' }}">
+                            <a href="javascript:;" lay-href="{{ item2.href }}">{{ item2.name }}</a>
+                        </dd>
+                        {{# }); }}
+                    </dl>
+                    {{# } }}
+                </dd>
+                {{# }) }}
+            </dl>
+            {{# } }}
+        </li>
+        {{# }) }}
+        {{# } }}
+    </ul>
+</script>

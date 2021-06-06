@@ -1,0 +1,78 @@
+﻿@font-face { font-family: 'odds'; src: url('https://studio.aviacdn.com/fonts/arcade.ttf'); }
+
+@media screen and (max-width: 1024px) {
+    .market-bet-editor caption h3 { text-align: left; text-indent: 48px; }
+}
+
+body.layui-layout-body { overflow: auto; }
+.trade-header { position: fixed; z-index: 1; left: 0px; top: 0px; height: 40px; right: 0px; background-color: #3367d6; box-shadow: 0px 5px 5px rgba(0,0,0,.1); }
+.layui-btn-primary { background-color: #fff; }
+.layui-btn[disabled] { opacity: .5; }
+    .layui-btn[disabled]::before { animation: icon-spin .25s infinite steps(8); }
+
+/* 赛事控件 */
+.market-trader-matchSelector .layui-btn[checked] { background-color: #5FB878; color: white; }
+/* 编辑器控件 */
+.market-bet-editor tbody td .market-bet-item-odds { height: 28px; border-bottom: 1px solid #ccc; }
+.market-bet-editor tbody tr .action.item { transform: none; top: 4px; }
+.market-bet-editor caption .template { right: 21px; }
+.market-bet-editor caption .bet-action { position: absolute; right: 0px; top: 0px; }
+/* 赛事容器 */
+.trade-container { display: block; margin: 45px 260px 5px 5px; overflow: auto; }
+match { display: block; border-radius: 6px; font-size: 12px; margin-bottom: 10px; border: 1px solid #ccc; background-color: #fff; }
+    match.loading { min-height: 65px; position: relative; }
+        match.loading::before { position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; background-color: rgba(0,0,0,.4); content: "加载中..."; line-height: 64px; text-align: center; color: #fff; border-radius: 4px; }
+    match.hide .match-title .am-icon-chevron-down::before { transform: rotate(180deg); }
+    match.hide .match-content { display: none; }
+.match-title { display: block; height: 22px; line-height: 22px; padding: 2px 0px 2px 5px; box-shadow: 0px 2px 2px rgba(0,0,0,.2); }
+match:nth-child(2) .match-title { background-color: #9DC8C8; }
+match:nth-child(3) .match-title { background-color: #FFEEE4; }
+match:nth-child(4) .match-title { background-color: #FFFFF3; }
+match:nth-child(5) .match-title { background-color: #FBFFB9; }
+match:nth-child(6) .match-title { background-color: #F8FAFF; }
+
+.match-title .layui-left { text-shadow: 1px 1px 0px rgba(255,255,255,.5); }
+.match-title input[type='datetime-local'] { border: none; width: 150px; background-color: transparent; }
+.match-title .layui-btn[checked] { background-color: #5FB878; color: white; }
+.match-title [data-live]::before { display: inline-block; font: normal normal normal 1.6rem/1 FontAwesome,sans-serif; font-size: inherit; text-rendering: auto; -webkit-font-smoothing: antialiased; transform: translate(0,0); content: "\f1e3"; margin-right: 4px; animation: icon-spin 2s infinite linear; }
+.match-content { padding: 5px; transition: all .5s; }
+    .match-content.remove { opacity: 0; transform: translateX(-50%); }
+    .match-content[data-round='Full'] { box-shadow: #1E9FFF 0px 0px 5px inset; background: rgba(30,159,255,.1); }
+    .match-content .match-bet { border-bottom: 1px dashed #ccc; padding: 5px 0px; }
+        .match-content .match-bet::after { content: " "; display: block; clear: both; }
+    .match-content .market-bet-editor { width: 90%; float: right; }
+    .match-content statistic { display: block; }
+        .match-content statistic .statistic-pay,
+        .match-content statistic .statistic-bet { text-align: left; padding-left: 2px; position: relative; }
+            .match-content statistic .statistic-bet::before { content: "投:"; }
+            .match-content statistic .statistic-bet::after { content: " "; position: absolute; right: 0px; top: 0px; bottom: 0px; width: 1px; background-color: #ccc; }
+            .match-content statistic .statistic-pay::before { content: "赔:"; }
+
+/* 订单管理 */
+.trade-aside { position: fixed; right: 5px; top: 45px; bottom: 5px; width: 250px; background-color: #fff; overflow: auto; border: 1px solid #ccc; }
+    .trade-aside header { display: block; padding: 2px; box-shadow: 5px 0px 5px #CCC; }
+        .trade-aside header input[type='checkbox'] { width: 22px; height: 22px; vertical-align: middle; }
+        .trade-aside header .layui-btn-group + .layui-btn-group { margin-left: 2px; }
+        .trade-aside header .input { width: 50px; height: 20px; border: 1px solid #CCC; font-size: 12px; }
+    .trade-aside content { display: block; top: 30px; bottom: 4px; left: 0px; right: 0px; position: absolute; overflow: auto; }
+        .trade-aside content.loading { background: url(../images/loading.gif) no-repeat center 64px; }
+    .trade-aside ul { font-size: 12px; }
+    .trade-aside li { border-block: 1px solid #dedede; padding: 0px 4px; position: relative; transition: all .5s; background: #fff; }
+        .trade-aside li.remove { transform: scale(1,0); height: 0px; }
+        .trade-aside li p { height: 20px; line-height: 20px; overflow: hidden; }
+    .trade-aside span[data-report-user]:empty::after,
+    .trade-aside span[data-report-site]:empty::after { content: "加载中.."; color: #ccc; }
+
+    /* 待接单的状态 */
+    .trade-aside li .action { display: none; }
+    .trade-aside li[data-status='Pending'] { padding: 0px 36px 0px 2px; }
+        .trade-aside li[data-status='Pending']::after { position: absolute; content: " "; right: 32px; top: 0px; bottom: 0px; width: 1px; background-color: #ccc; }
+        .trade-aside li[data-status='Pending'] .action { display: block; position: absolute; top: 50%; transform: translateY(-50%); right: 0px; width: 32px; text-align: center; }
+            .trade-aside li[data-status='Pending'] .action .layui-btn + .layui-btn { margin: auto; }
+            .trade-aside li[data-status='Pending'] .action .layui-btn { margin: 2px auto; }
+    /* 待接单订单的提交状态 */
+    .trade-aside li.processing[data-status='Pending']::before { content: "提交中.."; color: #efefef; text-align: center; line-height: 80px; position: absolute; z-index: 1; left: 0px; right: 0px; top: 0px; bottom: 0px; background: rgba(0,0,0,.5) no-repeat center center; }
+
+
+
+.template { display: block; }
