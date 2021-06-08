@@ -34,7 +34,7 @@ namespace BW.Common.Utils
         /// 可写库的EF配置库
         /// </summary>
         /// <returns></returns>
-        public static DbContextOptions WriteOptions()
+        public static DbContextOptions DataContextOptions()
         {
             return new DbContextOptionsBuilder().UseSqlServer(DbConnection).Options;
         }

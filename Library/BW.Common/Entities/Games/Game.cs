@@ -75,7 +75,7 @@ namespace BW.Common.Entities.Games
         /// <summary>
         /// 游戏ID
         /// </summary>
-        [Column("GameID"), DatabaseGenerated(DatabaseGeneratedOption.Identity), Key]
+        [Column("GameID"), Key]
         public int ID { get; set; }
 
 

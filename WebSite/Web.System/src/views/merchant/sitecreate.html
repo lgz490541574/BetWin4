@@ -1,0 +1,39 @@
+﻿<title>创建新商户</title>
+<div class="layui-card">
+    <div class="layui-card-body">
+        <form class="layui-form" action="site/CreateSite">
+            <div class="layui-form-item">
+                <label class="layui-form-label">商户名：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Name" class="layui-input" />
+                </div>
+                <label class="layui-form-label">前缀：</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="Prefix" maxlength="3" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label">白名单IP：</label>
+                <div class="layui-input-block">
+                    <input type="text" placeholder="多个IP使用逗号隔开" name="WhiteIP" class="layui-input" />
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <button class="layui-btn layui-btn-block am-icon-save" lay-submit lay-filter="merchant-sitecreate-submit"> 创建新商户</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script type="text/javascript">
+    layui.use(["betwin", "table"], () => {
+        let betwin = layui.betwin,
+            table = layui.table;
+
+        betwin.form.submit("merchant-sitecreate-submit", null, {
+            success: res => {
+                // table.reload("")
+            }
+        });
+    });
+</script>

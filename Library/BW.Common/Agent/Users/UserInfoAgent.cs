@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using SP.StudioCore.Data;
 using System.Data;
 using SP.StudioCore.Web;
-using BW.Common.Exceptions;
 using BW.Common.Models;
 using BW.Common.Models.Users;
 using SP.StudioCore.Security;
 using SP.StudioCore.Enums;
 using BW.Common.Entities.Users;
 using BW.Games.Models;
+using BW.Games.Exceptions;
 
 namespace BW.Common.Agent.Users
 {
@@ -56,7 +56,7 @@ namespace BW.Common.Agent.Users
             string userName = register.UserName.ToLower();
             using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
             {
-                if (db.Exists<User>(t => t.SiteID == siteId))
+                if (db.Exists<User>(t => t.SiteID == siteId && t.UserName == register.UserName))
                 {
                     throw new APIResulteException(APIResultType.EXISTSUSER);
                 }

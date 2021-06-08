@@ -1,8 +1,8 @@
 ﻿using BW.Common.Agent.Sites;
 using BW.Common.Caching;
-using BW.Common.Exceptions;
 using BW.Common.Models.Enums;
 using BW.Common.Models.Sites;
+using BW.Games.Exceptions;
 using BW.Games.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

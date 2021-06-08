@@ -9,9 +9,11 @@ namespace BW.Games.Models
     /// <summary>
     /// 注册内容
     /// </summary>
-    public struct RegisterRequest
+    public class RegisterRequest
     {
-        public RegisterRequest(string prefix, string userName) : this()
+        public RegisterRequest() { }
+
+        public RegisterRequest(string prefix, string userName) 
         {
             this.Prefix = prefix;
             this.UserName = userName;
@@ -20,17 +22,17 @@ namespace BW.Games.Models
         /// <summary>
         /// 前缀
         /// </summary>
-        public string Prefix;
+        public string Prefix { get; set; }
 
         /// <summary>
         /// 要在游戏中注册的用户名
         /// </summary>
-        public string UserName;
+        public string UserName { get; set; }
 
         /// <summary>
         /// 密码（会员注册的时候才需要赋值）
         /// </summary>
-        public string Password;
+        public string Password { get; set; }
 
         /// <summary>
         /// 增加前缀的用户名

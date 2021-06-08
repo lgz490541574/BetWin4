@@ -22,11 +22,6 @@ namespace BW.Common.Startup
     public abstract class BetWinStartupBase<TFilterType> where TFilterType : IFilterMetadata
     {
         /// <summary>
-        /// 可写库的数据库上下文
-        /// </summary>
-        protected virtual IWriteDataContext WriteDataContext { get; }
-
-        /// <summary>
         /// 项目自定义要注入的内容
         /// </summary>
         /// <param name="services"></param>
@@ -41,12 +36,12 @@ namespace BW.Common.Startup
             services.AddControllers(opt => { opt.Filters.Add<TFilterType>(); });
 
             services
-                .AddSpLogging()
-                .AddScoped(t => this.WriteDataContext)
+                //.AddSpLogging()
+                .AddScoped(t => new BetWinDataContext(Setting.DataContextOptions()))
                 .AddScoped<IWriteRepository>(t => Setting.WriteDbExecutor())
                 .AddScoped<IReadRepository>(t => Setting.ReadDbExecutor())
                 //.AddSingleton(t => Setting.NewElasticClient())
-                .AddSingleton(t => new IPHeader(new[] { "X-Original-Forwarded-For" }))
+                .AddSingleton(t => new IPHeader(new[] { "X-Forwarded-For" }))
                 .AddCors(opt => opt.AddPolicy("Api", policy =>
                 {
                     policy.SetPreflightMaxAge(TimeSpan.FromMinutes(10));

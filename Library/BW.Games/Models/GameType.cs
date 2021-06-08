@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace BW.Games.Models
 {
-    public enum GameType
+    public enum GameType : byte
     {
         AG = 1,
         /// <summary>

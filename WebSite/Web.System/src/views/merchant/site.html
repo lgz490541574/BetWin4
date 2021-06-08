@@ -1,12 +1,33 @@
 ﻿<title>商户管理</title>
 <div class="layui-fluid">
     <div class="layui-card">
-        <div class="layui-card-header">
+        <div class="layui-card-header" id="merchant-site-header">
             商户管理
-            <button class="layui-btn layui-btn-right am-icon-plus"> 新建商户</button>
+            <button class="layui-btn layui-btn-right am-icon-plus" data-popup="merchant/sitecreate"> 新建商户</button>
         </div>
         <div class="layui-card-body">
-
+            <table id="merchant-site-list" lay-filter="merchant-site-list"></table>
         </div>
     </div>
 </div>
+
+<script type="text/javascript">
+    layui.use(["betwin", "table"], () => {
+        let betwin = layui.betwin,
+            table = layui.table;
+
+        betwin.admin.popup("#merchant-site-header");
+
+        table.render({
+            elem: "#merchant-site-list",
+            url: "site/GetSiteList",
+            cols: [[
+                { title: "ID", field: "ID", width: 100 },
+                { title: "商户名", field: "Name", width: 150 },
+                { title: "创建时间", width: 130, templet: d => htmlFunction.datetime(d.CreateAt) },
+                { title: "状态", width: 100, templet: d => d.Status },
+                { title: "密钥", field: "SecretKey" }
+            ]]
+        });
+    });
+</script>

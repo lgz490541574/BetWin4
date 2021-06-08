@@ -8,7 +8,9 @@ layui.use(["jquery", "form", "table"], function () {
     $.ajax({
         url: "config/init",
         method: "post",
-        success: function (result) {
+        success: res => {
+
+            GolbalSetting.enum = res.info.Enum;
 
             layui.config({
                 base: './src/',

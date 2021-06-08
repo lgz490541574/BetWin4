@@ -1,0 +1,75 @@
+﻿<div class="layui-card">
+    <div class="layui-card-body">
+        <script type="text/html" template lay-url="game/GetGameInfo" lay-type="post" lay-data="{{ Utils.getParams(d) }}" lay-done="BW.callback['setting-gameinfo'](d)">
+            <form action="game/SaveGameInfo" class="layui-form" lay-filter="setting-gameinfo" id="setting-gameinfo">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">ID：</label>
+                    <div class="layui-input-inline w80">
+                        <input type="number" min="1" name="ID" value="{{ d.info.ID || "" }}" class="layui-input" />
+                    </div>
+                    <label class="layui-form-label">游戏：</label>
+                    <div class="layui-input-inline w100">
+                        <select name="Type" data-enum="BW.Games.Models.GameType" lay-filter="setting-gameinfo-type" data-value="{{ d.info.Type || "" }}"></select>
+                    </div>
+                    <label class="layui-form-label">状态：</label>
+                    <div class="layui-input-inline w100">
+                        <select name="Status" data-enum="BW.Common.Models.Enums.GameStatus" data-value="{{ d.info.Status || "" }}"></select>
+                    </div>
+                </div>
+                <fieldset>
+                    <legend>参数配置</legend>
+                    <div id="setting-gameinfo-setting"></div>
+                </fieldset>
+                <div class="layui-form-item">
+                    <button class="layui-btn layui-btn-block am-icon-save" lay-submit lay-filter="setting-gameinfo-submit"> 保存</button>
+                </div>
+            </form>
+        </script>
+    </div>
+</div>
+
+<script type="text/javascript">
+    BW.callback['setting-gameinfo'] = result => {
+        delete BW.callback['setting-gameinfo'];
+
+        layui.use(["betwin", "form", "table"], () => {
+            let betwin = layui.betwin,
+                form = layui.form,
+                table = layui.table,
+                formObj = document.getElementById("setting-gameinfo"),
+                settingObj = document.getElementById("setting-gameinfo-setting"),
+                loadSetting = () => {
+                    let data = formObj.getField(),
+                        type = data["Type"];
+
+                    betwin.admin.req({
+                        url: "game/GetGameSetting",
+                        data: data,
+                        success: res => {
+                            var html = [];
+                            res.info.forEach(item => {
+                                html.push("<div class=\"layui-form-item\"><label class=\"layui-form-label\">", item.Description, "</label>",
+                                    "<div class=\"layui-input-block\"><input data-setting=\"" + item.Name + "\" type=\"text\" class=\"layui-input\" value=\"" + (item.Value || "") + "\" />",
+                                    "</div>", "</div>");
+                            });
+                            settingObj.innerHTML = html.join("");
+                        }
+                    });
+                };
+
+            betwin.form.render("setting-gameinfo");
+
+            form.on("select(setting-gameinfo-type)", loadSetting);
+            loadSetting();
+
+            betwin.form.submit("setting-gameinfo-submit", data => {
+                data["Setting"] = Utils.getSetting(formObj);
+                return data
+            }, {
+                success: res => {
+                    table.reload("setting-game-list");
+                }
+            });
+        });
+    }
+</script>

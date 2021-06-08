@@ -1,5 +1,4 @@
 ﻿using BW.Common.Agent.Users;
-using BW.Common.Exceptions;
 using BW.Common.Models.Enums;
 using BW.Common.Models.Games;
 using BW.Common.Utils;
@@ -19,6 +18,7 @@ using BW.Common.Entities.Games;
 using SP.StudioCore.Web;
 using BW.Games;
 using BW.Games.Models;
+using BW.Games.Exceptions;
 
 namespace BW.Common.Agent.Games
 {
@@ -42,6 +42,7 @@ namespace BW.Common.Agent.Games
 
             //#1 找出用户在这个游戏里面的用户信息
             GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(gameId, siteId, userId);
+
             // 如果本地没有当前用户，则自动注册
             if (!gameUser)
             {

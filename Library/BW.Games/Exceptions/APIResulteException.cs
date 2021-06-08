@@ -1,6 +1,4 @@
-﻿using BW.Common.Models;
-using BW.Common.Models.Enums;
-using BW.Games.Models;
+﻿using BW.Games.Models;
 using SP.StudioCore.Enums;
 using System;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
-namespace BW.Common.Exceptions
+namespace BW.Games.Exceptions
 {
     public class APIResulteException : Exception
     {
