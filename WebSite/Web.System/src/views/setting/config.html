@@ -1,0 +1,46 @@
+﻿<div class="layui-fluid">
+    <div class="layui-card">
+        <div class="layui-card-header">
+            系统参数
+        </div>
+        <div class="layui-card-body" id="setting-config">
+            <script type="text/html" template lay-url="Config/GetConfigList" lay-type="post">
+                <div class="layui-form">
+                    {{# d.info.forEach(t=>{ }}
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">{{ GolbalSetting.enum["BW.Common.Models.Enums.ConfigType"][t.Type] }}:</label>
+                        <div class="layui-input-block">
+                            <input type="text" name="{{ t.Type }}" value="{{ t.Value || "" }}" class="layui-input" />
+                        </div>
+                    </div>
+                    {{# }) }}
+                </div>
+            </script>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    layui.use(["betwin"], () => {
+        let betwin = layui.betwin,
+            $ = layui.$,
+            container = document.getElementById("setting-config");
+
+        $(container).on("change", "input", e => {
+            let input = e.target,
+                type = input.name,
+                value = input.value;
+
+            betwin.admin.req({
+                url: "config/SaveConfig",
+                loading: () => input.disabled = true,
+                complete: () => input.disabled = false,
+                data: {
+                    Type: type,
+                    Value: value
+                }
+            });
+        });
+
+    });
+</script>

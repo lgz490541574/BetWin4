@@ -19,6 +19,7 @@ using SP.StudioCore.Web;
 using BW.Games;
 using BW.Games.Models;
 using BW.Games.Exceptions;
+using BW.Common.Agent.Systems;
 
 namespace BW.Common.Agent.Games
 {
@@ -59,7 +60,8 @@ namespace BW.Common.Agent.Games
             // 如果登录失败
             if (result.Code != APIResultType.Success) { throw new APIResulteException(result.Code); }
 
-            return string.Concat("https://api.betwingame.com/login.html?t=", UserCaching.Instance().SaveSessionID(result));
+            string url = ConfigAgent.Instance().GetSystemConfig(ConfigType.LoginUrl);
+            return url.Replace("${ID}", UserCaching.Instance().SaveSessionID(result));
         }
 
         /// <summary>

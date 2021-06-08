@@ -1,4 +1,6 @@
-﻿using BW.Common.Models.Systems;
+﻿using BW.Common.Models.Enums;
+using BW.Common.Models.Systems;
+using SP.StudioCore.Cache.Redis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +44,22 @@ namespace BW.Common.Caching
         internal void SaveAdminInfo(SystemAdminModel admin)
         {
             this.NewExecutor().HashSet(ADMIN_INFO, admin.ID, admin);
+        }
+
+        /// <summary>
+        /// 系统配置
+        /// </summary>
+        private const string SYSTEM_CONFIG = "SYSTEM:CONFIG";
+
+
+        internal void SaveSystemConfig(ConfigType type,string value)
+        {
+            this.NewExecutor().HashSet(SYSTEM_CONFIG, type.GetRedisValue(), value.GetRedisValue());
+        }
+
+        internal string GetSystemConfig(ConfigType type)
+        {
+            return this.NewExecutor().HashGet(SYSTEM_CONFIG, type.GetRedisValue()).GetRedisValue<string>();
         }
     }
 }

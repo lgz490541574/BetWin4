@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using BW.Common.Models.Enums;
+using BW.Common.Entities.Systems;
 
 namespace Web.System.Controller
 {
@@ -34,6 +36,20 @@ namespace Web.System.Controller
         public ContentResult Menu()
         {
             return this.GetResultContent(ConfigAgent.Instance().GetMenu());
+        }
+
+        public ContentResult GetConfigList()
+        {
+            return this.GetResultContent(ConfigAgent.Instance().GetSystemConfig());
+        }
+
+        public ContentResult SaveConfig([FromForm] ConfigType type, [FromForm] string value)
+        {
+            return this.GetResultContent(ConfigAgent.Instance().SaveSystemConfig(new SystemConfig
+            {
+                Type = type,
+                Value = value
+            }));
         }
     }
 }
