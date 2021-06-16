@@ -84,7 +84,7 @@ namespace BW.Games.API
         {
             string userName = register.ToString();
             string password = "a123456";
-            Dictionary<string, string> data = new()
+            Dictionary<string, object> data = new()
             {
                 { "cagent", Agent },
                 { "loginname", userName },
@@ -103,13 +103,13 @@ namespace BW.Games.API
 
         #region ========  工具方法  ========
 
-        private bool? _request(Dictionary<string, string> data, out string msg, out Dictionary<string, string> result)
+        private bool? _request(Dictionary<string, object> data, out string msg, out Dictionary<string, string> result)
         {
             string url = this.Gateway + "?";
             string apiParam = string.Join(@"/\\\\/", data.Select(t => string.Format("{0}={1}", t.Key, t.Value)));
             apiParam = this._desEncrypt(apiParam, KEY);
             string key = Encryption.toMD5(apiParam + this.Md5Key).ToLower();
-            Dictionary<string, string> postData = new()
+            Dictionary<string, object> postData = new()
             {
                 { "params", apiParam },
                 { "key", key }

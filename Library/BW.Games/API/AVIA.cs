@@ -33,7 +33,7 @@ namespace BW.Games.API
 
         public override LoginResult Login(LoginRequest login)
         {
-            bool? success = this._post("user/login", new Dictionary<string, string>()
+            bool? success = this._post("user/login", new Dictionary<string, object>()
              {
                  { "UserName",login.UserName }
              }, out JObject info);
@@ -54,7 +54,7 @@ namespace BW.Games.API
         {
             string password = Guid.NewGuid().ToString("N").Substring(0, 8);
             string userName = register.ToString();
-            bool? success = this._post("user/register", new Dictionary<string, string>()
+            bool? success = this._post("user/register", new Dictionary<string, object>()
             {
                 {"UserName",userName },
                 {"Password",password }
@@ -73,7 +73,7 @@ namespace BW.Games.API
 
         #region ========  工具方法  ========
 
-        private bool? _post(string method, Dictionary<string, string> data, out JObject info)
+        private bool? _post(string method, Dictionary<string, object> data, out JObject info)
         {
             string url = $"{this.Gateway}/api/{method}";
             string result = NetAgent.UploadData(url, data.ToQueryString(), headers: new Dictionary<string, string>()

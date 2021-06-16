@@ -33,6 +33,17 @@ namespace BW.Common.Caching
         }
 
         /// <summary>
+        /// 获取登录数据
+        /// </summary>
+        /// <param name="sessionId"></param>
+        /// <returns></returns>
+        public string GetSession(string sessionId)
+        {
+            string key = $"{GAME_LOGIN}{sessionId}";
+            return this.NewExecutor().StringGet(key).GetRedisValue<string>();
+        }
+
+        /// <summary>
         /// 用户名与ID的对应关系
         /// </summary>
         private const string USER_NAME = "USER:NAME:";

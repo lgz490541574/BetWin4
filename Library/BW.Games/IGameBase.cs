@@ -2,7 +2,9 @@
 using BW.Gamess;
 using SP.StudioCore.Enums;
 using SP.StudioCore.Ioc;
+using SP.StudioCore.Json;
 using SP.StudioCore.Model;
+using System;
 using System.Collections.Generic;
 
 namespace BW.Games
@@ -23,6 +25,14 @@ namespace BW.Games
         protected void SaveLog(string url, string result, bool success, PostDataModel data)
         {
             this.GameDelegate?.SaveLog(this.Type, url, result, success, data);
+            if (!success)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine(result);
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(data.ToJson());
+                Console.ResetColor();
+            }
         }
 
         protected IGameBase(string queryString) : base(queryString)

@@ -1,0 +1,164 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <base href="https://studio.aviacdn.com/" />
+    <link rel="stylesheet" type="text/css" href="layadmin/css/layui.css" />
+    <link rel="stylesheet" type="text/css" href="js/jquery.json-viewer.css" />
+    <script src="js/jquery-1.10.2.js"></script>
+    <script src="layadmin/layui.js"></script>
+    <script src="js/jquery.json-viewer.js"></script>
+    <title>Demo @ BETWIN GAME API</title>
+</head>
+<body>
+    <div class="layui-collapse" style="margin: 10px auto; max-width: 1280px; ">
+        <div class="layui-colla-item">
+            <h2 class="layui-colla-title">密钥配置</h2>
+            <div class="layui-colla-content layui-show">
+                <form class="layui-form">
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">网关地址：</label>
+                        <div class="layui-input-block">
+                            <input type="text" id="gateway" class="layui-input" value="https://api.betwin2015.com" />
+                        </div>
+                    </div>
+                    <div class="layui-form-item">
+                        <label class="layui-form-label">商户号：</label>
+                        <div class="layui-input-inline" style="width:100px;">
+                            <input type="text" id="SiteID" class="layui-input" />
+                        </div>
+                        <label class="layui-form-label">密钥：</label>
+                        <div class="layui-input-inline" style="width:300px;">
+                            <input type="text" id="Authorization" class="layui-input" />
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="layui-colla-item">
+            <h2 class="layui-colla-title">注册</h2>
+            <div class="layui-colla-content">
+                <blockquote class="layui-elem-quote layui-quote-nm">地址：/v1/account/register </blockquote>
+                <form class="layui-form" action="/v1/account/register">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户名：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="UserName" placeholder="UserName" class="layui-input" />
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">密码：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="Password" placeholder="Password" class="layui-input" value="a123456" />
+                            </div>
+                        </div>
+                    </div>
+                    <pre class="layui-code">Json</pre>
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <div class="layui-colla-item">
+            <h2 class="layui-colla-title">登录</h2>
+            <div class="layui-colla-content">
+                <blockquote class="layui-elem-quote layui-quote-nm">地址：/v1/account/login </blockquote>
+                <form class="layui-form" action="/v1/account/login">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户名：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="UserName" placeholder="UserName" class="layui-input" />
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">游戏：</label>
+                            <div class="layui-input-inline">
+                                <select name="GameID">
+                                    <option value="1">AG</option>
+                                    <option value="2">泛亚电竞</option>
+                                    <option value="3">平博体育</option>
+                                    <option value="4">IM体育</option>
+                                    <option value="5">电竞牛</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <pre class="layui-code">Json</pre>
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="text/javascript">
+        //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
+        layui.use(['element', 'form'], function () {
+            var element = layui.element,
+                form = layui.form,
+                $ = layui.$;
+
+            var DEMO_GATEWAY = "DEMO_GATEWAY";
+            var DEMO_Authorization = "DEMO_Authorization";
+            var DEMO_SiteID = "DEMO_SiteID";
+
+            // 初始化赋值
+            !function () {
+                if (localStorage.getItem(DEMO_GATEWAY)) document.getElementById("gateway").value = localStorage.getItem(DEMO_GATEWAY);
+                document.getElementById("Authorization").value = localStorage.getItem(DEMO_Authorization) || "";
+                document.getElementById("SiteID").value = localStorage.getItem(DEMO_SiteID) || "";
+            }();
+
+
+            form.render();
+
+            form.on("submit(submit)", e => {
+
+                let gateway = document.getElementById("gateway").value,
+                    authorization = document.getElementById("Authorization").value,
+                    siteId = document.getElementById("SiteID").value,
+                    index = layer.load(2, { time: 3000 }),
+                    url = gateway + e.form.getAttribute("action");
+                data = {};
+
+                localStorage.setItem(DEMO_GATEWAY, gateway);
+                localStorage.setItem(DEMO_Authorization, authorization);
+                localStorage.setItem(DEMO_SiteID, siteId);
+
+                for (let key in e.field) {
+                    data[key] = e.field[key];
+                }
+
+                $.ajax({
+                    url: url,
+                    data: JSON.stringify(data),
+                    type: "post",
+                    headers: {
+                        "Authorization": "Basic " + window.btoa(siteId + ":" + authorization),
+                        "content-type": "application/json utf-8"
+                    },
+                    success: function (res) {
+                        layer.close(index);
+                        $(e.form).find("pre").jsonViewer(res)
+                    },
+                    error: function (xhr) {
+                        layer.alert(xhr.statusText, { icon: 2 });
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+</body>
+</html>

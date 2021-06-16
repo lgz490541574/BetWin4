@@ -59,7 +59,12 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Web.System", "WebSite\Web.S
 		SlnRelativePath = "WebSite\Web.System\"
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Web.System", "API\Web.System\Web.System.csproj", "{B4140E9F-AF35-429B-B3E7-517097D186AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Web.System", "API\Web.System\Web.System.csproj", "{B4140E9F-AF35-429B-B3E7-517097D186AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F74A475D-72C0-4F1E-9709-7D053986EDB6}"
+	ProjectSection(SolutionItems) = preProject
+		readME.md = readME.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

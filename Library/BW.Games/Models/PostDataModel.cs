@@ -11,21 +11,21 @@ namespace BW.Games.Models
     /// </summary>
     public struct PostDataModel
     {
-        public PostDataModel(Dictionary<string, string> data)
+        public PostDataModel(Dictionary<string, object> data)
         {
             this.Header = null;
             this.Original = null;
             this.Data = data;
         }
 
-        public PostDataModel(Dictionary<string, string> original, Dictionary<string, string> data)
+        public PostDataModel(Dictionary<string, object> original, Dictionary<string, object> data)
         {
             this.Header = null;
             this.Original = original;
             this.Data = data;
         }
 
-        public PostDataModel(Dictionary<string, string> header, Dictionary<string, string> original, Dictionary<string, string> data)
+        public PostDataModel(Dictionary<string, string> header, Dictionary<string, object> original, Dictionary<string, object> data)
         {
             this.Header = header;
             this.Original = original;
@@ -40,11 +40,11 @@ namespace BW.Games.Models
         /// <summary>
         /// 加密之前的数据(如果有的话）
         /// </summary>
-        public Dictionary<string, string> Original;
+        public Dictionary<string, object> Original;
 
         /// <summary>
         /// 加密之后的数据
         /// </summary>
-        public Dictionary<string, string> Data;
+        public Dictionary<string, object> Data;
     }
 }

@@ -22,9 +22,9 @@ namespace Web.System.Controller
         /// 获取游戏配置
         /// </summary>
         /// <returns></returns>
-        public ContentResult GetGameSetting([FromForm] GameType type, [FromForm] int id)
+        public ContentResult GetGameSetting([FromForm] GameType type, [FromForm] int? id)
         {
-            GameModel game = GameAgent.Instance().GetGameModel(id);
+            GameModel game = GameAgent.Instance().GetGameModel(id ?? 0);
             IGameBase setting = GameFactory.GetGame(type, game.Setting);
             return this.GetResultContent(setting.ToSettingObject());
         }

@@ -64,5 +64,8 @@ namespace BW.Games.Models
         MAINTENANCE,
         [Description("订单处理中")] 
         PROCCESSING,
+        [Description("订单失败")]
+        ORDER_FAILD,
+        BUSY
     }
 }

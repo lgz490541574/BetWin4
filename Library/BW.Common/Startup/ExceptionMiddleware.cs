@@ -40,7 +40,7 @@ namespace BW.Common.Startup
             }
             catch (APIResulteException ex)
             {
-                context.Response.StatusCode = 500;
+                context.Response.StatusCode = 200;
                 await context.Response.WriteAsync(ex.ToString());
             }
             catch (Exception ex)

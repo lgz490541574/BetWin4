@@ -1,0 +1,29 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Loading...</title>
+</head>
+<body>
+    <script type="text/javascript">
+        const session = "${SESSION}";
+        let form = document.createElement("form");
+        form.action = session.Url;
+        form.method = session.Method;
+        if (session.Data) {
+            for (let name in session.Data) {
+                let input = document.createElement("input");
+                input.type = "hidden";
+                input.name = name;
+                input.value = session.Data[name];
+                form.appendChild(input);
+            }
+            document.body.appendChild(form);
+            form.submit();
+        } else {
+            location.href = session.Url;
+        }
+    </script>
+</body>
+</html>

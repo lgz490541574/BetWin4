@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using SP.StudioCore.Http;
+using SP.StudioCore.Model;
+using SP.StudioCore.Types;
 using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
@@ -35,6 +37,14 @@ namespace Web.API.Filters
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             context.HttpContext.Request.EnableBuffering();
+            ControllerActionDescriptor method = context.ActionDescriptor as ControllerActionDescriptor;
+            bool isGuest = method.MethodInfo.HasAttribute<GuestAttribute>();
+            if (isGuest)
+            {
+                base.OnActionExecuting(context);
+                return;
+            }
+
             SiteToken token = new SiteToken(context.HttpContext);
             if (!token)
             {
@@ -52,7 +62,7 @@ namespace Web.API.Filters
             string ip = IPAgent.IP;
             if (!SiteCaching.Instance().IsWhiteIP(site.ID, ip))
             {
-                throw new APIResulteException(APIResultType.IP, "IP未授权");
+                throw new APIResulteException(APIResultType.IP, $"IP未授权 - {ip}");
             }
 
             if (site.Status != SiteStatus.Normal)
