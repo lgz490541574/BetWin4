@@ -48,26 +48,26 @@ namespace Web.API.Filters
             SiteToken token = new SiteToken(context.HttpContext);
             if (!token)
             {
-                throw new APIResulteException(APIResultType.Authorization, "密钥为空");
+                throw new APIResultException(APIResultType.Authorization, "密钥为空");
             }
 
             // 验证密钥是否正确
             SiteModel site = SiteInfoAgent.Instance().GetSiteModel(token.SiteID);
             if (!site || site.SecretKey != token.SecretKey)
             {
-                throw new APIResulteException(APIResultType.Authorization, "密钥错误");
+                throw new APIResultException(APIResultType.Authorization, "密钥错误");
             }
 
             // 检查白名单IP
             string ip = IPAgent.IP;
             if (!SiteCaching.Instance().IsWhiteIP(site.ID, ip))
             {
-                throw new APIResulteException(APIResultType.IP, $"IP未授权 - {ip}");
+                throw new APIResultException(APIResultType.IP, $"IP未授权 - {ip}");
             }
 
             if (site.Status != SiteStatus.Normal)
             {
-                throw new APIResulteException(APIResultType.STATUS, "商户已停止");
+                throw new APIResultException(APIResultType.STATUS, "商户已停止");
             }
 
             context.HttpContext.SetItem(site);

@@ -38,7 +38,7 @@ namespace BW.Common.Startup
             {
                 await ex.WriteAsync(context);
             }
-            catch (APIResulteException ex)
+            catch (APIResultException ex)
             {
                 context.Response.StatusCode = 200;
                 await context.Response.WriteAsync(ex.ToString());

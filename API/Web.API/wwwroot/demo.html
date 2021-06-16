@@ -80,13 +80,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">游戏：</label>
                             <div class="layui-input-inline">
-                                <select name="GameID">
-                                    <option value="1">AG</option>
-                                    <option value="2">泛亚电竞</option>
-                                    <option value="3">平博体育</option>
-                                    <option value="4">IM体育</option>
-                                    <option value="5">电竞牛</option>
-                                </select>
+                                <select name="GameID"></select>
                             </div>
                         </div>
                     </div>
@@ -105,9 +99,18 @@
     <script type="text/javascript">
         //注意：折叠面板 依赖 element 模块，否则无法进行功能性操作
         layui.use(['element', 'form'], function () {
-            var element = layui.element,
+            let element = layui.element,
                 form = layui.form,
-                $ = layui.$;
+                $ = layui.$,
+                game = [{ "ID": 1, "Name": "AG" }, { "ID": 2, "Name": "泛亚电竞" }, { "ID": 3, "Name": "平博体育" }, { "ID": 4, "Name": "IM体育" }, { "ID": 5, "Name": "电竞牛" }, { "ID": 6, "Name": "BBIN" }]
+
+            document.body.querySelectorAll("select[name='GameID']").forEach(t => {
+                game.forEach(op => {
+                    let option = new Option(op.Name, op.ID);
+                    t.options.add(option);
+                });
+            });
+
 
             var DEMO_GATEWAY = "DEMO_GATEWAY";
             var DEMO_Authorization = "DEMO_Authorization";

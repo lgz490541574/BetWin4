@@ -82,28 +82,27 @@ namespace BW.Games.API
 
         public override RegisterResult Register(RegisterRequest register)
         {
-            string userName = register.ToString();
             string password = "a123456";
             Dictionary<string, object> data = new()
             {
                 { "cagent", Agent },
-                { "loginname", userName },
+                { "loginname", register.UserName },
                 { "password", password },
                 { "actype", Actype.ToString() },//1:代表真钱账号，0：代表试玩账号
                 { "method", "lg" },
                 { "oddtype", "A" },  //盘口
                 { "cur", this.CurMoney }
             };
-            bool? success = this._request(data, out string msg, out Dictionary<string, string> result);
-            if (success.HasValue && success.Value) return new RegisterResult(userName, password);
-            return new RegisterResult(APIResultType.Faild);
+            APIResultType resultType = this.POST(data, out string msg, out Dictionary<string, string> result);
+            if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER) return new RegisterResult(register.UserName, password);
+            return new RegisterResult(resultType);
         }
 
 
 
         #region ========  工具方法  ========
 
-        private bool? _request(Dictionary<string, object> data, out string msg, out Dictionary<string, string> result)
+        private APIResultType POST(Dictionary<string, object> data, out string msg, out Dictionary<string, string> result)
         {
             string url = this.Gateway + "?";
             string apiParam = string.Join(@"/\\\\/", data.Select(t => string.Format("{0}={1}", t.Key, t.Value)));
@@ -120,24 +119,28 @@ namespace BW.Games.API
             {
                 { "User-Agent", $"WEB_LIB_GI_{ Agent }" }
             };
-            bool success = false;
             url = $"{url}{postData.ToQueryString()}";
+            APIResultType resultType = APIResultType.Faild;
             try
             {
                 returnXml = NetAgent.DownloadData(url, Encoding.UTF8, header);
                 XElement root = XElement.Parse(returnXml);
                 msg = root.GetAttributeValue("msg", string.Empty);
                 result.Add("info", root.GetAttributeValue("info", string.Empty));
-                return success = string.IsNullOrEmpty(msg);
+                if (string.IsNullOrEmpty(msg))
+                {
+                    return resultType = APIResultType.Success;
+                }
+                return resultType;
             }
             catch (Exception ex)
             {
                 msg = ex.Message;
-                return null;
+                return resultType;
             }
             finally
             {
-                this.SaveLog(url, returnXml, success, new PostDataModel(header, data, postData));
+                this.SaveLog(url, returnXml, resultType, new PostDataModel(header, data, postData));
             }
         }
 

@@ -20,6 +20,6 @@ namespace BW.Gamess
         /// <param name="result">返回内容</param>
         /// <param name="success">是否</param>
         /// <param name="data">发送的数据</param>
-        void SaveLog(GameType game, string url, string result, bool success, PostDataModel data);
+        void SaveLog(GameType game, string url, string result, APIResultType resultType, PostDataModel data);
     }
 }

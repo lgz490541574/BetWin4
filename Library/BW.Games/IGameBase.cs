@@ -22,10 +22,10 @@ namespace BW.Games
         /// <param name="postData">如果是POST请求，发送的内容</param>
         /// <param name="result">返回内容</param>
         /// <param name="success">是否成功</param>
-        protected void SaveLog(string url, string result, bool success, PostDataModel data)
+        protected void SaveLog(string url, string result, APIResultType resultType, PostDataModel data)
         {
-            this.GameDelegate?.SaveLog(this.Type, url, result, success, data);
-            if (!success)
+            this.GameDelegate?.SaveLog(this.Type, url, result, resultType, data);
+            if (resultType != APIResultType.Success)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(result);

@@ -2,6 +2,7 @@
 using BW.Games.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SP.StudioCore.Mvc.Exceptions;
 using SP.StudioCore.Net;
 using SP.StudioCore.Web;
 using System;
@@ -13,9 +14,10 @@ using System.Threading.Tasks;
 
 namespace BW.Games.API
 {
-    public class IMSport : IGameBase
+    public class IMOne : IGameBase
     {
         #region ========= 配置参数 ===========
+
 
         [Description("网关")]
         public string Gateway { get; set; }
@@ -43,9 +45,8 @@ namespace BW.Games.API
 
         #endregion
 
-        public IMSport(string queryString) : base(queryString)
+        public IMOne(string queryString) : base(queryString)
         {
-
         }
 
         public override LoginResult Login(LoginRequest login)
@@ -60,34 +61,38 @@ namespace BW.Games.API
                 { "ProductWallet", this.ProductWallet },
                 { "Http", 1 }
             };
-            string action = WebAgent.IsMobile() ? "/Game/NewLaunchMobileGame" : "/Game/NewLaunchGame";
 
-            APIResultType type = this.POST(action, postData, out JObject info);
-            if (type != APIResultType.Success) throw new APIResultException(type);
-            return new LoginResult(info["GameUrl"].Value<string>());
+            string action = WebAgent.IsMobile() ? "/Game/NewLaunchMobileGame" : "/Game/NewLaunchGame";
+            APIResultType result = this.POST(action, postData, out JObject info);
+            if (result == APIResultType.Success && info.ContainsKey("GameUrl"))
+            {
+                return new LoginResult(info["GameUrl"].Value<string>());
+            }
+            throw new APIResultException(result);
         }
 
         public override RegisterResult Register(RegisterRequest register)
         {
-            string password = Guid.NewGuid().ToString("N").Substring(0, 8).ToLower();
+            string password = Guid.NewGuid().ToString("N").Substring(0, 8);
             Dictionary<string, object> postData = new Dictionary<string, object>
             {
                 { "MerchantCode",this.MerchantCode },
                 { "PlayerId", register.UserName },
                 { "Currency", "CNY" },
-                { "Password", password },
+                { "Password",password },
                 { "Country", "CN" },
                 { "Sex", "M" },
-                { "BirthDate", "19840101" }
+                { "BirthDate", "19881208" }
             };
             APIResultType result = this.POST("/Player/Register", postData, out JObject info);
-
             if (result == APIResultType.Success || result == APIResultType.EXISTSUSER)
             {
                 return new RegisterResult(register.UserName, password);
             }
             throw new APIResultException(result);
         }
+
+        #region ========  工具方法  ========
 
         private APIResultType POST(string action, Dictionary<string, object> data, out JObject info)
         {
@@ -190,5 +195,7 @@ namespace BW.Games.API
                 _ => APIResultType.Faild
             };
         }
+
+        #endregion
     }
 }

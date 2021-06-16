@@ -27,6 +27,10 @@ namespace BW.Games.Models
         /// <summary>
         /// 电竞牛
         /// </summary>
-        IMOne = 5
+        IMOne = 5,
+        /// <summary>
+        /// 波音
+        /// </summary>
+        BBIN = 6
     }
 }

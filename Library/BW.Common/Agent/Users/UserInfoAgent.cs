@@ -46,11 +46,11 @@ namespace BW.Common.Agent.Users
         {
             if (!WebAgent.IsUserName(register.UserName, 2, 12))
             {
-                throw new APIResulteException(APIResultType.BADNAME);
+                throw new APIResultException(APIResultType.BADNAME);
             }
             if (register.Password.Length < 5 || register.Password.Length > 16)
             {
-                throw new APIResulteException(APIResultType.BADPASSWORD);
+                throw new APIResultException(APIResultType.BADPASSWORD);
             }
 
             string userName = register.UserName.ToLower();
@@ -58,7 +58,7 @@ namespace BW.Common.Agent.Users
             {
                 if (db.Exists<User>(t => t.SiteID == siteId && t.UserName == register.UserName))
                 {
-                    throw new APIResulteException(APIResultType.EXISTSUSER);
+                    throw new APIResultException(APIResultType.EXISTSUSER);
                 }
 
                 User user = new()

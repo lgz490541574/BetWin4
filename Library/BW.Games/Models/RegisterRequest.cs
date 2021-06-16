@@ -13,10 +13,10 @@ namespace BW.Games.Models
     {
         public RegisterRequest() { }
 
-        public RegisterRequest(string prefix, string userName) 
+        public RegisterRequest(string prefix, string userName)
         {
             this.Prefix = prefix;
-            this.UserName = userName;
+            this.UserName = string.Concat(this.Prefix, "_", userName);
         }
 
         /// <summary>
@@ -33,14 +33,5 @@ namespace BW.Games.Models
         /// 密码（会员注册的时候才需要赋值）
         /// </summary>
         public string Password { get; set; }
-
-        /// <summary>
-        /// 增加前缀的用户名
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return string.Concat(this.Prefix, "_", this.UserName);
-        }
     }
 }

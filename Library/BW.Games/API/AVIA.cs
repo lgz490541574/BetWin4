@@ -33,70 +33,68 @@ namespace BW.Games.API
 
         public override LoginResult Login(LoginRequest login)
         {
-            bool? success = this._post("user/login", new Dictionary<string, object>()
+            APIResultType resultType = this.POST("user/login", new Dictionary<string, object>()
              {
                  { "UserName",login.UserName }
              }, out JObject info);
-            if (success == null) throw new APIResulteException(APIResultType.Faild);
-
-            if (success.Value)
+            if (resultType == APIResultType.Success)
             {
-                string url = info["Url"].Value<string>();
-                return new LoginResult(url);
+                return new LoginResult(info["Url"].Value<string>());
             }
-
-            APIResultType errorCode = this.GetErrorCode(info["Error"].Value<string>());
-            throw new APIResulteException(errorCode);
-
+            throw new APIResultException(resultType);
         }
 
         public override RegisterResult Register(RegisterRequest register)
         {
             string password = Guid.NewGuid().ToString("N").Substring(0, 8);
-            string userName = register.ToString();
-            bool? success = this._post("user/register", new Dictionary<string, object>()
+            APIResultType resultType = this.POST("user/register", new Dictionary<string, object>()
             {
-                {"UserName",userName },
+                {"UserName",register.UserName },
                 {"Password",password }
-            }, out JObject info);
-            if (success == null) throw new APIResulteException(APIResultType.Faild);
-
-            if (success.Value) return new RegisterResult(userName, password);
-
-            APIResultType errorCode = this.GetErrorCode(info["Error"].Value<string>());
-            return errorCode switch
+            }, out JObject _);
+            if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER)
             {
-                APIResultType.EXISTSUSER => new RegisterResult(userName, password),
-                _ => throw new APIResulteException(errorCode)
-            };
+                return new RegisterResult(register.UserName, password);
+            }
+            throw new APIResultException(resultType);
         }
 
         #region ========  工具方法  ========
 
-        private bool? _post(string method, Dictionary<string, object> data, out JObject info)
+        private APIResultType POST(string method, Dictionary<string, object> data, out JObject info)
         {
             string url = $"{this.Gateway}/api/{method}";
-            string result = NetAgent.UploadData(url, data.ToQueryString(), headers: new Dictionary<string, string>()
-            {
-                { "Authorization",this.SecretKey }
-            });
-            bool? success = null;
+            string result = null;
+            APIResultType resultType = APIResultType.Faild;
             info = null;
             try
             {
+                result = NetAgent.UploadData(url, data.ToQueryString(), headers: new Dictionary<string, string>()
+                {
+                    { "Authorization",this.SecretKey }
+                });
                 JObject json = JObject.Parse(result);
-                success = json["success"].Value<int>() == 1;
-                if (json.ContainsKey("info")) info = (JObject)json["info"];
+                if (json["success"].Value<int>() == 1)
+                {
+                    if (json.ContainsKey("info")) info = (JObject)json["info"];
+                    resultType = APIResultType.Success;
+                }
+                else
+                {
+                    if (info.ContainsKey("info")) info = info["info"].Value<JObject>();
+                    if (info.ContainsKey("Error")) resultType = this.GetErrorCode(info["Error"].Value<string>());
+                }
+                return resultType;
             }
-            catch
+            catch (Exception ex)
             {
-                return null;
+                result += ex.Message;
+                return resultType;
             }
             finally
             {
-                this.SaveLog(url, result, success.HasValue && success.Value, new PostDataModel(data));
+                this.SaveLog(url, result, resultType, new PostDataModel(data));
             }
-            return success;
         }
 
         private APIResultType GetErrorCode(string code)

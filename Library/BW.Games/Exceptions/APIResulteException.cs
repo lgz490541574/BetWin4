@@ -9,7 +9,7 @@ using System.Web;
 
 namespace BW.Games.Exceptions
 {
-    public class APIResulteException : Exception
+    public class APIResultException : Exception
     {
         /// <summary>
         /// 异常枚举（用于标签化多语言配置）
@@ -20,7 +20,7 @@ namespace BW.Games.Exceptions
         /// 支持多语言的异常处理
         /// </summary>
         /// <param name="type">自定义异常枚举类型</param>
-        public APIResulteException(APIResultType type, string message = null) : base(message ?? type.GetDescription())
+        public APIResultException(APIResultType type, string message = null) : base(message ?? type.GetDescription())
         {
             Type = type;
         }

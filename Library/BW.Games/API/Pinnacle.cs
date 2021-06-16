@@ -55,7 +55,7 @@ namespace BW.Games.API
                 return new LoginResult(loginurl);
             }
 
-            throw new APIResulteException(result);
+            throw new APIResultException(result);
         }
 
         public override RegisterResult Register(RegisterRequest register)
@@ -65,7 +65,7 @@ namespace BW.Games.API
                 {"agentCode",this.AgentCode },
                 {"loginId",register.UserName }
             }, out JObject info);
-            if (info.ContainsKey("loginId"))
+            if (result == APIResultType.Success && info.ContainsKey("loginId"))
             {
                 return new RegisterResult(register.UserName, string.Empty);
             }
@@ -82,22 +82,22 @@ namespace BW.Games.API
                 {"token",token }
             };
             string result = null;
-            APIResultType status = APIResultType.Faild;
+            APIResultType resultType = APIResultType.Faild;
             try
             {
                 result = NetAgent.DownloadData(url, Encoding.UTF8, header);
                 info = JObject.Parse(result);
-                return APIResultType.Success;
+                return resultType = APIResultType.Success;
             }
             catch (Exception ex)
             {
                 info = null;
                 result += ex.Message;
-                return status;
+                return resultType;
             }
             finally
             {
-                this.SaveLog(url, result, status == APIResultType.Success, new PostDataModel
+                this.SaveLog(url, result, resultType , new PostDataModel
                 {
                     Data = data,
                     Header = header

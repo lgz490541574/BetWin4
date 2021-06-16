@@ -36,10 +36,10 @@ namespace BW.Common.Agent.Games
         {
             //#1 找到用户ID
             int userId = UserInfoAgent.Instance().GetUserID(siteId, userName);
-            if (userId == 0) throw new APIResulteException(APIResultType.NOUSER);
+            if (userId == 0) throw new APIResultException(APIResultType.NOUSER);
 
             IGameBase game = GameUtils.GetGame(gameId);
-            if (game == null) throw new APIResulteException(APIResultType.MAINTENANCE);
+            if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             //#1 找出用户在这个游戏里面的用户信息
             GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(gameId, siteId, userId);
@@ -58,7 +58,7 @@ namespace BW.Common.Agent.Games
             });
 
             // 如果登录失败
-            if (result.Code != APIResultType.Success) { throw new APIResulteException(result.Code); }
+            if (result.Code != APIResultType.Success) { throw new APIResultException(result.Code); }
 
             string url = ConfigAgent.Instance().GetSystemConfig(ConfigType.LoginUrl);
             return url.Replace("${ID}", UserCaching.Instance().SaveSessionID(result));
@@ -75,7 +75,7 @@ namespace BW.Common.Agent.Games
         public GameUserModel GameRegister(int siteId, int userId, int gameId)
         {
             IGameBase game = GameUtils.GetGame(gameId);
-            if (game == null) throw new APIResulteException(APIResultType.MAINTENANCE);
+            if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             SiteModel site = SiteCaching.Instance().GetSiteInfo(siteId);
 
@@ -83,7 +83,7 @@ namespace BW.Common.Agent.Games
 
             RegisterResult result = game.Register(new RegisterRequest(site.Prefix, user.UserName));
 
-            if (!result) throw new APIResulteException(result.Code);
+            if (!result) throw new APIResultException(result.Code);
 
             // 写入数据库
             using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
