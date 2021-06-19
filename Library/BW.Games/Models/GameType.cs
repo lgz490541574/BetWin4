@@ -31,6 +31,10 @@ namespace BW.Games.Models
         /// <summary>
         /// 波音
         /// </summary>
-        BBIN = 6
+        BBIN = 6,
+        /// <summary>
+        /// 小金188
+        /// </summary>
+        XJ188
     }
 }
