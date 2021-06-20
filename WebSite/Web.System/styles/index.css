@@ -29,7 +29,7 @@ div.layui-layer-admin .layui-layer-content { padding: 0px; }
 .layui-text-green { color: #5FB878; }
 .layui-text-red { color: #FF5722; }
 .layui-text-warm { color: #FFB800; }
-.layui-text-ft10{font-size: 10px; -webkit-transform: scale(0.8); }
+.layui-text-ft10 { font-size: 10px; -webkit-transform: scale(0.8); }
 .layui-input[readonly] { background-color: rgba(33,33,33,.01); }
 div.layui-input > label { line-height: 38px; }
 
@@ -58,156 +58,20 @@ fieldset ~ .layui-form-item { margin-top: 10px; }
     .layui-layer-admin.diag .diag-tab > .layui-tab-content { overflow: auto; padding: 0px; position: absolute; left: 0px; top: 50px; bottom: 0px; right: 0px; }
         .layui-layer-admin.diag .diag-tab > .layui-tab-content::after { content: " "; display: block; visibility: hidden; height: 64px; }
 .layui-layer-page.layui-layer-admin.diag .layui-layer-content { overflow: hidden; }
+.layui-layer-page.layui-layer-admin.diag .toolbar { padding: 0px 0px; }
+.layui-layer-admin.diag.diag .diag-toolbar a { border-radius: 12px 12px 0px 0px; transition: all .5s; text-align: center; display: inline-block; width: 64px; font-size: 12px; color: #fff; white-space: nowrap; padding: 0px 13px; }
+    .layui-layer-admin.diag.diag .diag-toolbar a::before { font-size: 26px; display: block; padding-top: 2px; }
+    .layui-layer-admin.diag.diag .diag-toolbar a.layui-this { background-color: #fff; }
+.layui-layer-admin.diag.diag .diag-content { overflow: auto; }
 
+/* 商户资料 */
+.layui-layer-admin.diag.site .layui-layer-title,
+.layui-layer-admin.diag.site .diag-toolbar { background-color: rgb(3,155,229); }
+    .layui-layer-admin.diag.site .diag-toolbar a.layui-this { color: rgb(3,155,229); }
 
-/* 赛事信息查看 */
-.layui-layer-admin.diag.match .layui-layer-title,
-.layui-layer-admin.diag.match .diag-tab > .layui-tab-title { background-color: #009688 !important; }
-.layui-layer-admin.diag.match .layui-tab-brief > .layui-tab-title .layui-this { color: #009688; }
-.layui-layer-admin.diag.match .layui-tab.body-tab .layui-tab-title { background-color: #fbfbfb !important; height: 40px !important; }
-    .layui-layer-admin.diag.match .layui-tab.body-tab .layui-tab-title li { height: 40px !important; line-height: 40px; }
-        .layui-layer-admin.diag.match .layui-tab.body-tab .layui-tab-title li.layui-this { background-color: #d2d2d2; }
-
-
-/* 比赛管理 */
-.diag-match-result .bet-item { border-bottom: 1px solid rgba(0,0,0,.2); line-height: 32px; min-width: 120px; float: left; text-align: center; margin: 5px 5px; box-shadow: 0px 0px 2px rgba(0,0,0,.5); border-radius: 4px; }
-    .diag-match-result .bet-item .bottom-line { border-bottom: 1px solid #ccc; padding: 0px 5px; }
-    .diag-match-result .bet-item .drag-handle { padding: 0px 4px; cursor: move; }
-    .diag-match-result .bet-item .odds { border-top: 1px solid #ccc; }
-    .diag-match-result .bet-item .odds-edit { width: 60px; float: left; border: 1px solid transparent; border-right-color: #ccc; text-align: center; height: 32px; line-height: 32px; background-color: transparent; }
-        .diag-match-result .bet-item .odds-edit:focus { background-color: #f0f0f0; color: #000; border: 1px solid #2F4056; border-radius: 0px 0px 4px 4px; }
-    .diag-match-result .bet-item .odds-control { text-align: center; width: 60px; }
-        .diag-match-result .bet-item .odds-control a { display: inline-block; line-height: 24px; font-size: 14px; color: #ccc; margin: auto 3px; }
-            .diag-match-result .bet-item .odds-control a.am-icon-eye.on { color: #009688; }
-            .diag-match-result .bet-item .odds-control a.am-icon-lock.on { color: #FF5722; }
-
-
-/* 状态提交的订单效果 */
-.ui-status-loading { background-image: url(../studio/layadmin/css/modules/layer/default/loading-2.gif); background-repeat: no-repeat; background-position: center center; }
-    .ui-status-loading > * { visibility: hidden; }
 
 /* 投注类型选择 */
 select.betinfo-itemtype { height: 22px; border: 1px solid #ccc; border-radius: 2px; text-shadow: 0px 0px 1px #ccc; width: 50px; }
-
-/* 操盘页面 */
-.layui-tab.body-tab { position: relative; }
-    .layui-tab.body-tab .round-action { position: absolute; right: 10px; top: 5px; }
-
-.trade-bet { font-size: 12px; margin: 5px; position: relative; }
-    .trade-bet[data-loading]::after { position: absolute; left: 0px; top: 0px; right: 0px; bottom: 0px; background-color: rgba(0,0,0,.2); content: "赔率变更中..."; text-align: center; color: #fff; text-shadow: 1px 1px 0px #000; line-height: 140px; }
-    .trade-bet .title { display: block; position: relative; height: 32px; line-height: 32px; padding: 0px 5px; box-shadow: 0px 1px 1px rgba(0,0,0,.1); }
-        .trade-bet .title .layui-form-switch { margin-top: 0px; }
-    .trade-bet .bet { width: 60px; vertical-align: top; }
-        .trade-bet .bet .action { text-align: center; }
-            .trade-bet .bet .action a { width: 24px; height: 32px; line-height: 32px; font-size: 16px; color: #999; }
-                .trade-bet .bet .action a.on { color: red; text-shadow: 1px 1px 0px #999; }
-        .trade-bet .bet input { width: 100%; text-align: center; vertical-align: top; border: none; border-bottom: 1px solid #ccc; height: 24px; }
-    .trade-bet table { border-collapse: collapse; }
-        .trade-bet table td { border: 1px solid #ccc; }
-        .trade-bet table h3 { padding: 0px 2px; white-space: nowrap; position: relative; }
-            .trade-bet table h3 button { position: absolute; right: 2px; top: 0px; width: 24px; height: 24px; color: #999; }
-                .trade-bet table h3 button.on { background-color: #5FB878; color: #fff; }
-        .trade-bet table .item { width: 160px; }
-        .trade-bet table .odds { position: relative; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc; }
-            .trade-bet table .odds input.num { height: 32px; text-align: center; border: none; width: 100%; font-size: 14px; font-family: cursive; }
-                .trade-bet table .odds input.num::-webkit-inner-spin-button { width: 32px; height: 32px; visibility: visible; display: block; }
-            .trade-bet table .odds .action { height: 32px; width: 24px; position: absolute; right: 0px; top: 0px; }
-                .trade-bet table .odds .action input { display: block; width: 100%; height: 16px; }
-        .trade-bet table .report { font-size: 12px; }
-            .trade-bet table .report > p { position: relative; text-align: right; padding-right: 2px; }
-                .trade-bet table .report > p:nth-child(1)::after { content: " "; position: absolute; right: 0px; top: 0px; bottom: 0px; width: 1px; background-color: #ccc; }
-                .trade-bet table .report > p:nth-child(2)::after { content: " "; position: absolute; right: 0px; left: 0px; bottom: 0px; height: 1px; background-color: #ccc; }
-                .trade-bet table .report > p:nth-child(3)::after { content: " "; position: absolute; right: 0px; left: 0px; top: -1px; height: 1px; background-color: #ccc; }
-                .trade-bet table .report > p:nth-child(4)::after { content: " "; position: absolute; left: -1px; top: 0px; bottom: 0px; width: 1px; background-color: #ccc; }
-            .trade-bet table .report p::before { position: absolute; text-indent: 0px; left: 2px; color: #ccc; }
-            .trade-bet table .report p[data-type='pay']::before { content: "赔"; }
-            .trade-bet table .report p[data-type='bet']::before { content: "投"; }
-            .trade-bet table .report p[data-type='reward']::before { content: "派"; }
-            .trade-bet table .report p[data-type='odds']::before { content: "赔率"; }
-            .trade-bet table .report p.hide::before { display: none; }
-            .trade-bet table .report p[data-action='red'] { color: #FF5722; }
-            .trade-bet table .report p[data-action='green'] { color: #5FB878; }
-
-
-.layui-layer-admin.diag.match .match-trade > .trade-order { right: 18px; top: 110px; }
-
-
-/* 游戏选择器 */
-select.game-selector ~ .layui-form-select dd[lay-value='2'] { background-image: url('https://img-cdn.a8.to/upload/201907/29044158e070.png'); background-repeat: no-repeat; background-position: 4px center; background-size: 18px; padding-left: 26px; }
-
-
-.market-result-item { box-shadow: 0px 0px 2px #000; }
-    .market-result-item > * { padding: 4px; }
-
-
-/* layim 自定义样式 */
-.layui-layim-chat-min { top: 0px !important; }
-.layui-input[disabled] { background-color: #f5f5f5; }
-
-/* 多语种输入控件 */
-.layui-form-item.MoreLanguage { display: none; }
-.layui-form.translate-all .layui-form-item.MoreLanguage { display: block; }
-.layui-form.translate-all .layui-form-item .am-icon-angle-double-down { transform: rotate(180deg); }
-
-/* 战队选择控件 */
-.team-item { display: inline-block; width: 80px; height: 104px; margin: 5px; border: 1px solid #ccc; border-radius: 6px; text-align: center; position: relative; }
-    .team-item em { display: block; height: 80px; background: no-repeat center center; background-size: contain; }
-    .team-item label { display: block; font-size: 12px; line-height: 24px; font-size: 12px; height: 24px; overflow: hidden; }
-    .team-item:hover { background-color: #01AAED; }
-        .team-item:hover label { color: #fff; }
-    .team-item .delete { display: none; width: 12px; height: 12px; position: absolute; border-radius: 50%; line-height: 12px; color: #FF5722; right: -6px; top: -6px; content: "X" }
-
-.layui-input-block .team-item { width: 60px; height: 60px; float: left; }
-    .layui-input-block .team-item em { height: 60px; }
-    .layui-input-block .team-item label { position: absolute; left: 0px; right: 0px; bottom: 0px; }
-    .layui-input-block .team-item .delete { display: block; }
-
-/* 游戏选择控件 */
-.game-item { display: inline-block; width: 80px; height: 104px; margin: 5px; border: 1px solid #ccc; border-radius: 6px; text-align: center; position: relative; }
-    .game-item em { display: block; height: 80px; background: no-repeat center center; background-size: contain; }
-    .game-item label { display: block; font-size: 12px; line-height: 24px; font-size: 12px; height: 24px; overflow: hidden; }
-    .game-item:hover { background-color: #01AAED; }
-        .game-item:hover label { color: #fff; }
-    .game-item .delete { display: none; width: 12px; height: 12px; position: absolute; border-radius: 50%; line-height: 12px; color: #FF5722; right: -6px; top: -6px; content: "X" }
-
-.layui-input-block .game-item { width: 60px; height: 60px; float: left; }
-    .layui-input-block .game-item em { height: 60px; }
-    .layui-input-block .game-item label { position: absolute; left: 0px; right: 0px; bottom: 0px; }
-    .layui-input-block .game-item .delete { display: block; }
-
-/* 联赛选择控件 */
-.league-item { display: inline-block; width: 80px; height: 104px; margin: 5px; border: 1px solid #ccc; border-radius: 6px; text-align: center; position: relative; }
-    .league-item em { display: block; height: 80px; background: no-repeat center center; background-size: contain; }
-    .league-item label { display: block; font-size: 12px; line-height: 24px; font-size: 12px; height: 24px; overflow: hidden; }
-    .league-item:hover { background-color: #01AAED; }
-        .league-item:hover label { color: #fff; }
-    .league-item .delete { display: none; width: 12px; height: 12px; position: absolute; border-radius: 50%; line-height: 12px; color: #FF5722; right: -6px; top: -6px; content: "X" }
-
-.layui-input-block .league-item { width: 60px; height: 60px; float: left; }
-    .layui-input-block .league-item em { height: 60px; }
-    .layui-input-block .league-item label { position: absolute; left: 0px; right: 0px; bottom: 0px; }
-    .layui-input-block .league-item .delete { display: block; }
-
-/* 添加按钮 */
-.team-item.am-icon-plus { font-size: 26px; color: #ccc; }
-
-/* 弹出框链接 */
-.utils-match { color: #01AAED; border-radius: 4px; }
-    .utils-match:hover { background-color: #01AAED; color: #fff; }
-
-/* 竞猜项目 */
-.diag-match-bet-item { background-color: #fff; float: left; width: 120px; text-align: center; font-size: 12px; border: 1px solid #ccc; border-radius: 4px; margin: 0px 4px 4px 0px; position: relative; }
-    .diag-match-bet-item h3 { border-radius: 4px 4px 0px 0px; font-size: 12px; }
-    .diag-match-bet-item input { display: block; width: 64px; height: 24px; line-height: 24px; font-size: 12px; text-align: center; border: none; border-radius: 0px 0px 4px 4px; }
-    .diag-match-bet-item .layui-btn-group { right: 0px; bottom: -2px; left: 64px; position: absolute; }
-    .diag-match-bet-item .diag-match-bet-resultstatus select[lay-ignore] { display: block !important; width: 100%; padding: 5px; border: none; border-radius: 0px 0px 4px 4px; }
-.layui-btn-group .layui-badge { transition: all .25s; }
-    .layui-btn-group .layui-badge.lock { background-color: #FF5722 !important; color: #fff !important; }
-    .layui-btn-group .layui-badge.visible { background-color: #1E9FFF !important; color: #fff !important; }
-
-/* 游戏选择 使用图标 */
-select[name='GameID'] ~ .layui-form-select dl dd { background-repeat: no-repeat; background-position: 2px center; background-size: 16px 16px; text-indent: 12px; }
-.layui-layer-admin.diag.anchor .match-trade > .trade-order { right: 18px; top: 105px; }
 
 .layui-form .select { display: block; width: 100%; height: 40px; padding: 0px 5px; border: 1px solid #ddd; border-radius: 2px; }
 .layui-form-sm .select { height: 30px; padding: 0px; }
@@ -221,4 +85,4 @@ select[name='GameID'] ~ .layui-form-select dl dd { background-repeat: no-repeat;
     .layui-btn[close] .am-icon-times { position: absolute; width: 16px; height: 16px; right: 0px; top: 0px; line-height: 16px; transform: translate(50%,-50%); background-color: #FF5722; border-radius: 50%; }
 
 /*权限显示*/
-.permission[lay-permission]{display: none;}
+.permission[lay-permission] { display: none; }

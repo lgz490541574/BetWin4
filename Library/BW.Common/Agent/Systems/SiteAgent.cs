@@ -66,5 +66,37 @@ namespace BW.Common.Agent.Systems
 
             return true;
         }
+
+        /// <summary>
+        /// 读取商户信息
+        /// </summary>
+        public Site GetSiteInfo(int siteId)
+        {
+            return this.ReadDB.ReadInfo<Site>(t => t.ID == siteId);
+        }
+
+        /// <summary>
+        /// 更新白名单
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="whiteIP"></param>
+        public string[] UpdateWhiteIP(int siteId, string whiteIP)
+        {
+            this.WriteDB.Update<Site, string>(t => t.WhiteIP, whiteIP, t => t.ID == siteId);
+            return SiteCaching.Instance().SaveWhiteIP(siteId, whiteIP.Split(','));
+        }
+
+        /// <summary>
+        /// 更新密钥（随机)
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <returns></returns>
+        public Guid UpdateSecretKey(int siteId)
+        {
+            Guid secretKey = Guid.NewGuid();
+            this.WriteDB.Update<Site, Guid>(t => t.SecretKey, secretKey, t => t.ID == siteId);
+            SiteCaching.Instance().SaveSecretKey(siteId, secretKey);
+            return secretKey;
+        }
     }
 }

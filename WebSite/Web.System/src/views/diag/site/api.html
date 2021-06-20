@@ -1,0 +1,48 @@
+﻿<div class="layui-card">
+    <div class="layui-card-body">
+        <script type="text/html" template lay-url="site/GetAPIInfo" lay-type="post" lay-data="{{ Utils.getParams(d) }}" lay-done="BW.callback['diag-site-api'](d)">
+            <form action="site/SaveAPIInfo" class="layui-form" lay-filter="diag-site-api" id="diag-site-api">
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密钥：</label>
+                    <div class="layui-input-inline w300">
+                        <input type="text" name="SecretKey" class="layui-input" readonly value="{{ d.info.SecretKey }}" />
+                    </div>
+                    <div class="layui-input-inline">
+                        <input type="checkbox" name="NewSecretKey" title="更新密钥" value="true" />
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <label class="layui-form-label">密钥：</label>
+                    <div class="layui-input-block">
+                        <textarea class="layui-textarea" name="WhiteIP" placeholder="白名单IP">{{  d.info.WhiteIP.join(",") }}</textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <input type="hidden" name="SiteID" value="{{ d.info.SiteID }}" />
+                    <button class="layui-btn layui-btn-block am-icon-save" lay-submit lay-filter="diag-site-api-submit"> 保存</button>
+                </div>
+            </form>
+        </script>
+    </div>
+</div>
+<script type="text/javascript">
+    BW.callback["diag-site-api"] = result => {
+        delete BW.callback["diag-site-api"];
+
+        layui.use(["betwin", "form"], () => {
+            let betwin = layui.betwin,
+                form = layui.form,
+                formObj = document.getElementById("diag-site-api"),
+                formElem = formObj.getFormElements();
+
+            form.render(null, "diag-site-api");
+
+            betwin.form.submit("diag-site-api-submit", null, {
+                success: res => {
+                    if (res.info.SecretKey) formElem["SecretKey"].value = res.info.SecretKey;
+                    return false;
+                }
+            });
+        });
+    }
+</script>

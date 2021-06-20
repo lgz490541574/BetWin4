@@ -23,7 +23,7 @@
             url: "site/GetSiteList",
             cols: [[
                 { title: "ID", field: "ID", width: 100 },
-                { title: "商户名", field: "Name", width: 150 },
+                { title: "商户名", templet: d => htmlFunction.site(d.ID, d.Name), width: 150 },
                 { title: "创建时间", width: 130, templet: d => htmlFunction.datetime(d.CreateAt) },
                 { title: "状态", width: 100, templet: d => d.Status },
                 { title: "密钥", field: "SecretKey" }

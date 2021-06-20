@@ -100,6 +100,44 @@ if (!window["UI"]) window["UI"] = new Object();
         }
     };
 
+    // 商户工具
+    ns["site"] = {
+        // 打开商户管理
+        "open": siteId => {
+            layui.betwin.admin.open({
+                action: "diag/site/index",
+                area: "md",
+                title: "商户管理",
+                skin: "diag site",
+                data: {
+                    SiteID: siteId
+                },
+                done: function (res) {
+                    let t = this,
+                        checked = null,
+                        container = t.container[0],
+                        toolbarObj = container.querySelector(".diag-toolbar"),
+                        contentObj = container.querySelector(".diag-content");
+
+                    contentObj.id = "diag-site-" + new Date().getTime();
+                    contentObj.style.height = (container.offsetHeight - toolbarObj.offsetHeight) + "px";
+
+                    t.container.on("click", ".diag-toolbar [data-tab]", e => {
+                        let link = e.target,
+                            url = "diag/site/" + link.getAttribute("data-tab");
+                        if (checked) checked.classList.remove("layui-this");
+                        link.classList.add("layui-this");
+                        checked = link;
+                        layui.view(contentObj.id ).render(url, {
+                            SiteID: siteId
+                        });
+                    });
+                    container.querySelector(".diag-toolbar [data-tab]").click();
+                }
+            })
+        }
+    };
+
 
 }(Utils);
 
@@ -161,6 +199,11 @@ if (!BW.callback) BW.callback = new Object();
 
         return icon.map(t => "<i class=\"" + t + "\"></i>").join(" ");
     };
+
+    ns["site"] = (siteId, siteName) => {
+        if (!siteName) siteName = siteId;
+        return "<a class=\"diag-link site\" href=\"javascript:Utils.site.open(" + siteId + ");\">" + siteName + "<a>";
+    }
 
 })(htmlFunction);
 

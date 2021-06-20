@@ -1191,8 +1191,14 @@
                 title: options.title,
                 content: "正在加载...",
                 area: GolbalSetting.area[options.area],
+                skin: options.skin,
                 success: function () {
-                    view(this.id).render(options.action, options.data);
+                    view(this.id).render(options.action, options.data).done(function (res) {
+                        if (options.done) {
+                            let t = this;
+                            options.done.apply(t, [res]);
+                        }
+                    });
                 }
             });
         },

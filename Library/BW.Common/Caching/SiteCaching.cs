@@ -45,7 +45,7 @@ namespace BW.Common.Caching
         /// </summary>
         private const string SITE_WHITE = "SITE:WHITE:";
 
-        public void SaveWhiteIP(int siteId, IEnumerable<string> iplist)
+        public string[] SaveWhiteIP(int siteId, IEnumerable<string> iplist)
         {
             IBatch batch = this.NewExecutor().CreateBatch();
             string key = $"{SITE_WHITE}{siteId}";
@@ -55,11 +55,23 @@ namespace BW.Common.Caching
                 batch.SetAddAsync(key, ip.GetRedisValue());
             }
             batch.Execute();
+            return iplist.ToArray();
         }
 
         public bool IsWhiteIP(int siteId, string ip)
         {
             return this.NewExecutor().SetContains($"{SITE_WHITE}{siteId}", ip);
+        }
+
+        /// <summary>
+        /// 更新商户密钥
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="secretKey"></param>
+        internal void SaveSecretKey(int siteId, Guid secretKey)
+        {
+            string key = $"{SITE_INFO}{siteId}";
+            this.NewExecutor().HashSet(key, "SecretKey", secretKey.GetRedisValue());
         }
     }
 }
