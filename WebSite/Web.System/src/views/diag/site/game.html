@@ -1,0 +1,74 @@
+﻿<div class="layui-card">
+    <div class="layui-card-body">
+        <table id="diag-site-game" lay-filter="diag-site-game"></table>
+    </div>
+</div>
+
+<script type="text/javascript">
+    layui.use(["betwin", "table", "form"], () => {
+        let betwin = layui.betwin,
+            table = layui.table,
+            form = layui.form,
+            tableObj = document.getElementById("diag-site-game"),
+            siteId = tableObj.getParent("diag-content").getAttribute("data-siteid");
+
+        betwin.admin.req({
+            url: "game/GetGameList",
+            success: res => {
+                let gamelist = res.info.list;
+                betwin.admin.req({
+                    url: "site/GetGameList",
+                    data: { SiteID: siteId },
+                    success: res => {
+                        gamelist.forEach(t => {
+                            let game = res.info.find(p => t.ID === p.GameID);
+                            if (game) {
+                                t.Status = game.Status;
+                                t.Rate = game.Rate;
+                                t.Credit = game.Credit;
+                            }
+                        });
+
+                        table.render({
+                            elem: tableObj,
+                            data: gamelist,
+                            page: false,
+                            cols: [[
+                                { title: "游戏", templet: d => d.Type },
+                                { title: "点位", field: "Rate", edit: true },
+                                { title: "额度", templet: d => d.Credit || 0 },
+                                { title: "状态", templet: d => "<input type=\"checkbox\" data-siteid=\"" + siteId + "\" data-gameid=\"" + d.ID + "\" " + (d.Status === "Normal" && "checked" || "") + " lay-filter=\"diag-site-game-status\" title=\"开放\" />" }
+                            ]]
+                        });
+                    }
+                });
+            }
+        });
+
+        table.on("edit(diag-site-game)", e => {
+            let data = e.data;
+            betwin.admin.req({
+                url: "site/UpdateGameRate",
+                data: {
+                    SiteID: siteId,
+                    GameID: data.ID,
+                    Rate: e.value
+                }
+            });
+        });
+
+        form.on("checkbox(diag-site-game-status)", e => {
+            let data = {
+                SiteID: e.elem.getAttribute("data-siteid"),
+                GameID: e.elem.getAttribute("data-gameid"),
+                Status: e.elem.checked ? "Normal" : "Stop"
+            };
+            betwin.admin.req({
+                url: "site/UpdateGameStatus",
+                data: data
+            });
+        });
+
+
+    });
+</script>

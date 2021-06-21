@@ -36,10 +36,10 @@ namespace BW.Games.API
             APIResultType resultType = this.POST("user/login", new Dictionary<string, object>()
              {
                  { "UserName",login.UserName }
-             }, out JObject info);
+             }, out object info);
             if (resultType == APIResultType.Success)
             {
-                return new LoginResult(info["Url"].Value<string>());
+                return new LoginResult(((JObject)info)["Url"].Value<string>());
             }
             throw new APIResultException(resultType);
         }
@@ -51,7 +51,7 @@ namespace BW.Games.API
             {
                 {"UserName",register.UserName },
                 {"Password",password }
-            }, out JObject _);
+            }, out _);
             if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER)
             {
                 return new RegisterResult(register.UserName, password);
@@ -59,43 +59,29 @@ namespace BW.Games.API
             throw new APIResultException(resultType);
         }
 
-        #region ========  工具方法  ========
-
-        private APIResultType POST(string method, Dictionary<string, object> data, out JObject info)
+        /// <summary>
+        /// 转入资金
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns></returns>
+        public override TransferResult Recharge(TransferRequest transfer)
         {
-            string url = $"{this.Gateway}/api/{method}";
-            string result = null;
-            APIResultType resultType = APIResultType.Faild;
-            info = null;
-            try
+            APIResultType type = this.POST("user/transfer", new Dictionary<string, object>()
             {
-                result = NetAgent.UploadData(url, data.ToQueryString(), headers: new Dictionary<string, string>()
-                {
-                    { "Authorization",this.SecretKey }
-                });
-                JObject json = JObject.Parse(result);
-                if (json["success"].Value<int>() == 1)
-                {
-                    if (json.ContainsKey("info")) info = (JObject)json["info"];
-                    resultType = APIResultType.Success;
-                }
-                else
-                {
-                    if (info.ContainsKey("info")) info = info["info"].Value<JObject>();
-                    if (info.ContainsKey("Error")) resultType = this.GetErrorCode(info["Error"].Value<string>());
-                }
-                return resultType;
-            }
-            catch (Exception ex)
+                {"UserName",transfer.UserName },
+                {"Type","IN" },
+                {"Money",transfer.Money },
+                {"ID",transfer.OrderID }
+            }, out object info);
+
+            if (type == APIResultType.Success)
             {
-                result += ex.Message;
-                return resultType;
+                return new TransferResult(((JObject)info)["OrderID"].Value<string>());
             }
-            finally
-            {
-                this.SaveLog(url, result, resultType, new PostDataModel(data));
-            }
+            return new TransferResult(type);
         }
+
+        #region ========  工具方法  ========
 
         private APIResultType GetErrorCode(string code)
         {
@@ -127,6 +113,32 @@ namespace BW.Games.API
                 "PROCCESSING" => APIResultType.PROCCESSING,
                 _ => APIResultType.Faild
             };
+        }
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
+        {
+            PostResult result = new()
+            {
+                Url = $"{this.Gateway}/api/{method}",
+                Data = data,
+                Header = new()
+                {
+                    { "Authorization", this.SecretKey }
+                }
+            };
+            result.Result = NetAgent.UploadData(result.Url, result.Data.ToQueryString(), headers: result.Header);
+            JObject info = JObject.Parse(result.Result);
+            if (info["success"].Value<int>() == 1)
+            {
+                if (info.ContainsKey("info")) result.Info = (JObject)info["info"];
+                result.Code = APIResultType.Success;
+            }
+            else
+            {
+                if (info.ContainsKey("info")) result.Info = info = info["info"].Value<JObject>();
+                if (info.ContainsKey("Error")) result.Code = this.GetErrorCode(info["Error"].Value<string>());
+            }
+            return result;
         }
 
         #endregion

@@ -1,6 +1,10 @@
-﻿using BW.Common.Agent.Systems;
+﻿using BW.Common.Agent.Sites;
+using BW.Common.Agent.Systems;
 using BW.Common.Entities.Sites;
+using BW.Common.Models.Enums;
+using BW.Common.Models.Sites;
 using Microsoft.AspNetCore.Mvc;
+using SP.StudioCore.Json;
 using SP.StudioCore.Mvc.Exceptions;
 using System;
 using System.Collections.Generic;
@@ -68,6 +72,55 @@ namespace Web.System.Controller
                 SecretKey = secretKey?.ToString("N"),
                 WhiteIP = SiteAgent.Instance().UpdateWhiteIP(siteId, whiteIP)
             });
+        }
+
+        public ContentResult GetGameList([FromForm] int siteId)
+            => this.GetResultContent(SiteGameAgent.Instance().GetSiteGame(siteId));
+
+        /// <summary>
+        /// 更新游戏点位
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="rate"></param>
+        /// <returns></returns>
+        public ContentResult UpdateGameRate([FromForm] int siteId, [FromForm] int gameId, [FromForm] decimal rate)
+        {
+            SiteGameModel model = SiteGameAgent.Instance().GetSiteGameModel(siteId, gameId);
+            if (!model)
+            {
+                model = new SiteGameModel
+                {
+                    SiteID = siteId,
+                    GameID = gameId,
+                    Rate = rate
+                };
+            }
+            else
+            {
+                model.Rate = rate;
+            }
+
+            return this.GetResultContent(SiteGameAgent.Instance().SaveSiteGame(model).ToJson());
+        }
+
+        public ContentResult UpdateGameStatus([FromForm] int siteId, [FromForm] int gameId, [FromForm] SiteGameStatus status)
+        {
+            SiteGameModel model = SiteGameAgent.Instance().GetSiteGameModel(siteId, gameId);
+            if (!model)
+            {
+                model = new SiteGameModel
+                {
+                    SiteID = siteId,
+                    GameID = gameId,
+                    Status = status
+                };
+            }
+            else
+            {
+                model.Status = status;
+            }
+
+            return this.GetResultContent(SiteGameAgent.Instance().SaveSiteGame(model).ToJson());
         }
     }
 }

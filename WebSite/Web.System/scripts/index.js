@@ -120,6 +120,7 @@ if (!window["UI"]) window["UI"] = new Object();
                         contentObj = container.querySelector(".diag-content");
 
                     contentObj.id = "diag-site-" + new Date().getTime();
+                    contentObj.setAttribute("data-siteid", siteId);
                     contentObj.style.height = (container.offsetHeight - toolbarObj.offsetHeight) + "px";
 
                     t.container.on("click", ".diag-toolbar [data-tab]", e => {
@@ -128,7 +129,7 @@ if (!window["UI"]) window["UI"] = new Object();
                         if (checked) checked.classList.remove("layui-this");
                         link.classList.add("layui-this");
                         checked = link;
-                        layui.view(contentObj.id ).render(url, {
+                        layui.view(contentObj.id).render(url, {
                             SiteID: siteId
                         });
                     });

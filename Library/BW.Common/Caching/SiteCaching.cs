@@ -16,6 +16,9 @@ namespace BW.Common.Caching
     {
         protected override int DB_INDEX => RedisIndex.SITE;
 
+        #region ========  商户资料  ========
+
+
         private const string SITE_INFO = "SITE:INFO:";
 
         /// <summary>
@@ -38,6 +41,19 @@ namespace BW.Common.Caching
         {
             return this.NewExecutor().HashGetAll($"{SITE_INFO}{siteId}");
         }
+
+        /// <summary>
+        /// 更新商户密钥
+        /// </summary>
+        internal void SaveSecretKey(int siteId, Guid secretKey)
+        {
+            string key = $"{SITE_INFO}{siteId}";
+            this.NewExecutor().HashSet(key, "SecretKey", secretKey.GetRedisValue());
+        }
+
+        #endregion
+
+        #region ========  白名单  ========
 
 
         /// <summary>
@@ -63,15 +79,25 @@ namespace BW.Common.Caching
             return this.NewExecutor().SetContains($"{SITE_WHITE}{siteId}", ip);
         }
 
-        /// <summary>
-        /// 更新商户密钥
-        /// </summary>
-        /// <param name="siteId"></param>
-        /// <param name="secretKey"></param>
-        internal void SaveSecretKey(int siteId, Guid secretKey)
+        #endregion
+
+
+        #region ========  商户游戏  ========
+
+        private const string SITE_GAME = "SITE:GAME:";
+
+        public SiteGameModel SaveSiteGame(SiteGameModel model)
         {
-            string key = $"{SITE_INFO}{siteId}";
-            this.NewExecutor().HashSet(key, "SecretKey", secretKey.GetRedisValue());
+            this.NewExecutor().HashSet($"{SITE_GAME}{model.SiteID}", model.GameID, model);
+            return model;
         }
+
+        public SiteGameModel GetSiteGame(int siteId, int gameId)
+        {
+            return this.NewExecutor().HashGet($"{SITE_GAME}{siteId}", gameId);
+        }
+
+        #endregion
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using BW.Games.Models;
+using Newtonsoft.Json.Linq;
 using SP.StudioCore.Array;
 using SP.StudioCore.Net;
 using SP.StudioCore.Security;
@@ -48,21 +49,82 @@ namespace BW.Games.API
 
         #endregion
 
+        #region ========  工具方法  ========
+
+        private string _desEncrypt(string str, string key)
+        {
+            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
+            byte[] inputByteArray = Encoding.UTF8.GetBytes(str);
+            des.Key = Encoding.ASCII.GetBytes(key);
+            des.IV = Encoding.ASCII.GetBytes(key);
+            using (MemoryStream ms = new MemoryStream())
+            {
+                CryptoStream cs = new CryptoStream(ms, des.CreateEncryptor(), CryptoStreamMode.Write);
+                cs.Write(inputByteArray, 0, inputByteArray.Length);
+                cs.FlushFinalBlock();
+                StringBuilder ret = new StringBuilder();
+                byte[] array = ms.ToArray();
+                for (int i = 0; i < array.Length; i++)
+                {
+                    byte b = array[i];
+                    ret.AppendFormat("{0:X2}", b);
+                }
+                ret.ToString();
+                return ret.ToString();
+            }
+        }
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
+        {
+            string apiParam = string.Join(@"/\\\\/", data.Select(t => string.Format("{0}={1}", t.Key, t.Value)));
+            apiParam = this._desEncrypt(apiParam, KEY);
+            string key = Encryption.toMD5(apiParam + this.Md5Key).ToLower();
+
+            PostResult result = new()
+            {
+                Data = new()
+                {
+                    { "params", apiParam },
+                    { "key", key }
+                },
+                Header = new()
+                {
+                    { "User-Agent", $"WEB_LIB_GI_{ Agent }" }
+                },
+                Original = data
+            };
+            result.Url = $"{ this.Gateway }?{ result.Data.ToQueryString() }";
+            result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
+            XElement root = XElement.Parse(result.Result);
+
+            if (string.IsNullOrEmpty(root.GetAttributeValue("msg", string.Empty)))
+            {
+                result.Code = APIResultType.Success;
+            }
+            else
+            {
+                result.Code = APIResultType.Faild;
+            }
+            return result;
+        }
+
+        #endregion
+
         public AG(string queryString) : base(queryString)
         {
         }
 
         public override LoginResult Login(LoginRequest login)
         {
-            Dictionary<string, string> data = new()
+            Dictionary<string, object> data = new()
             {
                 { "cagent", this.Agent },
                 { "loginname", login.UserName },
                 { "password", login.Password },
                 { "dm", "NO_RETURN" },
                 { "sid", $"{this.Agent}{DateTime.Now:yyyyMMddHHmmss}{ WebAgent.GetRandom(1000, 9999) }" },
-                { "actype", this.Actype.ToString() },
-                { "lang", "1" },
+                { "actype", 1 },
+                { "lang", 1 },
                 { "oddtype", "A" },
                 { "cur", this.CurMoney }
             };
@@ -93,81 +155,17 @@ namespace BW.Games.API
                 { "oddtype", "A" },  //盘口
                 { "cur", this.CurMoney }
             };
-            APIResultType resultType = this.POST(data, out string msg, out Dictionary<string, string> result);
+            APIResultType resultType = this.POST(null, data, out _);
             if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER) return new RegisterResult(register.UserName, password);
             return new RegisterResult(resultType);
         }
 
-
-
-        #region ========  工具方法  ========
-
-        private APIResultType POST(Dictionary<string, object> data, out string msg, out Dictionary<string, string> result)
+        public override TransferResult Recharge(TransferRequest transfer)
         {
-            string url = this.Gateway + "?";
-            string apiParam = string.Join(@"/\\\\/", data.Select(t => string.Format("{0}={1}", t.Key, t.Value)));
-            apiParam = this._desEncrypt(apiParam, KEY);
-            string key = Encryption.toMD5(apiParam + this.Md5Key).ToLower();
-            Dictionary<string, object> postData = new()
-            {
-                { "params", apiParam },
-                { "key", key }
-            };
-            string returnXml = null;
-            result = new Dictionary<string, string>();
-            Dictionary<string, string> header = new()
-            {
-                { "User-Agent", $"WEB_LIB_GI_{ Agent }" }
-            };
-            url = $"{url}{postData.ToQueryString()}";
-            APIResultType resultType = APIResultType.Faild;
-            try
-            {
-                returnXml = NetAgent.DownloadData(url, Encoding.UTF8, header);
-                XElement root = XElement.Parse(returnXml);
-                msg = root.GetAttributeValue("msg", string.Empty);
-                result.Add("info", root.GetAttributeValue("info", string.Empty));
-                if (string.IsNullOrEmpty(msg))
-                {
-                    return resultType = APIResultType.Success;
-                }
-                return resultType;
-            }
-            catch (Exception ex)
-            {
-                msg = ex.Message;
-                return resultType;
-            }
-            finally
-            {
-                this.SaveLog(url, returnXml, resultType, new PostDataModel(header, data, postData));
-            }
-        }
-
-        private string _desEncrypt(string str, string key)
-        {
-            DESCryptoServiceProvider des = new DESCryptoServiceProvider();
-            byte[] inputByteArray = Encoding.UTF8.GetBytes(str);
-            des.Key = Encoding.ASCII.GetBytes(key);
-            des.IV = Encoding.ASCII.GetBytes(key);
-            using (MemoryStream ms = new MemoryStream())
-            {
-                CryptoStream cs = new CryptoStream(ms, des.CreateEncryptor(), CryptoStreamMode.Write);
-                cs.Write(inputByteArray, 0, inputByteArray.Length);
-                cs.FlushFinalBlock();
-                StringBuilder ret = new StringBuilder();
-                byte[] array = ms.ToArray();
-                for (int i = 0; i < array.Length; i++)
-                {
-                    byte b = array[i];
-                    ret.AppendFormat("{0:X2}", b);
-                }
-                ret.ToString();
-                return ret.ToString();
-            }
+            throw new NotImplementedException();
         }
 
 
-        #endregion
+
     }
 }

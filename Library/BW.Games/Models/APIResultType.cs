@@ -66,6 +66,7 @@ namespace BW.Games.Models
         PROCCESSING,
         [Description("订单失败")]
         ORDER_FAILD,
-        BUSY
+        BUSY,
+        Exception
     }
 }

@@ -45,87 +45,26 @@ namespace BW.Games.API
 
         #endregion
 
-        public IMOne(string queryString) : base(queryString)
-        {
-        }
-
-        public override LoginResult Login(LoginRequest login)
-        {
-            Dictionary<string, object> postData = new Dictionary<string, object>
-            {
-                { "MerchantCode",this.MerchantCode },
-                { "PlayerId", login.UserName },
-                { "GameCode", this.GameCode },
-                { "Language", "ZH-CN" },
-                { "IpAddress", IPAgent.IP },
-                { "ProductWallet", this.ProductWallet },
-                { "Http", 1 }
-            };
-
-            string action = WebAgent.IsMobile() ? "/Game/NewLaunchMobileGame" : "/Game/NewLaunchGame";
-            APIResultType result = this.POST(action, postData, out JObject info);
-            if (result == APIResultType.Success && info.ContainsKey("GameUrl"))
-            {
-                return new LoginResult(info["GameUrl"].Value<string>());
-            }
-            throw new APIResultException(result);
-        }
-
-        public override RegisterResult Register(RegisterRequest register)
-        {
-            string password = Guid.NewGuid().ToString("N").Substring(0, 8);
-            Dictionary<string, object> postData = new Dictionary<string, object>
-            {
-                { "MerchantCode",this.MerchantCode },
-                { "PlayerId", register.UserName },
-                { "Currency", "CNY" },
-                { "Password",password },
-                { "Country", "CN" },
-                { "Sex", "M" },
-                { "BirthDate", "19881208" }
-            };
-            APIResultType result = this.POST("/Player/Register", postData, out JObject info);
-            if (result == APIResultType.Success || result == APIResultType.EXISTSUSER)
-            {
-                return new RegisterResult(register.UserName, password);
-            }
-            throw new APIResultException(result);
-        }
-
         #region ========  工具方法  ========
 
-        private APIResultType POST(string action, Dictionary<string, object> data, out JObject info)
+        internal override PostResult POST(string method, Dictionary<string, object> data)
         {
-            info = null;
-            string url = $"{this.Gateway}{action}";
-
-            string result = null;
-            APIResultType resultType = APIResultType.Faild;
-            string dataJson = JsonConvert.SerializeObject(data);
-
-            try
+            PostResult result = new()
             {
-                result = NetAgent.UploadData(url, dataJson, Encoding.UTF8, headers: new Dictionary<string, string>()
+                Url = $"{this.Gateway}/{method}",
+                Data = data,
+                Header = new Dictionary<string, string>()
                 {
                     {"Content-Type", "application/json" }
-                });
-                info = JObject.Parse(result);
-                int state = info["Code"].Value<int>();
-                return resultType = this.GetResultType(state);
-            }
-            catch (Exception ex)
-            {
-                result += ex.Message;
-                return APIResultType.Faild;
-            }
-            finally
-            {
-                this.SaveLog(url, result, resultType, new PostDataModel
-                {
-                    Data = data
-                });
-            }
+                }
+            };
+            JObject info;
+            result.Result = NetAgent.UploadData(result.Url, JsonConvert.SerializeObject(result.Data), Encoding.UTF8, headers: result.Header);
+            result.Info = info = JObject.Parse(result.Result);
+            result.Code = this.GetResultType(info["Code"].Value<int>());
+            return result;
         }
+
 
         private APIResultType GetResultType(int state)
         {
@@ -197,5 +136,60 @@ namespace BW.Games.API
         }
 
         #endregion
+
+        public IMOne(string queryString) : base(queryString)
+        {
+        }
+
+        public override LoginResult Login(LoginRequest login)
+        {
+            Dictionary<string, object> postData = new Dictionary<string, object>
+            {
+                { "MerchantCode",this.MerchantCode },
+                { "PlayerId", login.UserName },
+                { "GameCode", this.GameCode },
+                { "Language", "ZH-CN" },
+                { "IpAddress", IPAgent.IP },
+                { "ProductWallet", this.ProductWallet },
+                { "Http", 1 }
+            };
+
+            string action = WebAgent.IsMobile() ? "Game/NewLaunchMobileGame" : "Game/NewLaunchGame";
+            APIResultType result = this.POST(action, postData, out object info);
+
+            if (result == APIResultType.Success && ((JObject)info).ContainsKey("GameUrl"))
+            {
+                return new LoginResult(((JObject)info)["GameUrl"].Value<string>());
+            }
+            throw new APIResultException(result);
+        }
+
+        public override RegisterResult Register(RegisterRequest register)
+        {
+            string password = Guid.NewGuid().ToString("N").Substring(0, 8);
+            Dictionary<string, object> postData = new Dictionary<string, object>
+            {
+                { "MerchantCode",this.MerchantCode },
+                { "PlayerId", register.UserName },
+                { "Currency", "CNY" },
+                { "Password",password },
+                { "Country", "CN" },
+                { "Sex", "M" },
+                { "BirthDate", "19881208" }
+            };
+            APIResultType result = this.POST("Player/Register", postData, out _);
+            if (result == APIResultType.Success || result == APIResultType.EXISTSUSER)
+            {
+                return new RegisterResult(register.UserName, password);
+            }
+            throw new APIResultException(result);
+        }
+
+        public override TransferResult Recharge(TransferRequest transfer)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

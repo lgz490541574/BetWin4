@@ -1,5 +1,6 @@
 ﻿using BW.Games.Models;
 using BW.Gamess;
+using Newtonsoft.Json.Linq;
 using SP.StudioCore.Enums;
 using SP.StudioCore.Ioc;
 using SP.StudioCore.Json;
@@ -53,5 +54,37 @@ namespace BW.Games
         /// <param name="register"></param>
         /// <returns></returns>
         public abstract RegisterResult Register(RegisterRequest register);
+
+        /// <summary>
+        ///  转入资金
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns></returns>
+        public abstract TransferResult Recharge(TransferRequest transfer);
+
+
+        internal abstract PostResult POST(string method, Dictionary<string, object> data);
+
+
+        protected APIResultType POST(string method, Dictionary<string, object> data, out object info)
+        {
+            PostResult result = null;
+            info = null;
+            try
+            {
+                result = this.POST(method, data);
+                info = result.Info;
+            }
+            catch (Exception ex)
+            {
+                result.Ex = ex;
+                result.Code = APIResultType.Exception;
+            }
+            finally
+            {
+                this.SaveLog(result.Url, result.GetResult(), result.Code, result);
+            }
+            return result.Code;
+        }
     }
 }

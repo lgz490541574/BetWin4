@@ -20,6 +20,8 @@ namespace BW.Games.API
     /// </summary>
     public sealed class Pinnacle : IGameBase
     {
+        #region ========  字段  ========
+
         [Description("网关")]
         public string Gateway { get; set; } = "https://api.ps3838.com/b2b/";
 
@@ -35,75 +37,28 @@ namespace BW.Games.API
         [Description("密钥")]
         public string SecretKey { get; set; }
 
+        #endregion
 
-        public Pinnacle(string queryString) : base(queryString)
+        #region ========  工具方法  ========
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
         {
-        }
-
-        public override LoginResult Login(LoginRequest login)
-        {
-            APIResultType result = this.POST("/player/login", new Dictionary<string, object>()
-            {
-                { "userCode",login.UserName },
-                { "locale","zh-cn" },
-                { "oddsFormat","EU" }
-            }, out JObject info);
-
-            if (info.ContainsKey("loginUrl"))
-            {
-                string loginurl = info["loginUrl"].Value<string>().Replace("http://", "https://");
-                return new LoginResult(loginurl);
-            }
-
-            throw new APIResultException(result);
-        }
-
-        public override RegisterResult Register(RegisterRequest register)
-        {
-            APIResultType result = this.POST("/player/create", new Dictionary<string, object>()
-            {
-                {"agentCode",this.AgentCode },
-                {"loginId",register.UserName }
-            }, out JObject info);
-            if (result == APIResultType.Success && info.ContainsKey("loginId"))
-            {
-                return new RegisterResult(register.UserName, string.Empty);
-            }
-            return new RegisterResult(result);
-        }
-
-        private APIResultType POST(string method, Dictionary<string, object> data, out JObject info)
-        {
-            string url = $"{this.Gateway}{method}?{data.ToQueryString()}";
             string token = this.generateToken();
-            Dictionary<string, string> header = new Dictionary<string, string>()
+            PostResult result = new()
             {
-                {"userCode",this.AgentCode },
-                {"token",token }
-            };
-            string result = null;
-            APIResultType resultType = APIResultType.Faild;
-            try
-            {
-                result = NetAgent.DownloadData(url, Encoding.UTF8, header);
-                info = JObject.Parse(result);
-                return resultType = APIResultType.Success;
-            }
-            catch (Exception ex)
-            {
-                info = null;
-                result += ex.Message;
-                return resultType;
-            }
-            finally
-            {
-                this.SaveLog(url, result, resultType , new PostDataModel
+                Url = $"{this.Gateway}{method}?{data.ToQueryString()}",
+                Data = data,
+                Header = new()
                 {
-                    Data = data,
-                    Header = header
-                });
-            }
-
+                    { "userCode", this.AgentCode },
+                    { "token", token }
+                }
+            };
+            result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
+            JObject info = JObject.Parse(result.Result);
+            result.Info = info;
+            result.Code = APIResultType.Success;
+            return result;
         }
 
         /// <summary>
@@ -135,6 +90,50 @@ namespace BW.Games.API
             csp.Key = key;
             if (encrypting) { return csp.CreateEncryptor(); }
             return csp.CreateDecryptor();
+        }
+
+
+        #endregion
+
+        public Pinnacle(string queryString) : base(queryString)
+        {
+        }
+
+        public override LoginResult Login(LoginRequest login)
+        {
+            APIResultType result = this.POST("/player/login", new Dictionary<string, object>()
+            {
+                { "userCode",login.UserName },
+                { "locale","zh-cn" },
+                { "oddsFormat","EU" }
+            }, out object info);
+
+            if (((JObject)info).ContainsKey("loginUrl"))
+            {
+                string loginurl = ((JObject)info)["loginUrl"].Value<string>().Replace("http://", "https://");
+                return new LoginResult(loginurl);
+            }
+
+            throw new APIResultException(result);
+        }
+
+        public override RegisterResult Register(RegisterRequest register)
+        {
+            APIResultType result = this.POST("/player/create", new Dictionary<string, object>()
+            {
+                {"agentCode",this.AgentCode },
+                {"loginId",register.UserName }
+            }, out object info);
+            if (result == APIResultType.Success && ((JObject)info).ContainsKey("loginId"))
+            {
+                return new RegisterResult(register.UserName, string.Empty);
+            }
+            return new RegisterResult(result);
+        }
+
+        public override TransferResult Recharge(TransferRequest transfer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -110,6 +110,65 @@ namespace BW.Games.API
 
         #endregion
 
+        #region ========  工具方法  ========
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
+        {
+            data.Add("website", this.WebSite);
+            data.Add("uppername", this.UpperName);
+
+            PostResult result = new()
+            {
+                Url = $"{this.Gateway}/{method}?{data.ToQueryString()}",
+                Data = data
+            };
+            if (method.StartsWith("http"))
+            {
+                result.Url = $"{method}?{data.ToQueryString()}";
+            }
+            result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8);
+            JObject info;
+            result.Info = info = JObject.Parse(result.Result);
+            if (info["result"].Value<bool>())
+            {
+                result.Code = APIResultType.Success;
+            }
+            else
+            {
+                if (info.ContainsKey("data"))
+                {
+                    info = info["data"].Value<JObject>();
+                    result.Code = GetErrorCode(info["Code"].Value<int>());
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// 获取密钥
+        /// </summary>
+        private string GetKey(int aLength, string value, Func<BBIN, string> key, int cLength)
+        {
+            string timesTamp = DateTime.Now.AddHours(-12).ToString("yyyyMMdd");
+            string keyA = Guid.NewGuid().ToString("N").Substring(0, aLength);
+            string keyC = Guid.NewGuid().ToString("N").Substring(0, cLength);
+            string valueB = this.WebSite + value + key(this) + timesTamp;
+            string keyB = Encryption.toMD5(valueB).ToLower();
+            return string.Concat(keyA, keyB, keyC);
+        }
+
+        private APIResultType GetErrorCode(int code)
+        {
+            return code switch
+            {
+                47005 => APIResultType.BADNAME,
+                44900 => APIResultType.IP,
+                _ => APIResultType.Faild
+            };
+        }
+
+        #endregion
+
         public BBIN(string queryString) : base(queryString)
         {
         }
@@ -141,7 +200,7 @@ namespace BW.Games.API
                 { "password", password },
                 { "key", this.GetKey(7, userName, t => t.KEYCreateMember, 1) }
             };
-            APIResultType resultType = this.POST("CreateMember", data, out JObject info);
+            APIResultType resultType = this.POST("CreateMember", data, out object info);
             if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER)
             {
                 return new RegisterResult(userName, password);
@@ -149,68 +208,10 @@ namespace BW.Games.API
             throw new APIResultException(resultType);
         }
 
-
-        /// <summary>
-        /// 通用的提交事件（自动添加 website、uppername）参数
-        /// </summary>
-        private APIResultType POST(string method, Dictionary<string, object> data, out JObject info)
+        public override TransferResult Recharge(TransferRequest transfer)
         {
-            data.Add("website", this.WebSite);
-            data.Add("uppername", this.UpperName);
-            string url = $"{this.Gateway}/{method}?{data.ToQueryString()}";
-            if (method.StartsWith("http"))
-            {
-                url = $"{method}?{data.ToQueryString()}";
-            }
-            string result = NetAgent.DownloadData(url, Encoding.UTF8);
-            APIResultType resultType = APIResultType.Faild;
-            info = null;
-            try
-            {
-                info = JObject.Parse(result);
-                if (info["result"].Value<bool>()) return resultType = APIResultType.Success;
-                if (info.ContainsKey("data"))
-                {
-                    info = info["data"].Value<JObject>();
-                    resultType = GetErrorCode(info["Code"].Value<int>());
-                }
-                return resultType;
-            }
-            catch (Exception ex)
-            {
-                result += ex.Message;
-                return resultType;
-            }
-            finally
-            {
-                this.SaveLog(url, result, resultType, new PostDataModel
-                {
-                    Data = data
-                });
-            }
+            throw new NotImplementedException();
         }
 
-        /// <summary>
-        /// 获取密钥
-        /// </summary>
-        private string GetKey(int aLength, string value, Func<BBIN, string> key, int cLength)
-        {
-            string timesTamp = DateTime.Now.AddHours(-12).ToString("yyyyMMdd");
-            string keyA = Guid.NewGuid().ToString("N").Substring(0, aLength);
-            string keyC = Guid.NewGuid().ToString("N").Substring(0, cLength);
-            string valueB = this.WebSite + value + key(this) + timesTamp;
-            string keyB = Encryption.toMD5(valueB).ToLower();
-            return string.Concat(keyA, keyB, keyC);
-        }
-
-        private APIResultType GetErrorCode(int code)
-        {
-            return code switch
-            {
-                47005 => APIResultType.BADNAME,
-                44900 => APIResultType.IP,
-                _ => APIResultType.Faild
-            };
-        }
     }
 }

@@ -47,69 +47,23 @@ namespace BW.Games.API
 
         #endregion
 
-        public XJ188(string queryString) : base(queryString)
-        {
-        }
-
-        public override LoginResult Login(LoginRequest login)
-        {
-            Dictionary<string, object> data = new Dictionary<string, object>()
-            {
-                { "memberCode", login.UserName },
-                { "channel",WebAgent.IsMobile() ? 11 : 10 }
-            };
-            APIResultType resultType = this.POST("/API/Launch", data, out JObject info);
-            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
-
-            string url = info["data"].Value<string>();
-            return new LoginResult($"{LoginUrl}/launcher?XJlaunchURL={ HttpUtility.UrlEncode(url.Replace("http://", "https://")) }");
-        }
-
-        public override RegisterResult Register(RegisterRequest register)
-        {
-            Dictionary<string, object> data = new Dictionary<string, object>()
-                {
-                    { "memberCode", register.UserName },
-                    { "currencyCode", this.Currency },
-                    { "oddsType", "1"}
-                };
-            APIResultType resultType = this.POST("/API/Registration", data, out JObject info);
-            if(resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER)
-            {
-                return new RegisterResult(register.UserName, register.Password);
-            }
-            throw new APIResultException(resultType);
-        }
-
         #region ========  工具方法  ========
+               
 
-
-        private APIResultType POST(string method, Dictionary<string, object> data, out JObject info)
+        internal override PostResult POST(string method, Dictionary<string, object> data)
         {
-            APIResultType resultType = APIResultType.Faild;
-            string result = string.Empty;
-            string url = $"{this.Gateway}{method}";
-            info = null;
-            try
+            if (!data.ContainsKey("operatorId")) data.Add("operatorId", OperatorID);
+            if (!data.ContainsKey("vendorId")) data.Add("vendorId", System.Web.HttpUtility.UrlEncode(VendoID));
+            PostResult result = new()
             {
-                if (!data.ContainsKey("operatorId")) data.Add("operatorId", OperatorID);
-                if (!data.ContainsKey("vendorId")) data.Add("vendorId", System.Web.HttpUtility.UrlEncode(VendoID));
-                result = NetAgent.UploadData(url, data.ToQueryString(), Encoding.UTF8);
-                info = JObject.Parse(result);
-                resultType = this.GetResultType(info["code"].Value<string>());
-            }
-            catch (Exception ex)
-            {
-                return resultType = APIResultType.Faild;
-            }
-            finally
-            {
-                this.SaveLog(url, result, resultType, new PostDataModel
-                {
-                    Data = data
-                });
-            }
-            return resultType;
+                Url = $"{this.Gateway}/{method}",
+                Data = data
+            };
+            result.Result = NetAgent.UploadData(result.Url, result.Data.ToQueryString(), Encoding.UTF8);
+            JObject info = JObject.Parse(result.Result);
+            result.Info = info;
+            result.Code = this.GetResultType(info["code"].Value<string>());
+            return result;
         }
 
         private APIResultType GetResultType(string code)
@@ -143,7 +97,45 @@ namespace BW.Games.API
             };
         }
 
-
         #endregion
+
+        public XJ188(string queryString) : base(queryString)
+        {
+        }
+
+        public override LoginResult Login(LoginRequest login)
+        {
+            Dictionary<string, object> data = new Dictionary<string, object>()
+            {
+                { "memberCode", login.UserName },
+                { "channel",WebAgent.IsMobile() ? 11 : 10 }
+            };
+            APIResultType resultType = this.POST("/API/Launch", data, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            string url = ((JObject)info)["data"].Value<string>();
+            return new LoginResult($"{LoginUrl}/launcher?XJlaunchURL={ HttpUtility.UrlEncode(url.Replace("http://", "https://")) }");
+        }
+
+        public override RegisterResult Register(RegisterRequest register)
+        {
+            Dictionary<string, object> data = new Dictionary<string, object>()
+                {
+                    { "memberCode", register.UserName },
+                    { "currencyCode", this.Currency },
+                    { "oddsType", "1"}
+                };
+            APIResultType resultType = this.POST("/API/Registration", data, out object info);
+            if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER)
+            {
+                return new RegisterResult(register.UserName, register.Password);
+            }
+            throw new APIResultException(resultType);
+        }
+
+        public override TransferResult Recharge(TransferRequest transfer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

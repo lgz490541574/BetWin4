@@ -43,6 +43,29 @@ namespace BW.Games.API
 
         #endregion
 
+        #region ========  工具方法  ========
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
+        {
+            PostResult result = new()
+            {
+                Url = $"{this.Gateway}/{method}",
+                Data = data,
+                Header = new()
+                {
+                    { "Content-Type", "application/json" }
+                }
+            };
+
+            result.Result = NetAgent.UploadData(result.Url, JsonConvert.SerializeObject(result.Data), Encoding.UTF8, headers: result.Header);
+            JObject info;
+            result.Info = info = JObject.Parse(result.Result);
+            result.Code = this.GetResultType(info["Code"].Value<int>());
+            return result;
+        }
+
+        #endregion
+
         public IMSport(string queryString) : base(queryString)
         {
 
@@ -60,17 +83,17 @@ namespace BW.Games.API
                 { "ProductWallet", this.ProductWallet },
                 { "Http", 1 }
             };
-            string action = WebAgent.IsMobile() ? "/Game/NewLaunchMobileGame" : "/Game/NewLaunchGame";
+            string action = WebAgent.IsMobile() ? "Game/NewLaunchMobileGame" : "Game/NewLaunchGame";
 
-            APIResultType type = this.POST(action, postData, out JObject info);
+            APIResultType type = this.POST(action, postData, out object info);
             if (type != APIResultType.Success) throw new APIResultException(type);
-            return new LoginResult(info["GameUrl"].Value<string>());
+            return new LoginResult(((JObject)info)["GameUrl"].Value<string>());
         }
 
         public override RegisterResult Register(RegisterRequest register)
         {
             string password = Guid.NewGuid().ToString("N").Substring(0, 8).ToLower();
-            Dictionary<string, object> postData = new Dictionary<string, object>
+            Dictionary<string, object> postData = new()
             {
                 { "MerchantCode",this.MerchantCode },
                 { "PlayerId", register.UserName },
@@ -80,7 +103,7 @@ namespace BW.Games.API
                 { "Sex", "M" },
                 { "BirthDate", "19840101" }
             };
-            APIResultType result = this.POST("/Player/Register", postData, out JObject info);
+            APIResultType result = this.POST("/Player/Register", postData, out _);
 
             if (result == APIResultType.Success || result == APIResultType.EXISTSUSER)
             {
@@ -89,38 +112,7 @@ namespace BW.Games.API
             throw new APIResultException(result);
         }
 
-        private APIResultType POST(string action, Dictionary<string, object> data, out JObject info)
-        {
-            info = null;
-            string url = $"{this.Gateway}{action}";
 
-            string result = null;
-            APIResultType resultType = APIResultType.Faild;
-            string dataJson = JsonConvert.SerializeObject(data);
-
-            try
-            {
-                result = NetAgent.UploadData(url, dataJson, Encoding.UTF8, headers: new Dictionary<string, string>()
-                {
-                    {"Content-Type", "application/json" }
-                });
-                info = JObject.Parse(result);
-                int state = info["Code"].Value<int>();
-                return resultType = this.GetResultType(state);
-            }
-            catch (Exception ex)
-            {
-                result += ex.Message;
-                return APIResultType.Faild;
-            }
-            finally
-            {
-                this.SaveLog(url, result, resultType, new PostDataModel
-                {
-                    Data = data
-                });
-            }
-        }
 
         private APIResultType GetResultType(int state)
         {
@@ -189,6 +181,11 @@ namespace BW.Games.API
                 999 => APIResultType.Faild,
                 _ => APIResultType.Faild
             };
+        }
+
+        public override TransferResult Recharge(TransferRequest transfer)
+        {
+            throw new NotImplementedException();
         }
     }
 }
