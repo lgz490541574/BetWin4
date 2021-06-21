@@ -1,4 +1,5 @@
-﻿using BW.Games.Models;
+﻿using BW.Games.Exceptions;
+using BW.Games.Models;
 using Newtonsoft.Json.Linq;
 using SP.StudioCore.Array;
 using SP.StudioCore.Net;
@@ -108,6 +109,29 @@ namespace BW.Games.API
             return result;
         }
 
+        /// <summary>
+        /// 预备转账
+        /// </summary>
+        /// <param name="action">IN | OUT</param>
+        private bool prepareTransferCredit(string userName, string password, decimal money, string action, string orderId)
+        {
+            Dictionary<string, object> data = new()
+            {
+                { "cagent", this.Agent },
+                { "loginname", userName },
+                { "method", "tc" },
+                { "billno", orderId },
+                { "type", action },
+                { "actype", 1 },
+                { "credit", money.ToString("0.00") },
+                { "password", password },
+                { "cur", this.CurMoney }
+            };
+            APIResultType resultType = this.POST(null, data, out _);
+            if (resultType == APIResultType.Success) return true;
+            throw new APIResultException(resultType);
+        }
+
         #endregion
 
         public AG(string queryString) : base(queryString)
@@ -162,7 +186,30 @@ namespace BW.Games.API
 
         public override TransferResult Recharge(TransferRequest transfer)
         {
-            throw new NotImplementedException();
+            string sourceId = transfer.SourceID;
+            sourceId = this.Agent + sourceId.PadLeft(16 - this.Agent.Length, '0');
+            if (!this.prepareTransferCredit(transfer.UserName, transfer.Password, transfer.Money, "IN", sourceId)) return default;
+
+            Dictionary<string, object> data = new()
+            {
+                { "cagent", this.Agent },
+                { "loginname", transfer.UserName },
+                { "method", "tcc" },
+                { "billno", sourceId },
+                { "type", "IN" },
+                { "credit", transfer.Money.ToString("0.00") },
+                { "actype", this.Actype.ToString() },
+                { "flag", "1" },
+                { "password", transfer.Password },
+                { "cur", this.CurMoney }
+            };
+
+            APIResultType resultType = this.POST(null, data, out _);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, sourceId, transfer.Money);
+            }
+            throw new APIResultException(resultType);
         }
 
 

@@ -41,6 +41,17 @@ namespace BW.Games.API
 
         #region ========  工具方法  ========
 
+        private APIResultType GetResultType(int code)
+        {
+            return code switch
+            {
+                0 => APIResultType.Success,
+                306 => APIResultType.BADMONEY,
+                311 => APIResultType.BADMONEY,
+                _ => APIResultType.Faild
+            };
+        }
+
         internal override PostResult POST(string method, Dictionary<string, object> data)
         {
             string token = this.generateToken();
@@ -57,7 +68,7 @@ namespace BW.Games.API
             result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
             JObject info = JObject.Parse(result.Result);
             result.Info = info;
-            result.Code = APIResultType.Success;
+            result.Code = info.ContainsKey("code") ? this.GetResultType(info["code"].Value<int>()) : APIResultType.Success;
             return result;
         }
 
@@ -133,7 +144,25 @@ namespace BW.Games.API
 
         public override TransferResult Recharge(TransferRequest transfer)
         {
-            throw new NotImplementedException();
+            string sourceId = transfer.SourceID;
+            Dictionary<string, object> data = new()
+            {
+                { "userCode", transfer.UserName },
+                { "amount", transfer.Money },
+                { "transactionId", sourceId }
+            };
+
+            APIResultType resultType = this.POST("/player/deposit", data, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            transfer.Money = ((JObject)info).ContainsKey("amount") ? ((JObject)info)["amount"].Value<decimal>() : decimal.Zero;
+
+            if (transfer.Money == decimal.Zero)
+            {
+                throw new APIResultException(APIResultType.Faild);
+            }
+
+            return new TransferResult(transfer.OrderID, sourceId, transfer.Money, ((JObject)info)["availableBalance"].Value<decimal>());
         }
     }
 }

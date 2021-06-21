@@ -141,6 +141,8 @@ namespace BW.Games.API
                 //语言无效
                 518 => APIResultType.CONTENT,
                 //金额格式无效
+                519 => APIResultType.BADMONEY,
+                //金额格式无效
                 520 => APIResultType.PROCCESSING,
                 //IP 地址无效
                 522 => APIResultType.IP,
@@ -185,7 +187,22 @@ namespace BW.Games.API
 
         public override TransferResult Recharge(TransferRequest transfer)
         {
-            throw new NotImplementedException();
+            decimal money = transfer.Money;
+            string sourceId = transfer.SourceID;
+            Dictionary<string, object> data = new()
+            {
+                { "MerchantCode", this.MerchantCode },
+                { "PlayerId", transfer.UserName },
+                { "ProductWallet", this.ProductWallet },
+                { "TransactionId", sourceId },
+                { "Amount", money }
+            };
+            APIResultType resultType = this.POST("Transaction/PerformTransfer", data, out object info);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, sourceId, money);
+            }
+            throw new APIResultException(resultType);
         }
     }
 }

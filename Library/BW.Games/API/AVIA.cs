@@ -66,17 +66,20 @@ namespace BW.Games.API
         /// <returns></returns>
         public override TransferResult Recharge(TransferRequest transfer)
         {
+            string sourceId = transfer.SourceID;
             APIResultType type = this.POST("user/transfer", new Dictionary<string, object>()
             {
                 {"UserName",transfer.UserName },
                 {"Type","IN" },
-                {"Money",transfer.Money },
-                {"ID",transfer.OrderID }
+                {"Money",transfer.Money.ToString("0.00") },
+                {"ID",sourceId }
             }, out object info);
 
             if (type == APIResultType.Success)
             {
-                return new TransferResult(((JObject)info)["OrderID"].Value<string>());
+                return new TransferResult(transfer.OrderID,
+                    ((JObject)info)["OrderID"].Value<string>(),
+                    transfer.Money);
             }
             return new TransferResult(type);
         }
@@ -140,6 +143,8 @@ namespace BW.Games.API
             }
             return result;
         }
+
+
 
         #endregion
     }

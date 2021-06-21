@@ -210,7 +210,22 @@ namespace BW.Games.API
 
         public override TransferResult Recharge(TransferRequest transfer)
         {
-            throw new NotImplementedException();
+            string sourceId = transfer.SourceID;
+            decimal money = (int)transfer.Money;
+            Dictionary<string, object> data = new()
+            {
+                { "username", transfer.UserName },
+                { "remitno", sourceId },
+                { "remit", money },
+                { "key", this.GetKey(9, transfer.UserName + sourceId, t => t.KEYTransfer, 4) },
+                { "action", "IN" }
+            };
+            APIResultType resultType = this.POST("Transfer", data, out _);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, sourceId, money);
+            }
+            throw new APIResultException(resultType);
         }
 
     }

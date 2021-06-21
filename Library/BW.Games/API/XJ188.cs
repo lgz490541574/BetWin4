@@ -48,7 +48,7 @@ namespace BW.Games.API
         #endregion
 
         #region ========  工具方法  ========
-               
+
 
         internal override PostResult POST(string method, Dictionary<string, object> data)
         {
@@ -89,6 +89,7 @@ namespace BW.Games.API
                 "ITGR1001" => APIResultType.EXISTSORDER,
                 // 数据不存在
                 "ITGR1002" => APIResultType.NOORDER,
+
                 // 通用错误
                 "ITGR9999" => APIResultType.Faild,
                 // 會員餘額不足
@@ -135,7 +136,19 @@ namespace BW.Games.API
 
         public override TransferResult Recharge(TransferRequest transfer)
         {
-            throw new NotImplementedException();
+            Dictionary<string, object> data = new()
+            {
+                { "memberCode", transfer.UserName },
+                { "balance", transfer.Money },
+                { "currencyCode", Currency },
+                { "refId", transfer.SourceID }
+            };
+            APIResultType resultType = this.POST("/API/DepositFund", data, out object info);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, transfer.SourceID, transfer.Money);
+            }
+            throw new APIResultException(resultType);
         }
     }
 }
