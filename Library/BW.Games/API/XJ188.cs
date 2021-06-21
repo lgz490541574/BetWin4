@@ -71,7 +71,8 @@ namespace BW.Games.API
             return code switch
             {
                 "COMM0000" => APIResultType.Success,
-                "COMM0101" => APIResultType.CONTENT,
+                // Invalid parameters or format. Parameters could be out of range, or unacceptable values.
+                "COMM0101" => APIResultType.BADMONEY,
                 // 會員登錄拒絕。可能是由於某些原因，例如：非合法參數
                 "SSO0001" => APIResultType.CONTENT,
                 // Token无效
@@ -146,7 +147,7 @@ namespace BW.Games.API
             APIResultType resultType = this.POST("/API/DepositFund", data, out object info);
             if (resultType == APIResultType.Success)
             {
-                return new TransferResult(transfer.OrderID, transfer.SourceID, transfer.Money);
+                return new TransferResult(transfer.OrderID, transfer.SourceID, transfer.Money, ((JObject)info)["data"]["totalBalance"].Value<decimal>());
             }
             throw new APIResultException(resultType);
         }

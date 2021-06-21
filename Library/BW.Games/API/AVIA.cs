@@ -79,7 +79,8 @@ namespace BW.Games.API
             {
                 return new TransferResult(transfer.OrderID,
                     ((JObject)info)["OrderID"].Value<string>(),
-                    transfer.Money);
+                    transfer.Money,
+                    ((JObject)info)["Balance"].Value<decimal>());
             }
             return new TransferResult(type);
         }

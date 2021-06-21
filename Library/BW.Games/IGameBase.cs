@@ -26,14 +26,14 @@ namespace BW.Games
         protected void SaveLog(string url, string result, APIResultType resultType, PostDataModel data)
         {
             this.GameDelegate?.SaveLog(this.Type, url, result, resultType, data);
-            if (resultType != APIResultType.Success)
-            {
+            //if (resultType != APIResultType.Success)
+            //{
                 Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine(result);
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine(data.ToJson());
                 Console.ResetColor();
-            }
+            //}
         }
 
         protected IGameBase(string queryString) : base(queryString)

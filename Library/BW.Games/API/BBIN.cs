@@ -161,6 +161,7 @@ namespace BW.Games.API
         {
             return code switch
             {
+                10008 => APIResultType.BADMONEY,
                 47005 => APIResultType.BADNAME,
                 44900 => APIResultType.IP,
                 _ => APIResultType.Faild
@@ -211,7 +212,7 @@ namespace BW.Games.API
         public override TransferResult Recharge(TransferRequest transfer)
         {
             string sourceId = transfer.SourceID;
-            decimal money = (int)transfer.Money;
+            decimal money = transfer.Money;
             Dictionary<string, object> data = new()
             {
                 { "username", transfer.UserName },
