@@ -164,5 +164,10 @@ namespace BW.Games.API
 
             return new TransferResult(transfer.OrderID, sourceId, transfer.Money, ((JObject)info)["availableBalance"].Value<decimal>());
         }
+
+        public override BalanceResult Balance(BalanceRequest balance)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

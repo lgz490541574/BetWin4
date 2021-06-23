@@ -207,6 +207,9 @@ namespace BW.Games.API
             throw new APIResultException(resultType);
         }
 
-
+        public override BalanceResult Balance(BalanceRequest balance)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

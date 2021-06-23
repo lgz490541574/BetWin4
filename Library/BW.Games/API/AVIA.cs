@@ -145,6 +145,11 @@ namespace BW.Games.API
             return result;
         }
 
+        public override BalanceResult Balance(BalanceRequest balance)
+        {
+            throw new NotImplementedException();
+        }
+
 
 
         #endregion

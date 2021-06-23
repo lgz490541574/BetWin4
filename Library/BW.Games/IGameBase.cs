@@ -56,6 +56,13 @@ namespace BW.Games
         public abstract RegisterResult Register(RegisterRequest register);
 
         /// <summary>
+        /// 查询余额
+        /// </summary>
+        /// <param name="balance"></param>
+        /// <returns></returns>
+        public abstract BalanceResult Balance(BalanceRequest balance);
+
+        /// <summary>
         ///  转入资金
         /// </summary>
         /// <param name="transfer"></param>
