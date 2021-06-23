@@ -15,6 +15,17 @@ namespace Web.API.Controller
     public class FundsController : APIControllerBase
     {
         /// <summary>
+        /// 查询余额
+        /// </summary>
+        /// <param name="balance"></param>
+        /// <returns></returns>
+        public ContentResult Balance([FromBody] BalanceRequest balance)
+        {
+            BalanceResult result = FundAgent.Instance().GetBalance(this.SiteInfo, balance.UserName, balance.GameID);
+            return this.GetResultContent(result);
+        }
+
+        /// <summary>
         /// 充值（转入资金)
         /// </summary>
         /// <returns></returns>

@@ -1,4 +1,5 @@
-﻿using BW.Games.Models;
+﻿using BW.Games.Exceptions;
+using BW.Games.Models;
 using BW.Gamess;
 using Newtonsoft.Json.Linq;
 using SP.StudioCore.Enums;
@@ -28,11 +29,11 @@ namespace BW.Games
             this.GameDelegate?.SaveLog(this.Type, url, result, resultType, data);
             //if (resultType != APIResultType.Success)
             //{
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(result);
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(data.ToJson());
-                Console.ResetColor();
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.WriteLine(result);
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine(data.ToJson());
+            Console.ResetColor();
             //}
         }
 
@@ -81,6 +82,11 @@ namespace BW.Games
             {
                 result = this.POST(method, data);
                 info = result.Info;
+            }
+            catch (APIResultException ex)
+            {
+                result.Ex = ex;
+                result.Code = ex.Type;
             }
             catch (Exception ex)
             {

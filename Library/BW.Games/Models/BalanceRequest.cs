@@ -9,11 +9,21 @@ namespace BW.Games.Models
     /// <summary>
     /// 查询余额
     /// </summary>
-    public struct BalanceRequest
+    public class BalanceRequest
     {
         /// <summary>
         /// 要查询的用户名
         /// </summary>
-        public string UserName;
+        public string UserName { get; set; }
+
+        /// <summary>
+        /// 密码（如果需要的话）
+        /// </summary>
+        public string Password { get; set; }
+
+        /// <summary>
+        /// 所在游戏
+        /// </summary>
+        public int GameID { get; set; }
     }
 }

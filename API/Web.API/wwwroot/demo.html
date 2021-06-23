@@ -95,6 +95,35 @@
         </div>
 
         <div class="layui-colla-item">
+            <h2 class="layui-colla-title">查询余额</h2>
+            <div class="layui-colla-content">
+                <blockquote class="layui-elem-quote layui-quote-nm">地址：/v1/funds/balance </blockquote>
+                <form class="layui-form" action="/v1/funds/balance">
+                    <div class="layui-form-item">
+                        <div class="layui-inline">
+                            <label class="layui-form-label">用户名：</label>
+                            <div class="layui-input-inline">
+                                <input type="text" name="UserName" placeholder="UserName" class="layui-input" />
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <label class="layui-form-label">游戏：</label>
+                            <div class="layui-input-inline">
+                                <select name="GameID"></select>
+                            </div>
+                        </div>
+                    </div>
+                    <pre class="layui-code">Json</pre>
+                    <div class="layui-form-item">
+                        <div class="layui-input-inline">
+                            <button class="layui-btn" lay-submit lay-filter="submit">提交</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="layui-colla-item">
             <h2 class="layui-colla-title">充值（转入资金）</h2>
             <div class="layui-colla-content">
                 <blockquote class="layui-elem-quote layui-quote-nm">地址：/v1/funds/recharge </blockquote>

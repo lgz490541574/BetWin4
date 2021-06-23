@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace BW.Games.API
@@ -26,6 +27,88 @@ namespace BW.Games.API
         public string SecretKey { get; set; }
 
         #endregion
+
+        #region ========  工具方法  ========
+
+        private APIResultType GetErrorCode(string code)
+        {
+            return code switch
+            {
+                "NOUSER" => APIResultType.NOUSER,
+                "BADNAME" => APIResultType.BADNAME,
+                "BADPASSWORD" => APIResultType.BADPASSWORD,
+                "EXISTSUSER" => APIResultType.EXISTSUSER,
+                "BADMONEY" => APIResultType.BADMONEY,
+                "NOORDER" => APIResultType.NOORDER,
+                "EXISTSORDER" => APIResultType.EXISTSORDER,
+                "TRANSFER_NO_ACTION" => APIResultType.TRANSFER_NO_ACTION,
+                "IP" => APIResultType.IP,
+                "USERLOCK" => APIResultType.USERLOCK,
+                "NOBALANCE" => APIResultType.NOBALANCE,
+                "NOCREDIT" => APIResultType.NOCREDIT,
+                "Authorization" => APIResultType.Authorization,
+                "Faild" => APIResultType.Faild,
+                "DOMAIN" => APIResultType.DOMAIN,
+                "CONTENT" => APIResultType.CONTENT,
+                "Sign" => APIResultType.Sign,
+                "NOSUPPORT" => APIResultType.NOSUPPORT,
+                "TIMEOUT" => APIResultType.TIMEOUT,
+                "STATUS" => APIResultType.STATUS,
+                "CONFIGERROR" => APIResultType.CONFIGERROR,
+                "DATEEROOR" => APIResultType.DATEEROOR,
+                "ORDER_NOTFOUND" => APIResultType.ORDER_NOTFOUND,
+                "PROCCESSING" => APIResultType.PROCCESSING,
+                _ => APIResultType.Faild
+            };
+        }
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
+        {
+            PostResult result = new()
+            {
+                Url = $"{this.Gateway}/api/{method}",
+                Data = data,
+                Header = new()
+                {
+                    { "Authorization", this.SecretKey }
+                }
+            };
+            result.Result = NetAgent.UploadData(result.Url, result.Data.ToQueryString(), headers: result.Header);
+            try
+            {
+                JObject info = JObject.Parse(result.Result);
+                if (info["success"].Value<int>() == 1)
+                {
+                    if (info.ContainsKey("info")) result.Info = (JObject)info["info"];
+                    result.Code = APIResultType.Success;
+                }
+                else
+                {
+                    string msg = info.ContainsKey("msg") ? info["msg"].Value<string>() : null;
+                    if (info.ContainsKey("info")) result.Info = info = info["info"].Value<JObject>();
+                    if (info.ContainsKey("Error"))
+                    {
+                        result.Code = this.GetErrorCode(info["Error"].Value<string>());
+                    }
+                    else
+                    {
+                        throw new Exception(msg);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                result.Ex = ex;
+                result.Code = APIResultType.Exception;
+            }
+            return result;
+        }
+
+
+
+
+        #endregion
+
 
         public AVIA(string queryString) : base(queryString)
         {
@@ -85,73 +168,19 @@ namespace BW.Games.API
             return new TransferResult(type);
         }
 
-        #region ========  工具方法  ========
-
-        private APIResultType GetErrorCode(string code)
-        {
-            return code switch
-            {
-                "NOUSER" => APIResultType.NOUSER,
-                "BADNAME" => APIResultType.BADNAME,
-                "BADPASSWORD" => APIResultType.BADPASSWORD,
-                "EXISTSUSER" => APIResultType.EXISTSUSER,
-                "BADMONEY" => APIResultType.BADMONEY,
-                "NOORDER" => APIResultType.NOORDER,
-                "EXISTSORDER" => APIResultType.EXISTSORDER,
-                "TRANSFER_NO_ACTION" => APIResultType.TRANSFER_NO_ACTION,
-                "IP" => APIResultType.IP,
-                "USERLOCK" => APIResultType.USERLOCK,
-                "NOBALANCE" => APIResultType.NOBALANCE,
-                "NOCREDIT" => APIResultType.NOCREDIT,
-                "Authorization" => APIResultType.Authorization,
-                "Faild" => APIResultType.Faild,
-                "DOMAIN" => APIResultType.DOMAIN,
-                "CONTENT" => APIResultType.CONTENT,
-                "Sign" => APIResultType.Sign,
-                "NOSUPPORT" => APIResultType.NOSUPPORT,
-                "TIMEOUT" => APIResultType.TIMEOUT,
-                "STATUS" => APIResultType.STATUS,
-                "CONFIGERROR" => APIResultType.CONFIGERROR,
-                "DATEEROOR" => APIResultType.DATEEROOR,
-                "ORDER_NOTFOUND" => APIResultType.ORDER_NOTFOUND,
-                "PROCCESSING" => APIResultType.PROCCESSING,
-                _ => APIResultType.Faild
-            };
-        }
-
-        internal override PostResult POST(string method, Dictionary<string, object> data)
-        {
-            PostResult result = new()
-            {
-                Url = $"{this.Gateway}/api/{method}",
-                Data = data,
-                Header = new()
-                {
-                    { "Authorization", this.SecretKey }
-                }
-            };
-            result.Result = NetAgent.UploadData(result.Url, result.Data.ToQueryString(), headers: result.Header);
-            JObject info = JObject.Parse(result.Result);
-            if (info["success"].Value<int>() == 1)
-            {
-                if (info.ContainsKey("info")) result.Info = (JObject)info["info"];
-                result.Code = APIResultType.Success;
-            }
-            else
-            {
-                if (info.ContainsKey("info")) result.Info = info = info["info"].Value<JObject>();
-                if (info.ContainsKey("Error")) result.Code = this.GetErrorCode(info["Error"].Value<string>());
-            }
-            return result;
-        }
-
         public override BalanceResult Balance(BalanceRequest balance)
         {
-            throw new NotImplementedException();
+            APIResultType resultType = this.POST("user/balance", new Dictionary<string, object>()
+            {
+                {"UserName",balance.UserName }
+            }, out object info);
+
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            return new BalanceResult(balance.UserName, ((JObject)info)["Money"].Value<decimal>());
+
         }
 
 
-
-        #endregion
     }
 }
