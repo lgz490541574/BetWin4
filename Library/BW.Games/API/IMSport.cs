@@ -15,6 +15,8 @@ namespace BW.Games.API
 {
     public class IMSport : IM
     {
+        protected override char UserSplit => 's';
+
         public IMSport(string queryString) : base(queryString)
         {
 

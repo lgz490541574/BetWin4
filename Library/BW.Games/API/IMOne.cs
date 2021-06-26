@@ -16,6 +16,8 @@ namespace BW.Games.API
 {
     public class IMOne : IM
     {
+        protected override char UserSplit => 'e';
+
         public IMOne(string queryString) : base(queryString)
         {
         }
