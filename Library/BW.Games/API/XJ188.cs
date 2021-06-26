@@ -181,5 +181,10 @@ namespace BW.Games.API
             }
             return new(resultType);
         }
+
+        public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

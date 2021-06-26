@@ -20,6 +20,11 @@ namespace BW.Games.API
         public IMSport(string queryString) : base(queryString)
         {
 
-        }       
+        }
+
+        public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

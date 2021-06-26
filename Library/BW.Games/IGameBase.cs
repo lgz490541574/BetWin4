@@ -87,6 +87,13 @@ namespace BW.Games
         /// <returns></returns>
         public abstract TransferResult Withdraw(TransferRequest transfer);
 
+        /// <summary>
+        /// 拉取订单
+        /// </summary>
+        /// <param name="time">时间戳条件</param>
+        /// <returns></returns>
+        public abstract IEnumerable<OrderResult> GetOrders(OrderRequest order);
+
 
         internal abstract PostResult POST(string method, Dictionary<string, object> data);
 
@@ -116,5 +123,7 @@ namespace BW.Games
             }
             return result.Code;
         }
+
+        
     }
 }

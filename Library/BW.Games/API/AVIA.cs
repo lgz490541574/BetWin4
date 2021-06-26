@@ -3,6 +3,7 @@ using BW.Games.Models;
 using Newtonsoft.Json.Linq;
 using SP.StudioCore.Array;
 using SP.StudioCore.Net;
+using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -200,6 +201,35 @@ namespace BW.Games.API
                     ((JObject)info)["Balance"].Value<decimal>());
             }
             return new TransferResult(type);
+        }
+
+        public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
+        {
+            DateTime startAt = WebAgent.GetTimestamps(order.Time);
+
+            Dictionary<string, object> data = new()
+            {
+                { "Type", "UpdateAt" },
+                { "StartAt", startAt.ToString() },
+                { "OrderType", "All" },
+                { "PageSize", 1024 }
+            };
+
+            APIResultType resultType = this.POST("log/get", data, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            foreach (JObject item in ((JObject)info)["list"])
+            {
+                yield return new OrderResult
+                {
+                    OrderID = item["OrderID"].Value<string>(),
+                    UserName = item["UserName"].Value<string>(),
+                    BetMoney = item["BetAmount"].Value<decimal>(),
+                    Money = item["Money"].Value<decimal>(),
+                    CreateAt = WebAgent.GetTimestamps(item["CreateAt"].Value<DateTime>()),
+                    Game = item["CateID"].Value<string>()
+                };
+            }
         }
     }
 }

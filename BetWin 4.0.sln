@@ -64,6 +64,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		readME.md = readME.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameService", "Services\GameService\GameService.csproj", "{E594B480-8010-4CD5-AF65-AEBEBA117094}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,10 @@ Global
 		{B4140E9F-AF35-429B-B3E7-517097D186AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4140E9F-AF35-429B-B3E7-517097D186AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4140E9F-AF35-429B-B3E7-517097D186AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E594B480-8010-4CD5-AF65-AEBEBA117094}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E594B480-8010-4CD5-AF65-AEBEBA117094}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E594B480-8010-4CD5-AF65-AEBEBA117094}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E594B480-8010-4CD5-AF65-AEBEBA117094}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -105,6 +111,7 @@ Global
 		{9F4965D1-902A-410A-AAAE-65EED0B46802} = {22B1EF1E-5C7F-4B25-8483-830CC937D044}
 		{CA58B164-0712-4B00-A475-16A11C1A9357} = {DF42A926-F0A8-44F9-A45E-0EF2BE1CD69D}
 		{B4140E9F-AF35-429B-B3E7-517097D186AD} = {3EF80C72-22A6-483F-8697-C37F005A239B}
+		{E594B480-8010-4CD5-AF65-AEBEBA117094} = {3EF80C72-22A6-483F-8697-C37F005A239B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3E05811D-06EC-40D0-9633-41F770FCB191}

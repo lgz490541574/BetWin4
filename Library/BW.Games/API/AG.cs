@@ -221,5 +221,10 @@ namespace BW.Games.API
         {
             throw new NotImplementedException();
         }
+
+        public override IEnumerable<OrderResult> GetOrders(long time)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

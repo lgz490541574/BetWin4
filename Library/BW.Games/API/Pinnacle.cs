@@ -199,5 +199,10 @@ namespace BW.Games.API
 
             return new TransferResult(transfer.OrderID, sourceId, transfer.Money, ((JObject)info)["availableBalance"].Value<decimal>());
         }
+
+        public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

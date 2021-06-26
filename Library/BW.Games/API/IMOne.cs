@@ -21,5 +21,10 @@ namespace BW.Games.API
         public IMOne(string queryString) : base(queryString)
         {
         }
+
+        public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

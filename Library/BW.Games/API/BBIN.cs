@@ -262,5 +262,10 @@ namespace BW.Games.API
             }
             return new(resultType);
         }
+
+        public override IEnumerable<OrderResult> GetOrders(long time)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
