@@ -132,7 +132,7 @@ namespace BW.Games.API
             string password = Guid.NewGuid().ToString("N").Substring(0, 8);
             APIResultType resultType = this.POST("user/register", new Dictionary<string, object>()
             {
-                {"UserName",register.UserName },
+                {"UserName", this.GetUserName(register) },
                 {"Password",password }
             }, out _);
             if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER)
@@ -181,6 +181,25 @@ namespace BW.Games.API
 
         }
 
+        public override TransferResult Withdraw(TransferRequest transfer)
+        {
+            string sourceId = transfer.SourceID;
+            APIResultType type = this.POST("user/transfer", new Dictionary<string, object>()
+            {
+                {"UserName",transfer.UserName },
+                {"Type","OUT" },
+                {"Money",transfer.Money.ToString("0.00") },
+                {"ID",sourceId }
+            }, out object info);
 
+            if (type == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID,
+                    ((JObject)info)["OrderID"].Value<string>(),
+                    transfer.Money,
+                    ((JObject)info)["Balance"].Value<decimal>());
+            }
+            return new TransferResult(type);
+        }
     }
 }

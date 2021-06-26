@@ -216,5 +216,10 @@ namespace BW.Games.API
         {
             throw new NotImplementedException();
         }
+
+        public override TransferResult Withdraw(TransferRequest transfer)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

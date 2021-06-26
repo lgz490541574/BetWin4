@@ -191,9 +191,11 @@ namespace BW.Games.API
             return new LoginResult($"{this.ForwardGame}/{method}?{data.ToQueryString()}");
         }
 
+        protected override char UserSplit => '0';
+
         public override RegisterResult Register(RegisterRequest register)
         {
-            string userName = register.UserName.Replace("_", "0");
+            string userName = this.GetUserName(register);
             string password = Guid.NewGuid().ToString("N").Substring(0, 8);
             Dictionary<string, object> data = new()
             {
@@ -226,12 +228,39 @@ namespace BW.Games.API
             {
                 return new TransferResult(transfer.OrderID, sourceId, money);
             }
-            throw new APIResultException(resultType);
+            return new(resultType);
         }
 
         public override BalanceResult Balance(BalanceRequest balance)
         {
-            throw new NotImplementedException();
+            APIResultType resultType = this.POST("CheckUsrBalance", new Dictionary<string, object>()
+            {
+                {"username",balance.UserName },
+                {"key",this.GetKey(4,balance.UserName,t=>t.KEYCheckUsrBalance,7) }
+
+            }, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+            return new BalanceResult(balance.UserName, ((JObject)info)["data"].Value<JArray>().FirstOrDefault()["Balance"].Value<decimal>());
+        }
+
+        public override TransferResult Withdraw(TransferRequest transfer)
+        {
+            string sourceId = transfer.SourceID;
+            decimal money = transfer.Money;
+            Dictionary<string, object> data = new()
+            {
+                { "username", transfer.UserName },
+                { "remitno", sourceId },
+                { "remit", money },
+                { "key", this.GetKey(9, transfer.UserName + sourceId, t => t.KEYTransfer, 4) },
+                { "action", "OUT" }
+            };
+            APIResultType resultType = this.POST("Transfer", data, out _);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, sourceId, money);
+            }
+            return new(resultType);
         }
     }
 }

@@ -135,6 +135,18 @@ namespace BW.Games.API
             throw new APIResultException(resultType);
         }
 
+        public override BalanceResult Balance(BalanceRequest balance)
+        {
+            APIResultType resultType = this.POST("/API/MemberBalance", new()
+            {
+                { "memberCode", balance.UserName }
+            }, out object info);
+
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            return new BalanceResult(balance.UserName, ((JObject)info)["data"]["balance"].Value<decimal>());
+        }
+
         public override TransferResult Recharge(TransferRequest transfer)
         {
             Dictionary<string, object> data = new()
@@ -149,12 +161,25 @@ namespace BW.Games.API
             {
                 return new TransferResult(transfer.OrderID, transfer.SourceID, transfer.Money, ((JObject)info)["data"]["totalBalance"].Value<decimal>());
             }
-            throw new APIResultException(resultType);
+            return new(resultType);
         }
 
-        public override BalanceResult Balance(BalanceRequest balance)
+        public override TransferResult Withdraw(TransferRequest transfer)
         {
-            throw new NotImplementedException();
+
+            Dictionary<string, object> data = new()
+            {
+                { "memberCode", transfer.UserName },
+                { "balance", transfer.Money },
+                { "currencyCode", Currency },
+                { "refId", transfer.SourceID }
+            };
+            APIResultType resultType = this.POST("/API/WithdrawalFund", data, out object info);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, transfer.SourceID, transfer.Money, ((JObject)info)["data"]["totalBalance"].Value<decimal>());
+            }
+            return new(resultType);
         }
     }
 }

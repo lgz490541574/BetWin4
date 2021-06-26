@@ -18,6 +18,16 @@ namespace BW.Games
         protected GameType Type => this.GetType().Name.ToEnum<GameType>();
 
         /// <summary>
+        /// 用户名的分隔符
+        /// </summary>
+        protected virtual char UserSplit => '_';
+
+        protected string GetUserName(RegisterRequest register)
+        {
+            return string.Concat(register.Prefix, this.UserSplit, register.UserName);
+        }
+
+        /// <summary>
         /// 保存日志
         /// </summary>
         /// <param name="url">请求地址</param>
@@ -69,6 +79,13 @@ namespace BW.Games
         /// <param name="transfer"></param>
         /// <returns></returns>
         public abstract TransferResult Recharge(TransferRequest transfer);
+
+        /// <summary>
+        /// 转出资金
+        /// </summary>
+        /// <param name="transfer"></param>
+        /// <returns></returns>
+        public abstract TransferResult Withdraw(TransferRequest transfer);
 
 
         internal abstract PostResult POST(string method, Dictionary<string, object> data);

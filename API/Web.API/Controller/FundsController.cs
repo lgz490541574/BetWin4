@@ -35,5 +35,16 @@ namespace Web.API.Controller
             result.OrderID = transfer.OrderID;
             return this.GetResultContent(result);
         }
+
+        /// <summary>
+        /// 提现（转出资金）
+        /// </summary>
+        /// <returns></returns>
+        public ContentResult Withdraw([FromBody] TransferRequest transfer)
+        {
+            TransferResult result = TransferAgent.Instance().Withdraw(this.SiteInfo, transfer.UserName, transfer.GameID, transfer.OrderID, transfer.Money);
+            result.OrderID = transfer.OrderID;
+            return this.GetResultContent(result);
+        }
     }
 }

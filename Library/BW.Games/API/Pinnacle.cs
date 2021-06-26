@@ -167,7 +167,37 @@ namespace BW.Games.API
 
         public override BalanceResult Balance(BalanceRequest balance)
         {
-            throw new NotImplementedException();
+            APIResultType resultType = this.POST("/player/info", new Dictionary<string, object>()
+            {
+                {"userCode",balance.UserName }
+            }, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            return new BalanceResult(balance.UserName, ((JObject)info)["availableBalance"].Value<decimal>());
+
+        }
+
+        public override TransferResult Withdraw(TransferRequest transfer)
+        {
+            string sourceId = transfer.SourceID;
+            Dictionary<string, object> data = new()
+            {
+                { "userCode", transfer.UserName },
+                { "amount", transfer.Money },
+                { "transactionId", sourceId }
+            };
+
+            APIResultType resultType = this.POST("/player/withdraw", data, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            transfer.Money = ((JObject)info).ContainsKey("amount") ? ((JObject)info)["amount"].Value<decimal>() : decimal.Zero;
+
+            if (transfer.Money == decimal.Zero)
+            {
+                throw new APIResultException(APIResultType.Faild);
+            }
+
+            return new TransferResult(transfer.OrderID, sourceId, transfer.Money, ((JObject)info)["availableBalance"].Value<decimal>());
         }
     }
 }

@@ -16,7 +16,7 @@ namespace BW.Games.Models
         public RegisterRequest(string prefix, string userName)
         {
             this.Prefix = prefix;
-            this.UserName = string.Concat(this.Prefix, "_", userName);
+            this.UserName = userName;
         }
 
         /// <summary>
@@ -25,7 +25,7 @@ namespace BW.Games.Models
         public string Prefix { get; set; }
 
         /// <summary>
-        /// 要在游戏中注册的用户名
+        /// 外部用户名
         /// </summary>
         public string UserName { get; set; }
 
@@ -33,5 +33,10 @@ namespace BW.Games.Models
         /// 密码（会员注册的时候才需要赋值）
         /// </summary>
         public string Password { get; set; }
+
+        public string GetUserName(char split)
+        {
+            return string.Concat(this.Prefix, split, this.UserName);
+        }
     }
 }
