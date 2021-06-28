@@ -206,34 +206,46 @@ namespace BW.Games.API
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
             if (order.Time == 0) order.Time = WebAgent.GetTimestamps(new DateTime(2021, 1, 1));
-            DateTime startAt = WebAgent.GetTimestamps(order.Time).AddMinutes(-5);
+            DateTime startAt = WebAgent.GetTimestamps(order.Time).AddMinutes(-1);
             DateTime endAt = startAt.AddDays(1);
             if (endAt > DateTime.Now) endAt = DateTime.Now;
-            Dictionary<string, object> data = new()
+            int pageIndex = 1;
+            int maxPage = 1;
+            int pageSize = 1024;
+            while (pageIndex <= maxPage)
             {
-                { "Type", "UpdateAt" },
-                { "StartAt", startAt.ToString() },
-                { "EndAt", endAt.ToString() },
-                { "OrderType", "All" },
-                { "PageSize", 1024 }
-            };
-
-            APIResultType resultType = this.POST("log/get", data, out object info);
-            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
-
-            foreach (JObject item in ((JObject)info)["list"])
-            {
-                string game = item["Type"].Value<string>();
-                yield return new OrderResult
+                Dictionary<string, object> data = new()
                 {
-                    OrderID = item["OrderID"].Value<string>(),
-                    UserName = item["UserName"].Value<string>(),
-                    BetMoney = item["BetAmount"].Value<decimal>(),
-                    Money = item["Money"].Value<decimal>(),
-                    CreateAt = WebAgent.GetTimestamps(item["CreateAt"].Value<DateTime>()),
-                    Game = game,
-                    RawData = item.ToString()
+                    { "Type", "UpdateAt" },
+                    { "StartAt", startAt.ToString() },
+                    { "EndAt", endAt.ToString() },
+                    { "OrderType", "All" },
+                    { "PageSize", pageSize },
+                    { "PageIndex", pageIndex }
                 };
+
+                APIResultType resultType = this.POST("log/get", data, out object info);
+                if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+                int recordCount = ((JObject)info)["RecordCount"].Value<int>();
+                maxPage = recordCount % pageSize == 0 ? recordCount / pageSize : recordCount / pageSize + 1;
+                foreach (JObject item in ((JObject)info)["list"])
+                {
+                    string game = item["Type"].Value<string>();
+                    DateTime rewardAt = item["RewardAt"].Value<DateTime>();
+
+                    yield return new OrderResult
+                    {
+                        OrderID = item["OrderID"].Value<string>(),
+                        UserName = item["UserName"].Value<string>(),
+                        BetMoney = item["BetAmount"].Value<decimal>(),
+                        Money = item["Money"].Value<decimal>(),
+                        CreateAt = WebAgent.GetTimestamps(item["CreateAt"].Value<DateTime>()),
+                        FinishAt = rewardAt > new DateTime(2020, 1, 1) ? WebAgent.GetTimestamps(rewardAt) : 0,
+                        Game = game,
+                        RawData = item.ToString()
+                    };
+                }
+                pageIndex++;
             }
 
             order.Time = WebAgent.GetTimestamps(endAt);
