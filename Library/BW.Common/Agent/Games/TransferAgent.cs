@@ -2,6 +2,7 @@
 using BW.Common.Agent.Users;
 using BW.Common.Caching;
 using BW.Common.Entities.Games;
+using BW.Common.Entities.Sites;
 using BW.Common.Entities.Users;
 using BW.Common.Models.Enums;
 using BW.Common.Models.Games;
@@ -10,9 +11,11 @@ using BW.Common.Utils;
 using BW.Games;
 using BW.Games.Exceptions;
 using BW.Games.Models;
+using SP.StudioCore.Data;
 using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,29 +69,45 @@ namespace BW.Common.Agent.Games
             };
 
             //#2 检查商户额度是否足够
+            this.LockSiteCredit(siteId, gameId, money * -1M, orderId);
 
             //#3 创建转账订单，状态为进行中
             this.WriteDB.Insert(order);
 
             TransferResult result = game.Recharge(request);
-            if (result.Code == APIResultType.Success)
+
+            using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
             {
-                // 回写数据库，转账已成功
-                order.FinishAt = WebAgent.GetTimestamps();
-                order.Status = TransferStatus.Success;
-            }
-            else if (result.Code == APIResultType.Exception)
-            {
-                // 发生异常，写入消息队列，异步检查转账是否成功
-                order.Status = TransferStatus.Exception;
-            }
-            else
-            {
-                order.Status = TransferStatus.Faild;
-                order.FinishAt = WebAgent.GetTimestamps();
+                if (result.Code == APIResultType.Success)
+                {
+                    // 回写数据库，转账已成功
+                    order.FinishAt = WebAgent.GetTimestamps();
+                    order.Status = TransferStatus.Success;
+
+                    // 解锁额度
+                    this.UnlockSiteCredit(db, siteId, orderId);
+
+                    // 扣除额度
+                    this.SaveUserCredit(db, siteId, gameId, money * -1M, CreditType.UserRecharge, orderId, "");
+                }
+                else if (result.Code == APIResultType.Exception)
+                {
+                    // 发生异常，写入消息队列，异步检查转账是否成功
+                    order.Status = TransferStatus.Exception;
+                }
+                else
+                {
+                    order.Status = TransferStatus.Faild;
+                    order.FinishAt = WebAgent.GetTimestamps();
+
+                    // 解锁额度
+                    this.UnlockSiteCredit(db, siteId, orderId);
+                }
+
+                db.Update(order, t => t.Status, t => t.FinishAt);
+                db.Commit();
             }
 
-            this.WriteDB.Update(order, t => t.Status, t => t.FinishAt);
             if (result.Code == APIResultType.Success) return result;
 
             throw new APIResultException(result.Code);
@@ -136,29 +155,38 @@ namespace BW.Common.Agent.Games
                 Money = money * -1M
             };
 
-            //#2 检查商户额度是否足够
             //#3 创建转账订单，状态为进行中
             this.WriteDB.Insert(order);
 
             TransferResult result = game.Withdraw(request);
-            if (result.Code == APIResultType.Success)
+
+            using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
             {
-                // 回写数据库，转账已成功
-                order.FinishAt = WebAgent.GetTimestamps();
-                order.Status = TransferStatus.Success;
-            }
-            else if (result.Code == APIResultType.Exception)
-            {
-                // 发生异常，写入消息队列，异步检查转账是否成功
-                order.Status = TransferStatus.Exception;
-            }
-            else
-            {
-                order.Status = TransferStatus.Faild;
-                order.FinishAt = WebAgent.GetTimestamps();
+                if (result.Code == APIResultType.Success)
+                {
+                    // 回写数据库，转账已成功
+                    order.FinishAt = WebAgent.GetTimestamps();
+                    order.Status = TransferStatus.Success;
+
+                    // 增加额度
+                    this.SaveUserCredit(db, siteId, gameId, money, CreditType.UserWithdraw, orderId, "");
+                }
+                else if (result.Code == APIResultType.Exception)
+                {
+                    // 发生异常，写入消息队列，异步检查转账是否成功
+                    order.Status = TransferStatus.Exception;
+                }
+                else
+                {
+                    order.Status = TransferStatus.Faild;
+                    order.FinishAt = WebAgent.GetTimestamps();
+                }
+
+                db.Update(order, t => t.Status, t => t.FinishAt);
+                db.Commit();
             }
 
-            this.WriteDB.Update(order, t => t.Status, t => t.FinishAt);
+
             if (result.Code == APIResultType.Success) return result;
 
             throw new APIResultException(result.Code);
@@ -197,12 +225,86 @@ namespace BW.Common.Agent.Games
         }
 
         /// <summary>
-        /// 商户的余额操作
+        /// 锁定商户额度
         /// </summary>
         /// <returns></returns>
-        public bool AddSiteCredit()
+        private bool LockSiteCredit(int siteId, int gameId, decimal money, string orderId)
         {
+            if (money > 0) return true;
+            money = Math.Abs(money);
+            using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
+            {
+                if (db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET LockCredit = LockCredit + @Money WHERE SiteID = @SiteID AND GameID = @GameID AND Credit - LockCredit - @Money >= 0", new
+                {
+                    Money = money,
+                    SiteID = siteId,
+                    GameID = gameId
+                }) == 0)
+                {
+                    throw new APIResultException(APIResultType.NOCREDIT);
+                }
 
+                CreditLock creditLock = new CreditLock
+                {
+                    SiteID = siteId,
+                    GameID = gameId,
+                    Credit = Math.Abs(money),
+                    ID = orderId
+                };
+
+                db.Insert(creditLock);
+
+                db.Commit();
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// 解锁商户额度
+        /// </summary>
+        /// <returns></returns>
+        private void UnlockSiteCredit(DbExecutor db, int siteId, string orderId)
+        {
+            CreditLock creditLock = db.ReadInfo<CreditLock>(t => t.SiteID == siteId && t.ID == orderId);
+            db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET LockCredit = LockCredit - @Money WHERE SiteID = @SiteID AND GameID = @GameID",
+                new
+                {
+                    SiteID = siteId,
+                    GameID = creditLock.GameID,
+                    Money = creditLock.Credit
+                });
+            db.Delete(creditLock);
+
+        }
+
+        /// <summary>
+        /// 额度操作
+        /// </summary>
+        /// <returns></returns>
+        private void SaveUserCredit(DbExecutor db, int siteId, int gameId, decimal money, CreditType type, string sourceId, string description)
+        {
+            db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET Credit = Credit + @Money WHERE SiteID = @SiteID AND GameID = @GameID",
+                new
+                {
+                    Money = money,
+                    SiteID = siteId,
+                    GameID = gameId
+                });
+            decimal credit = db.ReadInfo<SiteGame, decimal>(t => t.Credit, t => t.SiteID == siteId && t.GameID == gameId);
+
+            CreditLog log = new CreditLog()
+            {
+                SiteID = siteId,
+                GameID = gameId,
+                Credit = money,
+                Balance = credit,
+                CreateAt = WebAgent.GetTimestamps(),
+                Description = description,
+                SourceID = sourceId,
+                Type = type
+            };
+
+            db.Insert(log);
         }
     }
 }

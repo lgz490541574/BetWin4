@@ -42,6 +42,9 @@ namespace BW.Common.Entities.Sites
                     case "Rate":
                         this.Rate = (decimal)reader[i];
                         break;
+                    case "LockCredit":
+                        this.LockCredit = (decimal)reader[i];
+                        break;
                 }
             }
         }
@@ -68,6 +71,9 @@ namespace BW.Common.Entities.Sites
                     case "Rate":
                         this.Rate = (decimal)dr[i];
                         break;
+                    case "LockCredit":
+                        this.LockCredit = (decimal)dr[i];
+                        break;
                 }
             }
         }
@@ -76,11 +82,11 @@ namespace BW.Common.Entities.Sites
 
         #region  ========  数据库字段  ========
 
-        [Column("SiteID"), Key]
+        [Column("SiteID"),Key]
         public int SiteID { get; set; }
 
 
-        [Column("GameID"), Key]
+        [Column("GameID"),Key]
         public int GameID { get; set; }
 
 
@@ -104,10 +110,17 @@ namespace BW.Common.Entities.Sites
         [Column("Rate")]
         public decimal Rate { get; set; }
 
+
+        /// <summary>
+        /// 被锁定的额度
+        /// </summary>
+        [Column("LockCredit")]
+        public decimal LockCredit { get; set; }
+
         #endregion
 
 
-        #region  ========  扩展方法  ========
+#region  ========  扩展方法  ========
 
         public static implicit operator SiteGameModel(SiteGame siteGame)
         {
