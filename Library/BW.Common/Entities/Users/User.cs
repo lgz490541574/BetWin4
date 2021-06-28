@@ -125,6 +125,7 @@ namespace BW.Common.Entities.Users
 
         public static implicit operator UserModel(User user)
         {
+            if (user == null) return default;
             return new UserModel
             {
                 ID = user.ID,

@@ -6,18 +6,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using BW.Games.Models;
+using BW.Common.Models.Enums;
 
 namespace BW.Common.Entities.Games
 {
-    [Table("game_Order")]
-    public partial class GameOrder
+    /// <summary>
+    /// 游戏转账订单
+    /// </summary>
+    [Table("game_TransferOrder")]
+    public partial class GameTransferOrder
     {
 
         #region  ========  構造函數  ========
-        public GameOrder() { }
+        public GameTransferOrder() { }
 
-        public GameOrder(IDataReader reader)
+        public GameTransferOrder(IDataReader reader)
         {
             for (int i = 0; i < reader.FieldCount; i++)
             {
@@ -26,14 +29,17 @@ namespace BW.Common.Entities.Games
                     case "OrderID":
                         this.OrderID = (string)reader[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)reader[i];
-                        break;
                     case "SiteID":
                         this.SiteID = (int)reader[i];
                         break;
+                    case "GameID":
+                        this.GameID = (int)reader[i];
+                        break;
                     case "UserID":
                         this.UserID = (int)reader[i];
+                        break;
+                    case "SourceID":
+                        this.SourceID = (string)reader[i];
                         break;
                     case "CreateAt":
                         this.CreateAt = (long)reader[i];
@@ -41,30 +47,18 @@ namespace BW.Common.Entities.Games
                     case "FinishAt":
                         this.FinishAt = (long)reader[i];
                         break;
-                    case "BetMoney":
-                        this.BetMoney = (decimal)reader[i];
-                        break;
                     case "Money":
                         this.Money = (decimal)reader[i];
                         break;
-                    case "Game":
-                        this.Game = (string)reader[i];
-                        break;
-                    case "UpdateAt":
-                        this.UpdateAt = (long)reader[i];
-                        break;
                     case "Status":
-                        this.Status = (OrderStatus)reader[i];
-                        break;
-                    case "MD5":
-                        this.MD5 = (string)reader[i];
+                        this.Status = (TransferStatus)reader[i];
                         break;
                 }
             }
         }
 
 
-        public GameOrder(DataRow dr)
+        public GameTransferOrder(DataRow dr)
         {
             for (int i = 0; i < dr.Table.Columns.Count; i++)
             {
@@ -73,14 +67,17 @@ namespace BW.Common.Entities.Games
                     case "OrderID":
                         this.OrderID = (string)dr[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)dr[i];
-                        break;
                     case "SiteID":
                         this.SiteID = (int)dr[i];
                         break;
+                    case "GameID":
+                        this.GameID = (int)dr[i];
+                        break;
                     case "UserID":
                         this.UserID = (int)dr[i];
+                        break;
+                    case "SourceID":
+                        this.SourceID = (string)dr[i];
                         break;
                     case "CreateAt":
                         this.CreateAt = (long)dr[i];
@@ -88,23 +85,11 @@ namespace BW.Common.Entities.Games
                     case "FinishAt":
                         this.FinishAt = (long)dr[i];
                         break;
-                    case "BetMoney":
-                        this.BetMoney = (decimal)dr[i];
-                        break;
                     case "Money":
                         this.Money = (decimal)dr[i];
                         break;
-                    case "Game":
-                        this.Game = (string)dr[i];
-                        break;
-                    case "UpdateAt":
-                        this.UpdateAt = (long)dr[i];
-                        break;
                     case "Status":
-                        this.Status = (OrderStatus)dr[i];
-                        break;
-                    case "MD5":
-                        this.MD5 = (string)dr[i];
+                        this.Status = (TransferStatus)dr[i];
                         break;
                 }
             }
@@ -115,31 +100,35 @@ namespace BW.Common.Entities.Games
         #region  ========  数据库字段  ========
 
         /// <summary>
-        /// 游戏订单号
+        /// 商户提交的订单ID
         /// </summary>
         [Column("OrderID"), Key]
         public string OrderID { get; set; }
 
 
         /// <summary>
-        /// 所属游戏
+        /// 商户ID
+        /// </summary>
+        [Column("SiteID"), Key]
+        public int SiteID { get; set; }
+
+
+        /// <summary>
+        /// 选择的游戏
         /// </summary>
         [Column("GameID")]
         public int GameID { get; set; }
 
 
-        /// <summary>
-        /// 所属商户
-        /// </summary>
-        [Column("SiteID")]
-        public int SiteID { get; set; }
-
-
-        /// <summary>
-        /// 本地账号
-        /// </summary>
         [Column("UserID")]
         public int UserID { get; set; }
+
+
+        /// <summary>
+        /// 与游戏厂商通信的转账ID
+        /// </summary>
+        [Column("SourceID")]
+        public string SourceID { get; set; }
 
 
         /// <summary>
@@ -157,45 +146,17 @@ namespace BW.Common.Entities.Games
 
 
         /// <summary>
-        /// 投注金额
-        /// </summary>
-        [Column("BetMoney")]
-        public decimal BetMoney { get; set; }
-
-
-        /// <summary>
-        /// 盈亏金额
+        /// 转账金额（正数为转入，负数为转出）
         /// </summary>
         [Column("Money")]
         public decimal Money { get; set; }
 
 
         /// <summary>
-        /// 游戏代码
-        /// </summary>
-        [Column("Game")]
-        public string Game { get; set; }
-
-
-        /// <summary>
-        /// 本地数据的更新时间
-        /// </summary>
-        [Column("UpdateAt")]
-        public long UpdateAt { get; set; }
-
-
-        /// <summary>
-        /// 订单状态
+        /// 转账状态 Create ,Success,Faild, Exception
         /// </summary>
         [Column("Status")]
-        public OrderStatus Status { get; set; }
-
-
-        /// <summary>
-        /// 原始数据的MD5码，用于判断是否需要更新数据
-        /// </summary>
-        [Column("MD5")]
-        public string MD5 { get; set; }
+        public TransferStatus Status { get; set; }
 
         #endregion
 

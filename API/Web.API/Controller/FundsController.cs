@@ -46,5 +46,11 @@ namespace Web.API.Controller
             result.OrderID = transfer.OrderID;
             return this.GetResultContent(result);
         }
+
+        public ContentResult Check([FromBody] CheckTransferRequest request)
+        {
+            CheckTransferResult result = TransferAgent.Instance().Check(this.SiteInfo, request.OrderID);
+            return this.GetResultContent(result);
+        }
     }
 }

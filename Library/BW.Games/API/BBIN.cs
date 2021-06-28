@@ -5,6 +5,7 @@ using SP.StudioCore.Array;
 using SP.StudioCore.Mvc.Exceptions;
 using SP.StudioCore.Net;
 using SP.StudioCore.Security;
+using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -164,6 +165,9 @@ namespace BW.Games.API
                 10008 => APIResultType.BADMONEY,
                 47005 => APIResultType.BADNAME,
                 44900 => APIResultType.IP,
+                44003 => APIResultType.BUSY,
+                40014 => APIResultType.DATEEROOR,
+                10002 => APIResultType.NOBALANCE,
                 _ => APIResultType.Faild
             };
         }
@@ -263,9 +267,104 @@ namespace BW.Games.API
             return new(resultType);
         }
 
+        /// <summary>
+        /// 日志拉取（美东时间）
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
-            throw new NotImplementedException();
+            bool isNewDate = true;
+            DateTime now = DateTime.Now.AddHours(-12);
+            if (order.Time == 0)
+            {
+                order.Time = WebAgent.GetTimestamps(DateTime.Now.AddDays(-7));
+            }
+            // 上次的结束时间
+            DateTime startAt = WebAgent.GetTimestamps(order.Time);
+            if (startAt > now.AddMinutes(-5)) startAt = now.AddMinutes(-5);
+            // 本次的结束时间
+            DateTime endAt = startAt.AddMinutes(60);
+            if (endAt > now) endAt = now;
+
+            // 如果加上30分钟后不是同一天，则调整为23:59:59
+            if (startAt.Date != endAt.Date)
+            {
+                endAt = startAt.Date.AddSeconds(23 * 3600 + 59 * 60 + 59);
+                if (endAt < now)
+                {
+                    isNewDate = true;
+                }
+            }
+
+            Dictionary<string, object> data = new()
+            {
+                { "rounddate", startAt.ToString("yyyy-MM-dd") },
+                { "starttime", startAt.ToString("HH:mm:ss") },
+                { "endtime", endAt.ToString("HH:mm:ss") },
+                { "gamekind", 3 },
+                { "key", this.GetKey(1, string.Empty, t => t.KEYBetRecord, 8) },
+                { "pagelimit", 500 }
+            };
+
+            APIResultType resultType = this.POST("BetRecord", data, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            //进行中
+            //{"UserName":"ceshi01","WagersID":"28372850177","WagersDate":"2021-06-28 12:24:01",
+            //"SerialID":"227425823","RoundNo":"18-48","GameType":"3001","WagerDetail":"2,1:1,50.00,0.00",
+            //"GameCode":"82","Result":"","Card":"","BetAmount":"50.00","Origin":"P",
+            //"Commissionable":"0.00","Payoff":"0.0000","Currency":"RMB","ExchangeRate":"1.000000","ResultType":"0"}]
+
+            // 已结算
+            //{"UserName":"ceshi01","WagersID":"28372829681","WagersDate":"2021-06-28 12:19:34",
+            //"SerialID":"227425156","RoundNo":"18-41","GameType":"3001",
+            //"WagerDetail":"2,1:1,60.00,0.00","GameCode":"82","Result":"0,0",
+            //"Card":"D.4,D.12,D.6*H.8,C.6,S.6","BetAmount":"60.00","Origin":"P",
+            //"Commissionable":"0.00","Payoff":"0.0000","Currency":"RMB","ExchangeRate":"1.000000","ResultType":" "}
+
+            foreach (JObject item in ((JObject)info)["data"])
+            {
+                OrderStatus status = OrderStatus.Wait;
+                switch (item["ResultType"].Value<string>())
+                {
+                    case "0":
+                        status = OrderStatus.Wait;
+                        break;
+                    case "-1":
+                        status = OrderStatus.Revoke;
+                        break;
+                    default:
+                        decimal payoff = item["Payoff"].Value<decimal>();
+                        if (payoff > 0M)
+                        {
+                            status = OrderStatus.Win;
+                        }
+                        else if (payoff < 0M)
+                        {
+                            status = OrderStatus.Lose;
+                        }
+                        else
+                        {
+                            status = OrderStatus.Revoke;
+                        }
+                        break;
+                }
+
+                yield return new OrderResult
+                {
+                    OrderID = item["WagersID"].Value<string>(),
+                    UserName = item["UserName"].Value<string>(),
+                    CreateAt = WebAgent.GetTimestamps(item["WagersDate"].Value<DateTime>().AddHours(12)),
+                    FinishAt = WebAgent.GetTimestamps(item["WagersDate"].Value<DateTime>().AddHours(12)),
+                    BetMoney = item["BetAmount"].Value<decimal>(),
+                    Money = item["Payoff"].Value<decimal>(),
+                    Game = item["GameType"].Value<string>(),
+                    RawData = item.ToString(),
+                    Status = status
+                };
+            }
+            order.Time = WebAgent.GetTimestamps(isNewDate ? endAt.AddSeconds(1) : endAt);
         }
     }
 }

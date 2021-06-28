@@ -92,6 +92,7 @@ namespace BW.Common.Agent.Users
         /// <returns></returns>
         public UserModel GetUserModel(int siteId, int userId)
         {
+            if (siteId == 0 || userId == 0) return default;
             UserModel user = UserCaching.Instance().GetUserInfo(userId);
             if (user && user.SiteID != siteId) return default;
 

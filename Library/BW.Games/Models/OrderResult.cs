@@ -50,5 +50,10 @@ namespace BW.Games.Models
         /// 供应商的原始数据
         /// </summary>
         public string RawData;
+
+        /// <summary>
+        /// 订单状态
+        /// </summary>
+        public OrderStatus Status;
     }
 }

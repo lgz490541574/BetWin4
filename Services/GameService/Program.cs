@@ -38,7 +38,7 @@ namespace GameService
             {
                 while (true)
                 {
-                    OrderAgent.Instance().GetOrders(2);
+                    OrderAgent.Instance().GetOrders(6);
                 }
             });
         }

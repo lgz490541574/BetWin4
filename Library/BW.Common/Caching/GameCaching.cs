@@ -52,6 +52,26 @@ namespace BW.Common.Caching
             return this.NewExecutor().HashGet(key, userId);
         }
 
+        private const string TRNASFER = "TRANSFER:";
+
+        /// <summary>
+        /// 检查转账订单号是否可用
+        /// </summary>
+        /// <param name="siteId"></param>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        internal bool CheckTransferID(int siteId, string orderId)
+        {
+            string key = $"{TRNASFER}{siteId}:{orderId}";
+            return this.NewExecutor().StringSet(key, true, TimeSpan.FromDays(1), When.NotExists);
+        }
+
+        internal bool RemoveTransferID(int siteId, string orderId)
+        {
+            string key = $"{TRNASFER}{siteId}:{orderId}";
+            return this.NewExecutor().KeyDelete(key);
+        }
+
         /// <summary>
         /// 游戏名字获取用户资料
         /// </summary>

@@ -92,6 +92,7 @@ namespace BW.Common.Agent.Games
                 FinishAt = order.FinishAt,
                 Game = order.Game,
                 UpdateAt = WebAgent.GetTimestamps(),
+                Status = order.Status,
                 MD5 = rawMD5
             };
             if (string.IsNullOrEmpty(md5))
