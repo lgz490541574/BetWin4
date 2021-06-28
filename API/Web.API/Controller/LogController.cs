@@ -18,7 +18,7 @@ namespace Web.API.Controller
         /// <returns></returns>
         public ContentResult Order()
         {
-
+            throw new NotImplementedException();
         }
     }
 }
