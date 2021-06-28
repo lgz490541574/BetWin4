@@ -82,5 +82,12 @@ namespace Web.System.Controller
                 Setting = setting?.ToSettingObject()
             });
         }
+
+        /// <summary>
+        /// 更新游戏配置缓存
+        /// </summary>
+        /// <returns></returns>
+        public ContentResult UpdateCache()
+            => this.GetResultContent(GameAgent.Instance().UpdateCache());
     }
 }

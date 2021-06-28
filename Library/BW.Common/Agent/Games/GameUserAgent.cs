@@ -14,16 +14,38 @@ namespace BW.Common.Agent.Games
     /// </summary>
     public sealed class GameUserAgent : AgentBase<GameUserAgent>
     {
-        public GameUser GetGameUserInfo(int gameId, int siteId, int userId)
+        public GameUser GetGameUserInfo(int gameId, int userId)
         {
-            return this.ReadDB.ReadInfo<GameUser>(t => t.GameID == gameId && t.SiteID == siteId && t.UserID == userId);
+            return this.ReadDB.ReadInfo<GameUser>(t => t.GameID == gameId && t.UserID == userId);
+        }
+
+        public GameUser GetGameUserInfo(int gameId, string userName)
+        {
+            return this.ReadDB.ReadInfo<GameUser>(t => t.GameID == gameId && t.UserName == userName);
         }
 
         public GameUserModel GetGameUser(int gameId, int siteId, int userId)
         {
-            GameUserModel gameUser = GameCaching.Instance().GetGameUser(gameId, siteId, userId);
+            GameUserModel gameUser = GameCaching.Instance().GetGameUser(gameId, userId);
             if (gameUser) return gameUser;
-            gameUser = this.GetGameUserInfo(gameId, siteId, userId);
+            gameUser = this.GetGameUserInfo(gameId, userId);
+            if (!gameUser) return gameUser;
+            gameUser = GameCaching.Instance().SaveGameUser(gameUser);
+            if (siteId != gameUser.SiteID) return default;
+            return gameUser;
+        }
+
+        /// <summary>
+        /// 通过游戏中的用户名获取用户资料
+        /// </summary>
+        /// <param name="gameId"></param>
+        /// <param name="userName"></param>
+        /// <returns></returns>
+        public GameUserModel GetGameUser(int gameId, string userName)
+        {
+            GameUserModel gameUser = GameCaching.Instance().GetGameUser(gameId, userName);
+            if (gameUser) return gameUser;
+            gameUser = this.GetGameUserInfo(gameId, userName);
             if (!gameUser) return gameUser;
             return GameCaching.Instance().SaveGameUser(gameUser);
         }

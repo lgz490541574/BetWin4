@@ -69,5 +69,15 @@ namespace BW.Common.Agent.Games
             }
             return true;
         }
+
+        public List<GameModel> UpdateCache()
+        {
+            List<GameModel> list = new();
+            foreach (Game game in this.ReadDB.ReadList<Game>())
+            {
+                list.Add(GameCaching.Instance().SaveGameInfo(game));
+            }
+            return list;
+        }
     }
 }
