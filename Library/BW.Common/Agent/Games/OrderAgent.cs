@@ -1,4 +1,5 @@
-﻿using BW.Common.Caching;
+﻿using BW.Common.Agent.Users;
+using BW.Common.Caching;
 using BW.Common.Entities.Games;
 using BW.Common.Models.Games;
 using BW.Common.Utils;
@@ -79,6 +80,7 @@ namespace BW.Common.Agent.Games
 
             // 通过用户名去拿用户ID和商户
             GameUserModel user = GameUserAgent.Instance().GetGameUser(gameId, order.UserName);
+            string userName = UserInfoAgent.Instance().GetUserModel(user.SiteID, user.UserID).UserName;
 
             GameOrder gameOrder = new GameOrder
             {
@@ -86,6 +88,7 @@ namespace BW.Common.Agent.Games
                 GameID = gameId,
                 SiteID = user.SiteID,
                 UserID = user.UserID,
+                UserName = userName,
                 BetMoney = order.BetMoney,
                 Money = order.Money,
                 CreateAt = order.CreateAt,

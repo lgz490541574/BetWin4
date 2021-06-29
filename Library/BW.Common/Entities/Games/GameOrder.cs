@@ -35,6 +35,9 @@ namespace BW.Common.Entities.Games
                     case "UserID":
                         this.UserID = (int)reader[i];
                         break;
+                    case "UserName":
+                        this.UserName = (string)reader[i];
+                        break;
                     case "CreateAt":
                         this.CreateAt = (long)reader[i];
                         break;
@@ -82,6 +85,9 @@ namespace BW.Common.Entities.Games
                     case "UserID":
                         this.UserID = (int)dr[i];
                         break;
+                    case "UserName":
+                        this.UserName = (string)dr[i];
+                        break;
                     case "CreateAt":
                         this.CreateAt = (long)dr[i];
                         break;
@@ -117,7 +123,7 @@ namespace BW.Common.Entities.Games
         /// <summary>
         /// 游戏订单号
         /// </summary>
-        [Column("OrderID"), Key]
+        [Column("OrderID"),Key]
         public string OrderID { get; set; }
 
 
@@ -140,6 +146,13 @@ namespace BW.Common.Entities.Games
         /// </summary>
         [Column("UserID")]
         public int UserID { get; set; }
+
+
+        /// <summary>
+        /// 用户名
+        /// </summary>
+        [Column("UserName")]
+        public string UserName { get; set; }
 
 
         /// <summary>
@@ -200,7 +213,7 @@ namespace BW.Common.Entities.Games
         #endregion
 
 
-        #region  ========  扩展方法  ========
+#region  ========  扩展方法  ========
 
 
         #endregion

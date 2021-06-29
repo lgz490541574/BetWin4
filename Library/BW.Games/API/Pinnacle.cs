@@ -66,9 +66,17 @@ namespace BW.Games.API
                 }
             };
             result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
-            JObject info = JObject.Parse(result.Result);
-            result.Info = info;
-            result.Code = info.ContainsKey("code") ? this.GetResultType(info["code"].Value<int>()) : APIResultType.Success;
+            JToken info = JToken.Parse(result.Result);
+            if (info.Type == JTokenType.Array)
+            {
+                result.Info = (JArray)info;
+                result.Code = APIResultType.Success;
+            }
+            else if (info.Type == JTokenType.Object)
+            {
+                result.Info = (JObject)info;
+                result.Code = ((JObject)info).ContainsKey("code") ? this.GetResultType(((JObject)info)["code"].Value<int>()) : APIResultType.Success;
+            }
             return result;
         }
 
@@ -200,9 +208,84 @@ namespace BW.Games.API
             return new TransferResult(transfer.OrderID, sourceId, transfer.Money, ((JObject)info)["availableBalance"].Value<decimal>());
         }
 
+        /// <summary>
+        /// 美东事件(时差-12小时)
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
-            throw new NotImplementedException();
+            DateTime now = DateTime.Now.AddHours(-12);
+
+            DateTime startAt = order.Time == 0 ? DateTime.Now.AddDays(-7) : WebAgent.GetTimestamps(order.Time);
+            startAt = startAt.AddMinutes(-5);
+            DateTime endAt = startAt.AddHours(1);
+            if (endAt > now) endAt = now;
+
+            //{ "wagerId":1747880128,"eventName":"England-vs-Germany","parentEventName":null,"headToHead":null,
+            //"wagerDateFm":"2021-06-29 12:05:20","eventDateFm":"2021-06-29 12:00:00","settleDateFm":null,
+            //"status":"OPEN","homeTeam":"England","awayTeam":"Germany","selection":"Germany",
+            //"handicap":0.00,"odds":3.080,"oddsFormat":1,"betType":1,"league":"UEFA - EURO",
+            //"leagueId":5264,"stake":15.00,"sportId":29,"sport":"Soccer","currencyCode":"CNY","inplayScore":"0-0",
+            //"inPlay":true,"homePitcher":null,"awayPitcher":null,"homePitcherName":null,"awayPitcherName":null,
+            //"period":0,"cancellationStatus":null,"parlaySelections":[],"category":null,"toWin":31.2000000,
+            //"toRisk":15.0000000,"product":"SB","parlayMixOdds":3.0800000,"wagerType":"single","competitors":[],
+            //"userCode":"3410101PL7","loginId":"ceshi01","winLoss":0.00,"turnover":0.00,"scores":[],"result":null}
+
+
+            APIResultType resultType = this.POST("/report/all-wagers", new()
+            {
+                { "dateFrom", startAt.ToString("yyyy-MM-dd HH:mm:ss") },
+                { "dateTo", endAt.ToString("yyyy-MM-dd HH:mm:ss") }
+            }, out object info);
+
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+            foreach (JObject item in (JArray)info)
+            {
+                OrderStatus status = OrderStatus.Wait;
+                switch (item["status"].Value<string>())
+                {
+                    case "PENDING":
+                    case "OPEN":
+                        status = OrderStatus.Wait;
+                        break;
+                    case "CANCELLED":
+                    case "DELETED":
+                        status = OrderStatus.Revoke;
+                        break;
+                    case "SETTLED":
+                        decimal winLose = item["winLoss"].Value<decimal>();
+                        if (winLose > 0M)
+                        {
+                            status = OrderStatus.Win;
+                        }
+                        else if (winLose < 0M)
+                        {
+                            status = OrderStatus.Lose;
+                        }
+                        else
+                        {
+                            status = OrderStatus.Revoke;
+                        }
+                        break;
+                }
+                yield return new OrderResult
+                {
+                    OrderID = item["wagerId"].Value<string>(),
+                    BetMoney = item["stake"].Value<decimal>(),
+                    Money = item["winLoss"].Value<decimal>(),
+                    CreateAt = WebAgent.GetTimestamps(item["wagerDateFm"].Value<DateTime>().AddHours(12)),
+                    FinishAt = item["settleDateFm"].Type == JTokenType.Null ? 0 : WebAgent.GetTimestamps(item["settleDateFm"].Value<DateTime>().AddHours(12)),
+                    Game = item["sportId"].Value<string>(),
+                    UserName = item["loginId"].Value<string>(),
+                    Status = status,
+                    RawData = item.ToString()
+                };
+            }
+
+            order.Time = WebAgent.GetTimestamps(endAt);
+            yield break;
         }
     }
 }

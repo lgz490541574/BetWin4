@@ -205,13 +205,13 @@ namespace BW.Games.API
 
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
-            if (order.Time == 0) order.Time = WebAgent.GetTimestamps(new DateTime(2021, 1, 1));
+            if (order.Time == 0) order.Time = WebAgent.GetTimestamps(DateTime.Now.AddDays(-7));
             DateTime startAt = WebAgent.GetTimestamps(order.Time).AddMinutes(-1);
-            DateTime endAt = startAt.AddDays(1);
+            DateTime endAt = startAt.AddHours(1);
             if (endAt > DateTime.Now) endAt = DateTime.Now;
             int pageIndex = 1;
             int maxPage = 1;
-            int pageSize = 1024;
+            int pageSize = 100;
             while (pageIndex <= maxPage)
             {
                 Dictionary<string, object> data = new()
@@ -230,7 +230,6 @@ namespace BW.Games.API
                 maxPage = recordCount % pageSize == 0 ? recordCount / pageSize : recordCount / pageSize + 1;
                 foreach (JObject item in ((JObject)info)["list"])
                 {
-                    string game = item["Type"].Value<string>();
                     DateTime rewardAt = item["RewardAt"].Value<DateTime>();
 
                     yield return new OrderResult
@@ -241,7 +240,7 @@ namespace BW.Games.API
                         Money = item["Money"].Value<decimal>(),
                         CreateAt = WebAgent.GetTimestamps(item["CreateAt"].Value<DateTime>()),
                         FinishAt = rewardAt > new DateTime(2020, 1, 1) ? WebAgent.GetTimestamps(rewardAt) : 0,
-                        Game = game,
+                        Game = item["Type"].Value<string>(),
                         RawData = item.ToString()
                     };
                 }
