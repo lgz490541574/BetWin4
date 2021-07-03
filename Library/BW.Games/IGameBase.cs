@@ -37,14 +37,15 @@ namespace BW.Games
         protected void SaveLog(string url, string result, APIResultType resultType, PostDataModel data)
         {
             this.GameDelegate?.SaveLog(this.Type, url, result, resultType, data);
-            //if (resultType != APIResultType.Success)
-            //{
-            Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(result);
-            Console.ForegroundColor = ConsoleColor.DarkGreen;
-            Console.WriteLine(data.ToJson());
-            Console.ResetColor();
-            //}
+            lock (typeof(IGameBase))
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(data.ToJson());
+                Console.ForegroundColor = ConsoleColor.DarkGray;
+                Console.WriteLine(result);
+                Console.ResetColor();
+                Console.WriteLine("".PadLeft(32, '='));
+            }
         }
 
         protected IGameBase(string queryString) : base(queryString)
@@ -124,6 +125,6 @@ namespace BW.Games
             return result.Code;
         }
 
-        
+
     }
 }

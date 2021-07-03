@@ -6,9 +6,11 @@ using BW.Common.Utils;
 using BW.Games;
 using BW.Games.Exceptions;
 using BW.Games.Models;
+using SP.StudioCore.Data;
 using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -48,11 +50,19 @@ namespace BW.Common.Agent.Games
             List<OrderResult> list = new();
             try
             {
-                foreach (OrderResult order in game.GetOrders(orderRequest))
+                IEnumerable<OrderResult> orderlist = game.GetOrders(orderRequest);
+                foreach (OrderResult order in orderlist)
                 {
                     // 写入数据库
                     this.SaveOrder(gameId, order);
                 }
+                // 批量写入Redis
+                GameCaching.Instance().SaveOrderDetail(orderlist.Select(t => new OrderDetailResult
+                {
+                    GameID = gameId,
+                    OrderID = t.OrderID,
+                    Data = t.RawData
+                }));
             }
             catch (Exception ex)
             {
@@ -106,6 +116,30 @@ namespace BW.Common.Agent.Games
             {
                 this.WriteDB.Update(gameOrder);
             }
+
+            Task.Run(() =>
+            {
+                GameOrderDetail detail = new GameOrderDetail
+                {
+                    GameID = gameOrder.GameID,
+                    OrderID = gameOrder.OrderID,
+                    SiteID = user.SiteID,
+                    RawData = order.RawData
+                };
+                using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
+                {
+                    if (db.Exists(detail))
+                    {
+                        db.Update(detail);
+                    }
+                    else
+                    {
+                        db.Insert(detail);
+                    }
+
+                    db.Commit();
+                }
+            });
         }
     }
 }

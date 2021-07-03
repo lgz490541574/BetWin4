@@ -117,12 +117,13 @@ namespace BW.Common.Caching
         public void SaveOrderQueue()
         {
             RedisValue[] games = this.NewExecutor().HashKeys(ORDER_REQUEST);
+            this.NewExecutor().KeyDelete(ORDER_QUEUE);
             this.NewExecutor().ListRightPush(ORDER_QUEUE, games);
         }
 
         private const string ORDER_REQUEST = "ORDER:REQUEST";
         /// <summary>
-        /// 存入订单采集时间节点
+        /// 存入订单采集时间节点并且再次写入任务
         /// </summary>
         public void SaveOrderRequest(int gameId, OrderRequest orderRequest)
         {
@@ -137,6 +138,55 @@ namespace BW.Common.Caching
             RedisValue value = this.NewExecutor().HashGet(ORDER_REQUEST, gameId);
             if (value.IsNullOrEmpty) return default;
             return JsonConvert.DeserializeObject<OrderRequest>(value.GetRedisValue<string>());
+        }
+
+        #endregion
+
+        #region ========  游戏日志详情（有效期30天)  ========
+
+        /// <summary>
+        /// 写入订单详情（有效时间30天）
+        /// </summary>
+        /// <param name="gameId"></param>
+        /// <param name="orderId"></param>
+        /// <param name="detail"></param>
+        public void SaveOrderDetail(OrderDetailResult detail)
+        {
+            this.NewExecutor().StringSet(detail, detail, TimeSpan.FromDays(30));
+        }
+
+        /// <summary>
+        /// 批量写入订单详情
+        /// </summary>
+        /// <param name="gameId"></param>
+        /// <param name="orderId"></param>
+        /// <param name="detail"></param>
+        public void SaveOrderDetail(IEnumerable<OrderDetailResult> details)
+        {
+            IBatch batch = this.NewExecutor().CreateBatch();
+            foreach (OrderDetailResult detail in details)
+            {
+                batch.StringSetAsync(detail, detail, TimeSpan.FromDays(30));
+            }
+            batch.Execute();
+        }
+
+        /// <summary>
+        /// 批量获取订单明细
+        /// </summary>
+        /// <returns></returns>
+        public List<OrderDetailResult> GetOrderDetail(OrderDetailRequest[] requests)
+        {
+            List<OrderDetailResult> list = new();
+            if (!requests.Any()) return list;
+            RedisValue[] values = this.NewExecutor().StringGet(requests.Select(t => (RedisKey)t).ToArray());
+            for (int index = 0; index < requests.Length; index++)
+            {
+                RedisValue value = values[index];
+                if (value.IsNullOrEmpty) continue;
+                list.Add(new OrderDetailResult(requests[index], value));
+            }
+            return list;
         }
 
         #endregion

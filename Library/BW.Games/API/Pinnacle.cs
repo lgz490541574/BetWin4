@@ -236,7 +236,8 @@ namespace BW.Games.API
             APIResultType resultType = this.POST("/report/all-wagers", new()
             {
                 { "dateFrom", startAt.ToString("yyyy-MM-dd HH:mm:ss") },
-                { "dateTo", endAt.ToString("yyyy-MM-dd HH:mm:ss") }
+                { "dateTo", endAt.ToString("yyyy-MM-dd HH:mm:ss") },
+                { "filterBy", "update_date" }
             }, out object info);
 
             if (resultType != APIResultType.Success) throw new APIResultException(resultType);

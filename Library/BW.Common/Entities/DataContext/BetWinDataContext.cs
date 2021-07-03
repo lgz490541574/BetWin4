@@ -42,5 +42,15 @@ namespace BW.Common.Entities.DataContext
 
         public DbSet<User> User { get; set; }
 
+        /// <summary>
+        /// 游戏日志
+        /// </summary>
+        public DbSet<GameOrder> GameOrder { get; set; }
+
+        /// <summary>
+        /// 原始日志内容
+        /// </summary>
+        public DbSet<GameOrderDetail> GameOrderDetail { get; set; }
+
     }
 }

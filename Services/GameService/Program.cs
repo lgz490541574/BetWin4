@@ -34,11 +34,11 @@ namespace GameService
             GameCaching.Instance().SaveOrderQueue();
 
             // 多线程执行
-            Parallel.For(0, 1, index =>
+            Parallel.For(0, 4, index =>
             {
                 while (true)
                 {
-                    OrderAgent.Instance().GetOrders(2);
+                    OrderAgent.Instance().GetOrders();
                 }
             });
         }

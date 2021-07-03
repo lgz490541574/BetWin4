@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace BW.Games.Models
 {
     /// <summary>
-    /// 订单日志
+    /// 订单日志查询之后的返回内容
     /// </summary>
     public struct OrderResult
     {

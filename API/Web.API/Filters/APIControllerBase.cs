@@ -1,6 +1,8 @@
-﻿using BW.Common.Models.Sites;
+﻿using BW.Common.Entities.DataContext;
+using BW.Common.Models.Sites;
 using Microsoft.AspNetCore.Mvc;
 using SP.StudioCore.Http;
+using SP.StudioCore.Ioc;
 using SP.StudioCore.Json;
 using SP.StudioCore.Model;
 using SP.StudioCore.Mvc;
@@ -15,6 +17,8 @@ namespace Web.API.Filters
     public abstract class APIControllerBase : MvcControllerBase
     {
         protected SiteModel SiteInfo => HttpContext.GetItem<SiteModel>();
+
+        protected BetWinDataContext BDC => IocCollection.GetService<BetWinDataContext>();
 
         protected override Result GetResultContent(object data)
         {
