@@ -64,6 +64,7 @@ namespace BW.Games.API
         {
             return code switch
             {
+                0 => APIResultType.Success,
                 60001 => APIResultType.NOUSER,
                 //Credit can't be negative
                 10000 => APIResultType.BADMONEY,
@@ -136,30 +137,39 @@ namespace BW.Games.API
             return result;
         }
 
+        private PostResult apiLog(string method, Dictionary<string, object> data)
+        {
+            if (!data.ContainsKey("cagent")) data.Add("cagent", "DF6");
+            if (!data.ContainsKey("gametype")) data.Add("gametype", string.Empty);
+            if (!data.ContainsKey("order")) data.Add("order", "reckontime");
+            if (!data.ContainsKey("by")) data.Add("by", "ASC");
+            if (!data.ContainsKey("page")) data.Add("page", 1);
+            if (!data.ContainsKey("perpage")) data.Add("perpage", 500);
+            data.Add("key",
+                Encryption.toMD5(string.Concat("DF6", data["startdate"], data["enddate"], data["gametype"], data["order"],
+                data["by"], data["page"], data["perpage"], this.pidtoken)).ToLower());
+
+            PostResult result = new()
+            {
+                Data = data,
+                Header = new()
+                {
+                    { "User-Agent", $"WEB_LIB_GI_{ Agent }" }
+                },
+                Url = $"{this.Gateway}/{method}?{data.ToQueryString()}"
+            };
+            result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
+            XElement root = XElement.Parse(result.Result);
+            result.Code = this.GetErrorCode(root.Element("info").Value.GetValue<int>());
+            result.Info = root;
+            return result;
+        }
+
         internal override PostResult POST(string method, Dictionary<string, object> data)
         {
             if (!string.IsNullOrEmpty(method))
             {
-                if (!data.ContainsKey("cagent")) data.Add("cagent", this.Agent);
-                if (!data.ContainsKey("gametype")) data.Add("gametype", string.Empty);
-                if (!data.ContainsKey("order")) data.Add("order", "reckontime");
-                if (!data.ContainsKey("by")) data.Add("by", "ASC");
-                if (!data.ContainsKey("page")) data.Add("page", 1);
-                if (!data.ContainsKey("perpage")) data.Add("perpage", 500);
-                data.Add("key",
-                    Encryption.toMD5(string.Concat(this.Agent, data["startdate"], data["enddate"], data["gametype"], data["order"], data["by"], data["page"], data["perpage"], this.pidtoken)));
-
-                PostResult result = new()
-                {
-                    Data = data,
-                    Header = new()
-                    {
-                        { "User-Agent", $"WEB_LIB_GI_{ Agent }" }
-                    },
-                    Url = $"{this.Gateway}/{method}?{data.ToQueryString()}"
-                };
-                result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
-                return result;
+                return this.apiLog(method, data);
             }
             else
             {
@@ -336,9 +346,41 @@ namespace BW.Games.API
                 { "startdate",DateTime.Now.AddHours(-12).AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss") },
                 { "enddate",DateTime.Now.AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") }
             }, out object info);
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
 
-            Console.WriteLine(resultType);
-            throw new NotImplementedException();
+            XElement root = (XElement)info;
+            foreach (XElement row in root.Elements("row"))
+            {
+                int flag = row.GetAttributeValue("flag", 0);
+                decimal netAmount = row.GetAttributeValue("netAmount", 0M);
+                OrderStatus status = OrderStatus.Wait;
+                if (flag == 1)
+                {
+                    if (netAmount > 0)
+                    {
+                        status = OrderStatus.Win;
+                    }
+                    else if (netAmount < 0)
+                    {
+                        status = OrderStatus.Lose;
+                    }
+                    else
+                    {
+                        status = OrderStatus.Revoke;
+                    }
+                }
+                yield return new OrderResult
+                {
+                    OrderID = row.GetAttributeValue("billNo"),
+                    UserName = row.GetAttributeValue("playName"),
+                    Game = row.GetAttributeValue("gameType"),
+                    CreateAt = WebAgent.GetTimestamps(row.GetAttributeValue("betTime", DateTime.Now).AddHours(12)),
+                    BetMoney = row.GetAttributeValue("betAmount", 0M),
+                    Money = netAmount,
+                    FinishAt = flag == 0 ? 0 : WebAgent.GetTimestamps(row.GetAttributeValue("recalcuTime", DateTime.Now).AddHours(12)),
+                    Status = status
+                };
+            }
         }
     }
 }
