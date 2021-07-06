@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using SP.StudioCore.Array;
 using SP.StudioCore.Net;
 using SP.StudioCore.Security;
+using SP.StudioCore.Types;
 using SP.StudioCore.Web;
 using SP.StudioCore.Xml;
 using System;
@@ -14,11 +15,15 @@ using System.Linq;
 using System.Net;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
 namespace BW.Games.API
 {
+    /// <summary>
+    /// AG（视讯）
+    /// </summary>
     public sealed class AG : IGameBase
     {
         #region =======  字段  ========
@@ -27,11 +32,14 @@ namespace BW.Games.API
         public string Gateway { get; set; }
 
         [Description("游戏地址")]
-        public string ForwardGame { get; set; } = "https://gci.avia01.com/forwardGame.do";
+        public string ForwardGame { get; set; }
 
         [Description("密钥")]
         public string KEY { get; set; }
 
+        /// <summary>
+        /// 代理编码
+        /// </summary>
         [Description("代理")]
         public string Agent { get; set; }
 
@@ -42,15 +50,28 @@ namespace BW.Games.API
         public string CurMoney { get; set; } = "CNY";
 
         /// <summary>
-        /// 真钱/试玩
+        /// 调用API数据接口所需要用到的明码
         /// </summary>
-        [Description("真钱or试玩")]
-        public int Actype { get; set; } = 1;
+        [Description("明码")]
+        public string pidtoken { get; set; }
 
 
         #endregion
 
         #region ========  工具方法  ========
+
+        private APIResultType GetErrorCode(int code)
+        {
+            return code switch
+            {
+                60001 => APIResultType.NOUSER,
+                //Credit can't be negative
+                10000 => APIResultType.BADMONEY,
+                //Credit not enough
+                10002 => APIResultType.NOBALANCE,
+                _ => APIResultType.Faild
+            };
+        }
 
         private string _desEncrypt(string str, string key)
         {
@@ -75,7 +96,7 @@ namespace BW.Games.API
             }
         }
 
-        internal override PostResult POST(string method, Dictionary<string, object> data)
+        private PostResult doBusiness(Dictionary<string, object> data)
         {
             string apiParam = string.Join(@"/\\\\/", data.Select(t => string.Format("{0}={1}", t.Key, t.Value)));
             apiParam = this._desEncrypt(apiParam, KEY);
@@ -94,19 +115,56 @@ namespace BW.Games.API
                 },
                 Original = data
             };
-            result.Url = $"{ this.Gateway }?{ result.Data.ToQueryString() }";
+            result.Url = $"{ this.Gateway }/doBusiness.do?{ result.Data.ToQueryString() }";
             result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
             XElement root = XElement.Parse(result.Result);
-
-            if (string.IsNullOrEmpty(root.GetAttributeValue("msg", string.Empty)))
+            result.Info = root;
+            string msg = root.GetAttributeValue("msg", string.Empty);
+            if (string.IsNullOrEmpty(msg))
             {
                 result.Code = APIResultType.Success;
+            }
+            else if (Regex.IsMatch(msg, @"^error:\d+"))
+            {
+                int errorCode = Regex.Match(msg, @"^error:(?<Code>\d+)").Groups["Code"].Value.GetValue<int>();
+                result.Code = this.GetErrorCode(errorCode);
             }
             else
             {
                 result.Code = APIResultType.Faild;
             }
             return result;
+        }
+
+        internal override PostResult POST(string method, Dictionary<string, object> data)
+        {
+            if (!string.IsNullOrEmpty(method))
+            {
+                if (!data.ContainsKey("cagent")) data.Add("cagent", this.Agent);
+                if (!data.ContainsKey("gametype")) data.Add("gametype", string.Empty);
+                if (!data.ContainsKey("order")) data.Add("order", "reckontime");
+                if (!data.ContainsKey("by")) data.Add("by", "ASC");
+                if (!data.ContainsKey("page")) data.Add("page", 1);
+                if (!data.ContainsKey("perpage")) data.Add("perpage", 500);
+                data.Add("key",
+                    Encryption.toMD5(string.Concat(this.Agent, data["startdate"], data["enddate"], data["gametype"], data["order"], data["by"], data["page"], data["perpage"], this.pidtoken)));
+
+                PostResult result = new()
+                {
+                    Data = data,
+                    Header = new()
+                    {
+                        { "User-Agent", $"WEB_LIB_GI_{ Agent }" }
+                    },
+                    Url = $"{this.Gateway}/{method}?{data.ToQueryString()}"
+                };
+                result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
+                return result;
+            }
+            else
+            {
+                return this.doBusiness(data);
+            }
         }
 
         /// <summary>
@@ -123,7 +181,7 @@ namespace BW.Games.API
                 { "billno", orderId },
                 { "type", action },
                 { "actype", 1 },
-                { "credit", money.ToString("0.00") },
+                { "credit", money },
                 { "password", password },
                 { "cur", this.CurMoney }
             };
@@ -168,19 +226,20 @@ namespace BW.Games.API
 
         public override RegisterResult Register(RegisterRequest register)
         {
+            string userName = this.GetUserName(register);
             string password = "a123456";
             Dictionary<string, object> data = new()
             {
                 { "cagent", Agent },
-                { "loginname", register.UserName },
+                { "loginname", userName },
                 { "password", password },
-                { "actype", Actype.ToString() },//1:代表真钱账号，0：代表试玩账号
+                { "actype", 1 },//1:代表真钱账号，0：代表试玩账号
                 { "method", "lg" },
                 { "oddtype", "A" },  //盘口
                 { "cur", this.CurMoney }
             };
             APIResultType resultType = this.POST(null, data, out _);
-            if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER) return new RegisterResult(register.UserName, password);
+            if (resultType == APIResultType.Success || resultType == APIResultType.EXISTSUSER) return new RegisterResult(userName, password);
             return new RegisterResult(resultType);
         }
 
@@ -197,32 +256,88 @@ namespace BW.Games.API
                 { "method", "tcc" },
                 { "billno", sourceId },
                 { "type", "IN" },
-                { "credit", transfer.Money.ToString("0.00") },
-                { "actype", this.Actype.ToString() },
+                { "credit", transfer.Money },
+                { "actype", 1 },
                 { "flag", "1" },
                 { "password", transfer.Password },
                 { "cur", this.CurMoney }
             };
 
-            APIResultType resultType = this.POST(null, data, out _);
+            APIResultType resultType = this.POST(null, data, out object info);
             if (resultType == APIResultType.Success)
             {
                 return new TransferResult(transfer.OrderID, sourceId, transfer.Money);
             }
+
+            throw new APIResultException(resultType);
+        }
+
+
+        public override TransferResult Withdraw(TransferRequest transfer)
+        {
+            string sourceId = transfer.SourceID;
+            sourceId = this.Agent + sourceId.PadLeft(16 - this.Agent.Length, '0');
+            if (!this.prepareTransferCredit(transfer.UserName, transfer.Password, transfer.Money, "IN", sourceId)) return default;
+
+            Dictionary<string, object> data = new()
+            {
+                { "cagent", this.Agent },
+                { "loginname", transfer.UserName },
+                { "method", "tcc" },
+                { "billno", sourceId },
+                { "type", "OUT" },
+                { "credit", transfer.Money },
+                { "actype", 1 },
+                { "flag", "1" },
+                { "password", transfer.Password },
+                { "cur", this.CurMoney }
+            };
+
+            APIResultType resultType = this.POST(null, data, out object info);
+            if (resultType == APIResultType.Success)
+            {
+                return new TransferResult(transfer.OrderID, sourceId, transfer.Money);
+            }
+
             throw new APIResultException(resultType);
         }
 
         public override BalanceResult Balance(BalanceRequest balance)
         {
-            throw new NotImplementedException();
-        }
+            APIResultType resultType = this.POST(null, new Dictionary<string, object>
+            {
+                {"cagent",this.Agent },
+                {"loginname",balance.UserName },
+                {"method","gb" },
+                {"actype",1 },
+                {"password",balance.Password },
+                {"cur",this.CurMoney }
+            }, out object info);
+            if (resultType == APIResultType.NOUSER)
+            {
+                if (this.Register(new RegisterRequest
+                {
+                    UserName = balance.UserName,
+                    Password = balance.Password
+                }))
+                {
+                    return new BalanceResult(balance.UserName, decimal.Zero);
+                }
+            }
+            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
 
-        public override TransferResult Withdraw(TransferRequest transfer)
-        {
-            throw new NotImplementedException();
+            XElement root = (XElement)info;
+            return new BalanceResult(balance.UserName, root.GetAttributeValue("info", decimal.Zero));
         }
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
+            APIResultType resultType = this.POST("getorders.xml", new Dictionary<string, object>()
+            {
+                { "startdate",DateTime.Now.AddHours(-12).AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss") },
+                { "enddate",DateTime.Now.AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") }
+            }, out object info);
+
+            Console.WriteLine(resultType);
             throw new NotImplementedException();
         }
     }

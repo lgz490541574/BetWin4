@@ -24,6 +24,7 @@ namespace BW.Games
 
         protected string GetUserName(RegisterRequest register)
         {
+            if (string.IsNullOrEmpty(register.Prefix)) return register.UserName;
             return string.Concat(register.Prefix, this.UserSplit, register.UserName);
         }
 
@@ -39,6 +40,8 @@ namespace BW.Games
             this.GameDelegate?.SaveLog(this.Type, url, result, resultType, data);
             lock (typeof(IGameBase))
             {
+                Console.ForegroundColor = ConsoleColor.DarkBlue;
+                Console.WriteLine(url);
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
                 Console.WriteLine(data.ToJson());
                 Console.ForegroundColor = ConsoleColor.DarkGray;

@@ -33,6 +33,9 @@ namespace GameService
             // 首次执行写入所有的队列
             GameCaching.Instance().SaveOrderQueue();
 
+            Console.ReadLine();
+            OrderAgent.Instance().GetOrders(1);
+            return;
             // 多线程执行
             Parallel.For(0, 4, index =>
             {

@@ -25,7 +25,7 @@ namespace BW.Games.Models
         public string Prefix { get; set; }
 
         /// <summary>
-        /// 外部用户名
+        /// 外部用户名（当Prefix为空的时候，为游戏用户名）
         /// </summary>
         public string UserName { get; set; }
 
@@ -33,10 +33,5 @@ namespace BW.Games.Models
         /// 密码（会员注册的时候才需要赋值）
         /// </summary>
         public string Password { get; set; }
-
-        public string GetUserName(char split)
-        {
-            return string.Concat(this.Prefix, split, this.UserName);
-        }
     }
 }

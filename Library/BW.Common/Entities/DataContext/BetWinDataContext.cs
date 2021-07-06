@@ -30,6 +30,7 @@ namespace BW.Common.Entities.DataContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<GameUser>().HasKey(t => new { t.GameID, t.SiteID, t.UserID });
+            modelBuilder.Entity<GameOrderDetail>().HasKey(t => new { t.GameID, t.OrderID });
 
             base.OnModelCreating(modelBuilder);
         }
