@@ -8,6 +8,7 @@ using BW.Games.API;
 using BW.Games.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using SP.StudioCore.Array;
 using SP.StudioCore.Data.Repository;
 using SP.StudioCore.Ioc;
 using SP.StudioCore.Services;
@@ -32,9 +33,12 @@ namespace GameService
 
             // 首次执行写入所有的队列
             GameCaching.Instance().SaveOrderQueue();
-
-            OrderAgent.Instance().GetOrders(1);
-            return;
+            if (args.Contains("-test"))
+            {
+                Console.ReadLine();
+                OrderAgent.Instance().GetOrders(args.Get("-game", 0));
+                return;
+            }
             // 多线程执行
             Parallel.For(0, 4, index =>
             {

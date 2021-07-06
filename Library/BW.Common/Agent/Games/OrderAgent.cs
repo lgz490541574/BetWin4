@@ -55,9 +55,10 @@ namespace BW.Common.Agent.Games
                 {
                     // 写入数据库
                     this.SaveOrder(gameId, order);
+                    list.Add(order);
                 }
                 // 批量写入Redis
-                GameCaching.Instance().SaveOrderDetail(orderlist.Select(t => new OrderDetailResult
+                GameCaching.Instance().SaveOrderDetail(list.Select(t => new OrderDetailResult
                 {
                     GameID = gameId,
                     OrderID = t.OrderID,

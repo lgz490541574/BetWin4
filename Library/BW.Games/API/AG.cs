@@ -2,6 +2,7 @@
 using BW.Games.Models;
 using Newtonsoft.Json.Linq;
 using SP.StudioCore.Array;
+using SP.StudioCore.Json;
 using SP.StudioCore.Net;
 using SP.StudioCore.Security;
 using SP.StudioCore.Types;
@@ -339,48 +340,66 @@ namespace BW.Games.API
             XElement root = (XElement)info;
             return new BalanceResult(balance.UserName, root.GetAttributeValue("info", decimal.Zero));
         }
+
+        /// <summary>
+        /// 美东时间(-12)
+        /// </summary>
+        /// <param name="order"></param>
+        /// <returns></returns>
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
-            APIResultType resultType = this.POST("getorders.xml", new Dictionary<string, object>()
+            int total = 1;
+            int page = 1;
+            DateTime now = DateTime.Now.AddHours(-12);
+            DateTime startTime = order.Time == 0 ? DateTime.Now.AddDays(-3).AddHours(-12) : WebAgent.GetTimestamps(order.Time).AddMinutes(-2);
+            DateTime endTime = startTime.AddMinutes(10);
+            if (endTime > now) endTime = now;
+            while (page <= total)
             {
-                { "startdate",DateTime.Now.AddHours(-12).AddMinutes(-10).ToString("yyyy-MM-dd HH:mm:ss") },
-                { "enddate",DateTime.Now.AddHours(-12).ToString("yyyy-MM-dd HH:mm:ss") }
+                APIResultType resultType = this.POST("getorders.xml", new Dictionary<string, object>()
+            {
+                { "startdate",startTime.ToString("yyyy-MM-dd HH:mm:ss") },
+                { "enddate",endTime.ToString("yyyy-MM-dd HH:mm:ss") }
             }, out object info);
-            if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+                if (resultType != APIResultType.Success) throw new APIResultException(resultType);
 
-            XElement root = (XElement)info;
-            foreach (XElement row in root.Elements("row"))
-            {
-                int flag = row.GetAttributeValue("flag", 0);
-                decimal netAmount = row.GetAttributeValue("netAmount", 0M);
-                OrderStatus status = OrderStatus.Wait;
-                if (flag == 1)
+                XElement root = (XElement)info;
+                foreach (XElement row in root.Elements("row"))
                 {
-                    if (netAmount > 0)
+                    int flag = row.GetAttributeValue("flag", 0);
+                    decimal netAmount = row.GetAttributeValue("netAmount", 0M);
+                    OrderStatus status = OrderStatus.Wait;
+                    if (flag == 1)
                     {
-                        status = OrderStatus.Win;
+                        if (netAmount > 0)
+                        {
+                            status = OrderStatus.Win;
+                        }
+                        else if (netAmount < 0)
+                        {
+                            status = OrderStatus.Lose;
+                        }
+                        else
+                        {
+                            status = OrderStatus.Revoke;
+                        }
                     }
-                    else if (netAmount < 0)
+                    yield return new OrderResult
                     {
-                        status = OrderStatus.Lose;
-                    }
-                    else
-                    {
-                        status = OrderStatus.Revoke;
-                    }
+                        OrderID = row.GetAttributeValue("billNo"),
+                        UserName = row.GetAttributeValue("playName"),
+                        Game = row.GetAttributeValue("gameType"),
+                        CreateAt = WebAgent.GetTimestamps(row.GetAttributeValue("betTime", DateTime.Now).AddHours(12)),
+                        BetMoney = row.GetAttributeValue("betAmount", 0M),
+                        Money = netAmount,
+                        FinishAt = flag == 0 ? 0 : WebAgent.GetTimestamps(row.GetAttributeValue("recalcuTime", DateTime.Now).AddHours(12)),
+                        Status = status,
+                        RawData = row.ToJson()
+                    };
                 }
-                yield return new OrderResult
-                {
-                    OrderID = row.GetAttributeValue("billNo"),
-                    UserName = row.GetAttributeValue("playName"),
-                    Game = row.GetAttributeValue("gameType"),
-                    CreateAt = WebAgent.GetTimestamps(row.GetAttributeValue("betTime", DateTime.Now).AddHours(12)),
-                    BetMoney = row.GetAttributeValue("betAmount", 0M),
-                    Money = netAmount,
-                    FinishAt = flag == 0 ? 0 : WebAgent.GetTimestamps(row.GetAttributeValue("recalcuTime", DateTime.Now).AddHours(12)),
-                    Status = status
-                };
+                page++;
             }
+            order.Time = WebAgent.GetTimestamps(endTime);
         }
     }
 }
