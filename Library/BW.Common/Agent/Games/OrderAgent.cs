@@ -23,30 +23,30 @@ namespace BW.Common.Agent.Games
         /// 采集订单（不区分游戏）
         /// </summary>
         /// <returns></returns>
-        public void GetOrders(params int[] games)
+        public void GetOrders(params GameType[] games)
         {
-            int gameId = GameCaching.Instance().GetOrderQueue();
-            if (gameId == 0) return;
-            if (games.Length != 0 && !games.Contains(gameId))
+            GameType type = GameCaching.Instance().GetOrderQueue();
+            if (!Enum.IsDefined(typeof(GameType), type)) return;
+            if (games.Length != 0 && !games.Contains(type))
             {
-                GameCaching.Instance().SaveOrderQueue(gameId);
+                GameCaching.Instance().SaveOrderQueue(type);
                 return;
             }
-            this.GetOrders(gameId);
+            this.GetOrders(type);
         }
 
         /// <summary>
         /// 采集订单（存入本地数据库)
         /// </summary>
         /// <param name="siteId"></param>
-        /// <param name="gameId"></param>
+        /// <param name="type"></param>
         /// <param name="orderRequest"></param>
         /// <returns></returns>
-        private List<OrderResult> GetOrders(int gameId)
+        private List<OrderResult> GetOrders(GameType type)
         {
-            IGameBase game = GameUtils.GetGame(gameId);
+            IGameBase game = GameUtils.GetGame(type);
             if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
-            OrderRequest orderRequest = GameCaching.Instance().GetOrderRequest(gameId);
+            OrderRequest orderRequest = GameCaching.Instance().GetOrderRequest(type);
             List<OrderResult> list = new();
             try
             {
@@ -54,13 +54,13 @@ namespace BW.Common.Agent.Games
                 foreach (OrderResult order in orderlist)
                 {
                     // 写入数据库
-                    this.SaveOrder(gameId, order);
+                    this.SaveOrder(type, order);
                     list.Add(order);
                 }
-                // 批量写入Redis
+                // 把原始数据批量写入Redis
                 GameCaching.Instance().SaveOrderDetail(list.Select(t => new OrderDetailResult
                 {
-                    GameID = gameId,
+                    Type = type,
                     OrderID = t.OrderID,
                     Data = t.RawData
                 }));
@@ -68,12 +68,12 @@ namespace BW.Common.Agent.Games
             catch (Exception ex)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"{type}:{ex.Message}");
                 Console.ResetColor();
             }
             finally
             {
-                GameCaching.Instance().SaveOrderRequest(gameId, orderRequest);
+                GameCaching.Instance().SaveOrderRequest(type, orderRequest);
             }
             return list;
         }
@@ -82,21 +82,21 @@ namespace BW.Common.Agent.Games
         /// 存入数据库
         /// </summary>
         /// <param name="order"></param>
-        private void SaveOrder(int gameId, OrderResult order)
+        private void SaveOrder(GameType type, OrderResult order)
         {
             //#1 拿出原始数据MD5码
-            string md5 = this.ReadDB.ReadInfo<GameOrder, string>(t => t.MD5, t => t.OrderID == order.OrderID && t.GameID == gameId);
+            string md5 = this.ReadDB.ReadInfo<GameOrder, string>(t => t.MD5, t => t.OrderID == order.OrderID && t.Type == type);
             string rawMD5 = SP.StudioCore.Security.Encryption.toMD5(order.RawData, length: 16);
             if (md5 == rawMD5) return;
 
             // 通过用户名去拿用户ID和商户
-            GameUserModel user = GameUserAgent.Instance().GetGameUser(gameId, order.UserName);
+            GameUserModel user = GameUserAgent.Instance().GetGameUser(type, order.UserName);
             string userName = UserInfoAgent.Instance().GetUserModel(user.SiteID, user.UserID).UserName;
 
             GameOrder gameOrder = new GameOrder
             {
                 OrderID = order.OrderID,
-                GameID = gameId,
+                Type = type,
                 SiteID = user.SiteID,
                 UserID = user.UserID,
                 UserName = userName,
@@ -118,29 +118,26 @@ namespace BW.Common.Agent.Games
                 this.WriteDB.Update(gameOrder);
             }
 
-            Task.Run(() =>
+            GameOrderDetail detail = new GameOrderDetail
             {
-                GameOrderDetail detail = new GameOrderDetail
+                Type = gameOrder.Type,
+                OrderID = gameOrder.OrderID,
+                SiteID = user.SiteID,
+                RawData = order.RawData
+            };
+            using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
+            {
+                if (db.Exists(detail))
                 {
-                    GameID = gameOrder.GameID,
-                    OrderID = gameOrder.OrderID,
-                    SiteID = user.SiteID,
-                    RawData = order.RawData
-                };
-                using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
-                {
-                    if (db.Exists(detail))
-                    {
-                        db.Update(detail);
-                    }
-                    else
-                    {
-                        db.Insert(detail);
-                    }
-
-                    db.Commit();
+                    db.Update(detail);
                 }
-            });
+                else
+                {
+                    db.Insert(detail);
+                }
+
+                db.Commit();
+            }
         }
     }
 }

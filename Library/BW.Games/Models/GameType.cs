@@ -9,9 +9,9 @@ namespace BW.Games.Models
     public enum GameType : byte
     {
         /// <summary>
-        /// AG 亚游
+        /// AG 视讯
         /// </summary>
-        AG = 1,
+        AGLive = 1,
         /// <summary>
         /// 泛亚电竞
         /// </summary>
@@ -35,6 +35,10 @@ namespace BW.Games.Models
         /// <summary>
         /// 小金188
         /// </summary>
-        XJ188
+        XJ188 = 7,
+        /// <summary>
+        /// 开元棋牌
+        /// </summary>
+        KY = 8
     }
 }

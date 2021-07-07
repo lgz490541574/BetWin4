@@ -1,4 +1,5 @@
 ﻿using BW.Common.Models.Sites;
+using BW.Games.Models;
 using SP.StudioCore.Cache.Redis;
 using StackExchange.Redis;
 using System;
@@ -88,13 +89,13 @@ namespace BW.Common.Caching
 
         public SiteGameModel SaveSiteGame(SiteGameModel model)
         {
-            this.NewExecutor().HashSet($"{SITE_GAME}{model.SiteID}", model.GameID, model);
+            this.NewExecutor().HashSet($"{SITE_GAME}{model.SiteID}", model.Type.GetRedisValue(), model);
             return model;
         }
 
-        public SiteGameModel GetSiteGame(int siteId, int gameId)
+        public SiteGameModel GetSiteGame(int siteId, GameType type)
         {
-            return this.NewExecutor().HashGet($"{SITE_GAME}{siteId}", gameId);
+            return this.NewExecutor().HashGet($"{SITE_GAME}{siteId}", type.GetRedisValue());
         }
 
         #endregion

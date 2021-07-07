@@ -12,13 +12,11 @@ namespace BW.Games.Models
         /// <summary>
         /// 游戏
         /// </summary>
-        public int GameID { get; set; }
+        public GameType Game { get; set; }
 
         /// <summary>
         /// 时间戳起始点
         /// </summary>
         public long Time { get; set; }
-
-
     }
 }

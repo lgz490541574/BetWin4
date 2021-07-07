@@ -37,7 +37,7 @@ namespace Web.API.Controller
         /// <returns></returns>
         public ContentResult Login([FromBody] LoginRequest login)
         {
-            string loginUrl = LoginAgent.Instance().GameLogin(this.SiteInfo, login.UserName, login.GameID, login.PlayCode);
+            string loginUrl = LoginAgent.Instance().GameLogin(this.SiteInfo, login.UserName, login.Game, login.PlayCode);
             return this.GetResultContent(new
             {
                 Code = APIResultType.Success,

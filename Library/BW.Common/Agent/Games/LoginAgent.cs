@@ -32,22 +32,22 @@ namespace BW.Common.Agent.Games
         /// 游戏登录
         /// </summary>
         /// <returns></returns>
-        public string GameLogin(int siteId, string userName, int gameId, string playCode)
+        public string GameLogin(int siteId, string userName, GameType type, string playCode)
         {
             //#1 找到用户ID
             int userId = UserInfoAgent.Instance().GetUserID(siteId, userName);
             if (userId == 0) throw new APIResultException(APIResultType.NOUSER);
 
-            IGameBase game = GameUtils.GetGame(gameId);
+            IGameBase game = GameUtils.GetGame(type);
             if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             //#1 找出用户在这个游戏里面的用户信息
-            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(gameId, siteId, userId);
+            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(type, siteId, userId);
 
             // 如果本地没有当前用户，则自动注册
             if (!gameUser)
             {
-                gameUser = this.GameRegister(siteId, userId, gameId);
+                gameUser = this.GameRegister(siteId, userId, type);
             }
 
             LoginResult result = game.Login(new LoginRequest
@@ -72,9 +72,9 @@ namespace BW.Common.Agent.Games
         /// <param name="userId"></param>
         /// <param name="gameId"></param>
         /// <returns></returns>
-        public GameUserModel GameRegister(int siteId, int userId, int gameId)
+        public GameUserModel GameRegister(int siteId, int userId, GameType type)
         {
-            IGameBase game = GameUtils.GetGame(gameId);
+            IGameBase game = GameUtils.GetGame(type);
             if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             SiteModel site = SiteCaching.Instance().GetSiteInfo(siteId);
@@ -90,7 +90,7 @@ namespace BW.Common.Agent.Games
             {
                 GameUser gameUser = new GameUser
                 {
-                    GameID = gameId,
+                    Type = type,
                     SiteID = siteId,
                     UserID = userId,
                     UserName = result.UserName,

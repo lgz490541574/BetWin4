@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BW.Common.Models.Enums;
+using BW.Games.Models;
 
 namespace BW.Common.Entities.Games
 {
@@ -32,8 +33,8 @@ namespace BW.Common.Entities.Games
                     case "SiteID":
                         this.SiteID = (int)reader[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)reader[i];
+                    case "Type":
+                        this.Type = (GameType)reader[i];
                         break;
                     case "UserID":
                         this.UserID = (int)reader[i];
@@ -70,8 +71,8 @@ namespace BW.Common.Entities.Games
                     case "SiteID":
                         this.SiteID = (int)dr[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)dr[i];
+                    case "Type":
+                        this.Type = (GameType)dr[i];
                         break;
                     case "UserID":
                         this.UserID = (int)dr[i];
@@ -114,10 +115,10 @@ namespace BW.Common.Entities.Games
 
 
         /// <summary>
-        /// 选择的游戏
+        /// 游戏类型
         /// </summary>
-        [Column("GameID")]
-        public int GameID { get; set; }
+        [Column("Type")]
+        public GameType Type { get; set; }
 
 
         [Column("UserID")]

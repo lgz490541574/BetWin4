@@ -19,7 +19,7 @@ namespace Web.API.Controller
         {
             //# 查询日志
             var list = this.BDC.GameOrder.Where(t => t.SiteID == this.SiteInfo);
-            if (request.GameID != 0) list = list.Where(t => t.GameID == request.GameID);
+            if (Enum.IsDefined(typeof(GameType), request.Game)) list = list.Where(t => t.Type == request.Game);
             list = list.Where(t => t.UpdateAt > request.Time);
 
             var orderlist = list.OrderBy(t => t.UpdateAt).Take(100).ToList();
@@ -31,7 +31,7 @@ namespace Web.API.Controller
                 Data = orderlist.Select(t => new
                 {
                     t.OrderID,
-                    t.GameID,
+                    t.Game,
                     t.UserName,
                     t.CreateAt,
                     t.FinishAt,

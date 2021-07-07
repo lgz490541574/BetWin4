@@ -80,7 +80,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">游戏：</label>
                             <div class="layui-input-inline">
-                                <select name="GameID"></select>
+                                <select name="Game"></select>
                             </div>
                         </div>
                     </div>
@@ -109,7 +109,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">游戏：</label>
                             <div class="layui-input-inline">
-                                <select name="GameID"></select>
+                                <select name="Game"></select>
                             </div>
                         </div>
                     </div>
@@ -138,7 +138,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">游戏：</label>
                             <div class="layui-input-inline">
-                                <select name="GameID"></select>
+                                <select name="Game"></select>
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -179,7 +179,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">游戏：</label>
                             <div class="layui-input-inline">
-                                <select name="GameID"></select>
+                                <select name="Game"></select>
                             </div>
                         </div>
                         <div class="layui-inline">
@@ -237,7 +237,7 @@
                         <div class="layui-inline">
                             <label class="layui-form-label">游戏：</label>
                             <div class="layui-input-inline">
-                                <select name="GameID">
+                                <select name="Game">
                                     <option value="0">全部</option>
                                 </select>
                             </div>
@@ -266,21 +266,22 @@
             let element = layui.element,
                 form = layui.form,
                 $ = layui.$,
-                game = [
-                    { "ID": 1, "Name": "AG" },
-                    { "ID": 2, "Name": "泛亚电竞" },
-                    { "ID": 3, "Name": "平博体育" },
-                    { "ID": 4, "Name": "IM体育" },
-                    { "ID": 5, "Name": "电竞牛" },
-                    { "ID": 6, "Name": "BBIN" },
-                    { "ID": 7, "Name": "小金188" }
-                ]
+                game = {
+                    "AGLive": "AG视讯",
+                    "AVIA": "泛亚电竞",
+                    "Pinnacle": "平博体育",
+                    "IMSport": "IM体育",
+                    "IMOne": "电竞牛",
+                    "BBIN": "BBIN视讯",
+                    "XJ188": "小金188体育",
+                    "KY": "开元棋牌"
+                };
 
-            document.body.querySelectorAll("select[name='GameID']").forEach(t => {
-                game.forEach(op => {
-                    let option = new Option(op.Name, op.ID);
+            document.body.querySelectorAll("select[name='Game']").forEach(t => {
+                for (let type in game) {
+                    let option = new Option(game[type], type);
                     t.options.add(option);
-                });
+                }
             });
 
             document.body.querySelectorAll("input[name='OrderID']").forEach(t => {

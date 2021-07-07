@@ -12,13 +12,13 @@ namespace BW.Games.Models
     /// </summary>
     public class OrderDetailRequest
     {
-        public int GameID { get; set; }
+        public GameType Game { get; set; }
 
         public string OrderID { get; set; }
 
         public static implicit operator RedisKey(OrderDetailRequest request)
         {
-            return $"{request.GameID}:{request.OrderID}";
+            return $"{request.Game}:{request.OrderID}";
         }
     }
 }

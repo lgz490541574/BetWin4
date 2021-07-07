@@ -1,4 +1,5 @@
 ﻿using BW.Common.Models.Enums;
+using BW.Games.Models;
 using Newtonsoft.Json;
 using SP.StudioCore.Cache.Redis;
 using StackExchange.Redis;
@@ -17,7 +18,7 @@ namespace BW.Common.Models.Sites
     {
         public int SiteID;
 
-        public int GameID;
+        public GameType Type;
 
         public SiteGameStatus Status { get; set; }
 
@@ -36,7 +37,7 @@ namespace BW.Common.Models.Sites
 
         public static implicit operator bool(SiteGameModel model)
         {
-            return model.SiteID != 0 && model.GameID != 0;
+            return model.SiteID != 0 && Enum.IsDefined(typeof(GameType), model.Type);
         }
     }
 }

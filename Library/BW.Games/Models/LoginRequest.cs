@@ -14,7 +14,7 @@ namespace BW.Games.Models
         /// <summary>
         /// 指定的游戏登录
         /// </summary>
-        public int GameID { get; set; }
+        public GameType Game { get; set; }
 
         /// <summary>
         /// 游戏用户名

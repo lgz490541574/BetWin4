@@ -24,6 +24,6 @@ namespace BW.Games.Models
         /// <summary>
         /// 所在游戏
         /// </summary>
-        public int GameID { get; set; }
+        public GameType Game { get; set; }
     }
 }

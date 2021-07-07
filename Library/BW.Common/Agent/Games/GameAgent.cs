@@ -1,6 +1,7 @@
 ﻿using BW.Common.Caching;
 using BW.Common.Entities.Games;
 using BW.Common.Models.Games;
+using BW.Games.Models;
 using SP.StudioCore.Data;
 using SP.StudioCore.Mvc.Exceptions;
 using System;
@@ -20,23 +21,21 @@ namespace BW.Common.Agent.Games
         /// <summary>
         /// 获取游戏配置对象（数据库读取）
         /// </summary>
-        /// <param name="gameId"></param>
-        /// <returns></returns>
-        public Game GetGameInfo(int gameId)
+        public Game GetGameInfo(GameType type)
         {
-            return this.ReadDB.ReadInfo<Game>(t => t.ID == gameId);
+            return this.ReadDB.ReadInfo<Game>(t => t.Type == type);
         }
 
         /// <summary>
         /// 获取游戏配置对象
         /// </summary>
-        /// <param name="gameId"></param>
+        /// <param name="type"></param>
         /// <returns></returns>
-        public GameModel GetGameModel(int gameId)
+        public GameModel GetGameModel(GameType type)
         {
-            GameModel game = GameCaching.Instance().GetGameInfo(gameId);
-            if (!game) return game;
-            game = this.GetGameInfo(gameId);
+            GameModel game = GameCaching.Instance().GetGameInfo(type);
+            if (game) return game;
+            game = this.GetGameInfo(type);
             if (!game) return default;
             return GameCaching.Instance().SaveGameInfo(game);
         }
@@ -48,12 +47,12 @@ namespace BW.Common.Agent.Games
         /// <returns></returns>
         public bool SaveGameInfo(Game game)
         {
-            if (game.ID == 0) throw new ResultException("未指定游戏ID");
+            if (!Enum.IsDefined(typeof(GameType), game.Type)) throw new ResultException("未指定游戏类型");
             using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
             {
                 if (db.Exists(game))
                 {
-                    db.Update(game, t => t.Type, t => t.Status, t => t.Setting);
+                    db.Update(game, t => t.Status, t => t.Setting);
                 }
                 else
                 {

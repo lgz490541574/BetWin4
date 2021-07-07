@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BW.Games.Models;
 
 namespace BW.Common.Entities.Sites
 {
@@ -31,8 +32,8 @@ namespace BW.Common.Entities.Sites
                     case "SiteID":
                         this.SiteID = (int)reader[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)reader[i];
+                    case "Type":
+                        this.Type = (GameType)reader[i];
                         break;
                     case "Credit":
                         this.Credit = (decimal)reader[i];
@@ -54,8 +55,8 @@ namespace BW.Common.Entities.Sites
                     case "SiteID":
                         this.SiteID = (int)dr[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)dr[i];
+                    case "Type":
+                        this.Type = (GameType)dr[i];
                         break;
                     case "Credit":
                         this.Credit = (decimal)dr[i];
@@ -75,12 +76,15 @@ namespace BW.Common.Entities.Sites
         public string ID { get; set; }
 
 
-        [Column("SiteID")]
+        [Column("SiteID"), Key]
         public int SiteID { get; set; }
 
 
-        [Column("GameID")]
-        public int GameID { get; set; }
+        /// <summary>
+        /// 游戏类型
+        /// </summary>
+        [Column("Type")]
+        public GameType Type { get; set; }
 
 
         /// <summary>

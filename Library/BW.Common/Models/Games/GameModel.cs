@@ -17,10 +17,6 @@ namespace BW.Common.Models.Games
     /// </summary>
     public struct GameModel
     {
-        /// <summary>
-        /// 游戏编号
-        /// </summary>
-        public int ID;
 
         /// <summary>
         /// 游戏类型
@@ -55,7 +51,7 @@ namespace BW.Common.Models.Games
 
         public static implicit operator bool(GameModel game)
         {
-            return game.ID != 0;
+            return Enum.IsDefined(typeof(GameType), game.Type);
         }
     }
 }

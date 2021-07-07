@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using BW.Games.Models;
+using Newtonsoft.Json;
 using SP.StudioCore.Cache.Redis;
 using StackExchange.Redis;
 using System;
@@ -14,7 +15,7 @@ namespace BW.Common.Models.Games
     /// </summary>
     public struct GameUserModel
     {
-        public int GameID;
+        public GameType Type;
 
         public int SiteID;
 
@@ -42,7 +43,8 @@ namespace BW.Common.Models.Games
 
         public static implicit operator bool(GameUserModel gameUser)
         {
-            return gameUser.GameID != 0 && gameUser.SiteID != 0 && gameUser.UserID != 0 && !string.IsNullOrEmpty(gameUser.UserName);
+            return Enum.IsDefined(typeof(GameType), gameUser.Type) && 
+                gameUser.SiteID != 0 && gameUser.UserID != 0 && !string.IsNullOrEmpty(gameUser.UserName);
         }
     }
 }

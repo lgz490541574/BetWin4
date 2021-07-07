@@ -17,7 +17,7 @@ namespace BW.Games.Models
 
         public string OrderID { get; set; }
 
-        public int GameID { get; set; }
+        public GameType Game { get; set; }
 
         public string UserName { get; set; }
 

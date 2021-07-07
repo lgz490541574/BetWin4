@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using BW.Common.Models.Enums;
 using BW.Common.Models.Sites;
+using BW.Games.Models;
 
 namespace BW.Common.Entities.Sites
 {
@@ -30,8 +31,8 @@ namespace BW.Common.Entities.Sites
                     case "SiteID":
                         this.SiteID = (int)reader[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)reader[i];
+                    case "Type":
+                        this.Type = (GameType)reader[i];
                         break;
                     case "Status":
                         this.Status = (SiteGameStatus)reader[i];
@@ -59,8 +60,8 @@ namespace BW.Common.Entities.Sites
                     case "SiteID":
                         this.SiteID = (int)dr[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)dr[i];
+                    case "Type":
+                        this.Type = (GameType)dr[i];
                         break;
                     case "Status":
                         this.Status = (SiteGameStatus)dr[i];
@@ -82,12 +83,15 @@ namespace BW.Common.Entities.Sites
 
         #region  ========  数据库字段  ========
 
-        [Column("SiteID"),Key]
+        [Column("SiteID"), Key]
         public int SiteID { get; set; }
 
 
-        [Column("GameID"),Key]
-        public int GameID { get; set; }
+        /// <summary>
+        /// 游戏类型
+        /// </summary>
+        [Column("Type"), Key]
+        public GameType Type { get; set; }
 
 
         /// <summary>
@@ -120,7 +124,7 @@ namespace BW.Common.Entities.Sites
         #endregion
 
 
-#region  ========  扩展方法  ========
+        #region  ========  扩展方法  ========
 
         public static implicit operator SiteGameModel(SiteGame siteGame)
         {
@@ -128,7 +132,7 @@ namespace BW.Common.Entities.Sites
             return new SiteGameModel
             {
                 SiteID = siteGame.SiteID,
-                GameID = siteGame.GameID,
+                Type = siteGame.Type,
                 Rate = siteGame.Rate,
                 Status = siteGame.Status
             };

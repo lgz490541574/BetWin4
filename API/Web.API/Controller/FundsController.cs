@@ -21,7 +21,7 @@ namespace Web.API.Controller
         /// <returns></returns>
         public ContentResult Balance([FromBody] BalanceRequest balance)
         {
-            BalanceResult result = FundAgent.Instance().GetBalance(this.SiteInfo, balance.UserName, balance.GameID);
+            BalanceResult result = FundAgent.Instance().GetBalance(this.SiteInfo, balance.UserName, balance.Game);
             return this.GetResultContent(result);
         }
 
@@ -31,7 +31,7 @@ namespace Web.API.Controller
         /// <returns></returns>
         public ContentResult Recharge([FromBody] TransferRequest transfer)
         {
-            TransferResult result = TransferAgent.Instance().Recharge(this.SiteInfo, transfer.UserName, transfer.GameID, transfer.OrderID, transfer.Money);
+            TransferResult result = TransferAgent.Instance().Recharge(this.SiteInfo, transfer.UserName, transfer.Game, transfer.OrderID, transfer.Money);
             result.OrderID = transfer.OrderID;
             return this.GetResultContent(result);
         }
@@ -42,7 +42,7 @@ namespace Web.API.Controller
         /// <returns></returns>
         public ContentResult Withdraw([FromBody] TransferRequest transfer)
         {
-            TransferResult result = TransferAgent.Instance().Withdraw(this.SiteInfo, transfer.UserName, transfer.GameID, transfer.OrderID, transfer.Money);
+            TransferResult result = TransferAgent.Instance().Withdraw(this.SiteInfo, transfer.UserName, transfer.Game, transfer.OrderID, transfer.Money);
             result.OrderID = transfer.OrderID;
             return this.GetResultContent(result);
         }

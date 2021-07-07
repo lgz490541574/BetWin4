@@ -20,17 +20,17 @@ namespace BW.Common.Caching
 
         private const string GAME_INFO = "GAME:INFO";
 
-        internal GameModel GetGameInfo(int gameId)
+        internal GameModel GetGameInfo(GameType type)
         {
-            return this.NewExecutor().HashGet($"{GAME_INFO}", gameId.GetRedisValue());
+            return this.NewExecutor().HashGet($"{GAME_INFO}", type.GetRedisValue());
         }
 
         internal GameModel SaveGameInfo(GameModel game)
         {
-            this.NewExecutor().HashSet($"{GAME_INFO}", game.ID.GetRedisValue(), game);
-            if (!this.NewExecutor().HashExists(ORDER_REQUEST, game.ID))
+            this.NewExecutor().HashSet($"{GAME_INFO}", game.Type.GetRedisValue(), game);
+            if (!this.NewExecutor().HashExists(ORDER_REQUEST, game.Type.GetRedisValue()))
             {
-                this.SaveOrderRequest(game.ID, new OrderRequest());
+                this.SaveOrderRequest(game.Type, new OrderRequest());
             }
             return game;
         }
@@ -46,9 +46,9 @@ namespace BW.Common.Caching
         /// </summary>
         private const string GAME_NAME = "GAME:NAME:";
 
-        internal GameUserModel GetGameUser(int gameId, int userId)
+        internal GameUserModel GetGameUser(GameType type, int userId)
         {
-            string key = $"{GAME_USER}{gameId}:{userId % 100}";
+            string key = $"{GAME_USER}{type}:{userId % 100}";
             return this.NewExecutor().HashGet(key, userId);
         }
 
@@ -75,19 +75,19 @@ namespace BW.Common.Caching
         /// <summary>
         /// 游戏名字获取用户资料
         /// </summary>
-        internal GameUserModel GetGameUser(int gameId, string userName)
+        internal GameUserModel GetGameUser(GameType type, string userName)
         {
-            string key = $"{GAME_NAME}{gameId}";
+            string key = $"{GAME_NAME}{type}";
             return this.NewExecutor().HashGet(key, userName);
         }
 
         internal GameUserModel SaveGameUser(GameUserModel gameUser)
         {
             if (!gameUser) return default;
-            string key = $"{GAME_USER}{gameUser.GameID}:{gameUser.UserID % 100}";
+            string key = $"{GAME_USER}{gameUser.Type}:{gameUser.UserID % 100}";
             IBatch batch = this.NewExecutor().CreateBatch();
             batch.HashSetAsync(key, gameUser.UserID, gameUser);
-            batch.HashSetAsync($"{GAME_NAME}{gameUser.GameID}", gameUser.UserName, gameUser);
+            batch.HashSetAsync($"{GAME_NAME}{gameUser.Type}", gameUser.UserName, gameUser);
             return gameUser;
         }
 
@@ -102,16 +102,16 @@ namespace BW.Common.Caching
         /// 获取任务采集队列
         /// </summary>
         /// <returns></returns>
-        public int GetOrderQueue()
+        public GameType GetOrderQueue()
         {
             RedisValue value = this.NewExecutor().ListLeftPop(ORDER_QUEUE);
             if (value.IsNullOrEmpty) return default;
-            return value.GetRedisValue<int>();
+            return value.GetRedisValue<GameType>();
         }
 
-        public void SaveOrderQueue(int gameId)
+        public void SaveOrderQueue(GameType type)
         {
-            this.NewExecutor().ListRightPush(ORDER_QUEUE, gameId);
+            this.NewExecutor().ListRightPush(ORDER_QUEUE, type.GetRedisValue());
         }
 
         public void SaveOrderQueue()
@@ -125,17 +125,17 @@ namespace BW.Common.Caching
         /// <summary>
         /// 存入订单采集时间节点并且再次写入任务
         /// </summary>
-        public void SaveOrderRequest(int gameId, OrderRequest orderRequest)
+        public void SaveOrderRequest(GameType type, OrderRequest orderRequest)
         {
             IBatch batch = this.NewExecutor().CreateBatch();
-            batch.HashSetAsync(ORDER_REQUEST, gameId, JsonConvert.SerializeObject(orderRequest));
-            batch.ListRightPushAsync(ORDER_QUEUE, gameId);
+            batch.HashSetAsync(ORDER_REQUEST, type.GetRedisValue(), JsonConvert.SerializeObject(orderRequest));
+            batch.ListRightPushAsync(ORDER_QUEUE, type.GetRedisValue());
             batch.Execute();
         }
 
-        public OrderRequest GetOrderRequest(int gameId)
+        public OrderRequest GetOrderRequest(GameType type)
         {
-            RedisValue value = this.NewExecutor().HashGet(ORDER_REQUEST, gameId);
+            RedisValue value = this.NewExecutor().HashGet(ORDER_REQUEST, type.GetRedisValue());
             if (value.IsNullOrEmpty) return default;
             return JsonConvert.DeserializeObject<OrderRequest>(value.GetRedisValue<string>());
         }
@@ -147,9 +147,6 @@ namespace BW.Common.Caching
         /// <summary>
         /// 写入订单详情（有效时间30天）
         /// </summary>
-        /// <param name="gameId"></param>
-        /// <param name="orderId"></param>
-        /// <param name="detail"></param>
         public void SaveOrderDetail(OrderDetailResult detail)
         {
             this.NewExecutor().StringSet(detail, detail, TimeSpan.FromDays(30));
@@ -158,9 +155,6 @@ namespace BW.Common.Caching
         /// <summary>
         /// 批量写入订单详情
         /// </summary>
-        /// <param name="gameId"></param>
-        /// <param name="orderId"></param>
-        /// <param name="detail"></param>
         public void SaveOrderDetail(IEnumerable<OrderDetailResult> details)
         {
             IBatch batch = this.NewExecutor().CreateBatch();

@@ -25,7 +25,7 @@ namespace BW.Games.API
     /// <summary>
     /// AG（视讯）
     /// </summary>
-    public sealed class AG : IGameBase
+    public abstract class AG : IGameBase
     {
         #region =======  字段  ========
 
@@ -55,7 +55,6 @@ namespace BW.Games.API
         /// </summary>
         [Description("明码")]
         public string pidtoken { get; set; }
-
 
         #endregion
 
@@ -203,6 +202,8 @@ namespace BW.Games.API
 
         #endregion
 
+        protected override TimeSpan OffsetTime => TimeSpan.FromHours(-4);
+
         public AG(string queryString) : base(queryString)
         {
         }
@@ -283,7 +284,6 @@ namespace BW.Games.API
             throw new APIResultException(resultType);
         }
 
-
         public override TransferResult Withdraw(TransferRequest transfer)
         {
             string sourceId = transfer.SourceID;
@@ -341,65 +341,6 @@ namespace BW.Games.API
             return new BalanceResult(balance.UserName, root.GetAttributeValue("info", decimal.Zero));
         }
 
-        /// <summary>
-        /// 美东时间(-12)
-        /// </summary>
-        /// <param name="order"></param>
-        /// <returns></returns>
-        public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
-        {
-            int total = 1;
-            int page = 1;
-            DateTime now = DateTime.Now.AddHours(-12);
-            DateTime startTime = order.Time == 0 ? DateTime.Now.AddDays(-3).AddHours(-12) : WebAgent.GetTimestamps(order.Time).AddMinutes(-2);
-            DateTime endTime = startTime.AddMinutes(10);
-            if (endTime > now) endTime = now;
-            while (page <= total)
-            {
-                APIResultType resultType = this.POST("getorders.xml", new Dictionary<string, object>()
-            {
-                { "startdate",startTime.ToString("yyyy-MM-dd HH:mm:ss") },
-                { "enddate",endTime.ToString("yyyy-MM-dd HH:mm:ss") }
-            }, out object info);
-                if (resultType != APIResultType.Success) throw new APIResultException(resultType);
 
-                XElement root = (XElement)info;
-                foreach (XElement row in root.Elements("row"))
-                {
-                    int flag = row.GetAttributeValue("flag", 0);
-                    decimal netAmount = row.GetAttributeValue("netAmount", 0M);
-                    OrderStatus status = OrderStatus.Wait;
-                    if (flag == 1)
-                    {
-                        if (netAmount > 0)
-                        {
-                            status = OrderStatus.Win;
-                        }
-                        else if (netAmount < 0)
-                        {
-                            status = OrderStatus.Lose;
-                        }
-                        else
-                        {
-                            status = OrderStatus.Revoke;
-                        }
-                    }
-                    yield return new OrderResult
-                    {
-                        OrderID = row.GetAttributeValue("billNo"),
-                        UserName = row.GetAttributeValue("playName"),
-                        Game = row.GetAttributeValue("gameType"),
-                        CreateAt = WebAgent.GetTimestamps(row.GetAttributeValue("betTime", DateTime.Now).AddHours(12)),
-                        BetMoney = row.GetAttributeValue("betAmount", 0M),
-                        Money = netAmount,
-                        FinishAt = flag == 0 ? 0 : WebAgent.GetTimestamps(row.GetAttributeValue("recalcuTime", DateTime.Now).AddHours(12)),
-                        Status = status,
-                        RawData = row.ToJson()
-                    };
-                }
-                page++;
-            }
-            order.Time = WebAgent.GetTimestamps(endTime);
-        }
     }
 }

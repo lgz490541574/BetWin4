@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BW.Games.Models;
 
 namespace BW.Common.Agent.Games
 {
@@ -14,21 +15,21 @@ namespace BW.Common.Agent.Games
     /// </summary>
     public sealed class GameUserAgent : AgentBase<GameUserAgent>
     {
-        public GameUser GetGameUserInfo(int gameId, int userId)
+        public GameUser GetGameUserInfo(GameType type, int userId)
         {
-            return this.ReadDB.ReadInfo<GameUser>(t => t.GameID == gameId && t.UserID == userId);
+            return this.ReadDB.ReadInfo<GameUser>(t => t.Type == type && t.UserID == userId);
         }
 
-        public GameUser GetGameUserInfo(int gameId, string userName)
+        public GameUser GetGameUserInfo(GameType type, string userName)
         {
-            return this.ReadDB.ReadInfo<GameUser>(t => t.GameID == gameId && t.UserName == userName);
+            return this.ReadDB.ReadInfo<GameUser>(t => t.Type == type && t.UserName == userName);
         }
 
-        public GameUserModel GetGameUser(int gameId, int siteId, int userId)
+        public GameUserModel GetGameUser(GameType type, int siteId, int userId)
         {
-            GameUserModel gameUser = GameCaching.Instance().GetGameUser(gameId, userId);
+            GameUserModel gameUser = GameCaching.Instance().GetGameUser(type, userId);
             if (gameUser) return gameUser;
-            gameUser = this.GetGameUserInfo(gameId, userId);
+            gameUser = this.GetGameUserInfo(type, userId);
             if (!gameUser) return gameUser;
             gameUser = GameCaching.Instance().SaveGameUser(gameUser);
             if (siteId != gameUser.SiteID) return default;
@@ -38,14 +39,11 @@ namespace BW.Common.Agent.Games
         /// <summary>
         /// 通过游戏中的用户名获取用户资料
         /// </summary>
-        /// <param name="gameId"></param>
-        /// <param name="userName"></param>
-        /// <returns></returns>
-        public GameUserModel GetGameUser(int gameId, string userName)
+        public GameUserModel GetGameUser(GameType type, string userName)
         {
-            GameUserModel gameUser = GameCaching.Instance().GetGameUser(gameId, userName);
+            GameUserModel gameUser = GameCaching.Instance().GetGameUser(type, userName);
             if (gameUser) return gameUser;
-            gameUser = this.GetGameUserInfo(gameId, userName);
+            gameUser = this.GetGameUserInfo(type, userName);
             if (!gameUser) return gameUser;
             return GameCaching.Instance().SaveGameUser(gameUser);
         }

@@ -3,6 +3,7 @@ using BW.Common.Agent.Systems;
 using BW.Common.Entities.Sites;
 using BW.Common.Models.Enums;
 using BW.Common.Models.Sites;
+using BW.Games.Models;
 using Microsoft.AspNetCore.Mvc;
 using SP.StudioCore.Json;
 using SP.StudioCore.Mvc.Exceptions;
@@ -83,15 +84,15 @@ namespace Web.System.Controller
         /// <param name="siteId"></param>
         /// <param name="rate"></param>
         /// <returns></returns>
-        public ContentResult UpdateGameRate([FromForm] int siteId, [FromForm] int gameId, [FromForm] decimal rate)
+        public ContentResult UpdateGameRate([FromForm] int siteId, [FromForm] GameType type, [FromForm] decimal rate)
         {
-            SiteGameModel model = SiteGameAgent.Instance().GetSiteGameModel(siteId, gameId);
+            SiteGameModel model = SiteGameAgent.Instance().GetSiteGameModel(siteId, type);
             if (!model)
             {
                 model = new SiteGameModel
                 {
                     SiteID = siteId,
-                    GameID = gameId,
+                    Type = type,
                     Rate = rate
                 };
             }
@@ -103,15 +104,15 @@ namespace Web.System.Controller
             return this.GetResultContent(SiteGameAgent.Instance().SaveSiteGame(model).ToJson());
         }
 
-        public ContentResult UpdateGameStatus([FromForm] int siteId, [FromForm] int gameId, [FromForm] SiteGameStatus status)
+        public ContentResult UpdateGameStatus([FromForm] int siteId, [FromForm] GameType type, [FromForm] SiteGameStatus status)
         {
-            SiteGameModel model = SiteGameAgent.Instance().GetSiteGameModel(siteId, gameId);
+            SiteGameModel model = SiteGameAgent.Instance().GetSiteGameModel(siteId, type);
             if (!model)
             {
                 model = new SiteGameModel
                 {
                     SiteID = siteId,
-                    GameID = gameId,
+                    Type = type,
                     Status = status
                 };
             }

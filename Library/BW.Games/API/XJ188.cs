@@ -49,6 +49,10 @@ namespace BW.Games.API
 
         #region ========  工具方法  ========
 
+        /// <summary>
+        /// 美东时间
+        /// </summary>
+        protected override TimeSpan OffsetTime => TimeSpan.FromHours(-4);
 
         internal override PostResult POST(string method, Dictionary<string, object> data)
         {
@@ -184,7 +188,76 @@ namespace BW.Games.API
 
         public override IEnumerable<OrderResult> GetOrders(OrderRequest order)
         {
-            throw new NotImplementedException();
+            DateTime now = DateTime.UtcNow.Add(this.OffsetTime);
+
+            DateTime start = order.Time == 0 ? DateTime.UtcNow.Add(this.OffsetTime).AddDays(-7) : WebAgent.GetTimestamps(order.Time, this.OffsetTime).AddMinutes(-5);
+            DateTime end = start.AddHours(1);
+            if (end > now) end = now;
+
+            foreach (int isSettled in new[] { 3, 4 })
+            {
+                APIResultType resultType = this.POST("/API/Wagers", new()
+                {
+                    { "operatorId", this.OperatorID },
+                    { "vendorId", this.VendoID },
+                    { "from", start.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "to", end.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "isSettled", 3 }
+                }, out object info);
+                if (resultType != APIResultType.Success) throw new APIResultException(resultType);
+
+                foreach (JObject data in ((JObject)info)["data"].Value<JArray>())
+                {
+                    string memberCode = data["memberCode"].Value<string>();
+                    if (memberCode.StartsWith(this.Prefix)) memberCode = memberCode.Substring(this.Prefix.Length);
+                    int wagerStatus = data["wagerStatus"].Value<int>();
+                    decimal returnAmount = data["returnAmount"].Value<decimal>();
+                    decimal betMoney = data["stake"].Value<decimal>();
+                    decimal money = 0;
+
+                    OrderStatus status = OrderStatus.Wait;
+                    switch (wagerStatus)
+                    {
+                        case 1:
+                            status = OrderStatus.Wait;
+                            break;
+                        case 2:
+                            money = returnAmount - betMoney;
+                            if (money > 0)
+                            {
+                                status = OrderStatus.Win;
+                            }
+                            else if (money < 0)
+                            {
+                                status = OrderStatus.Lose;
+                            }
+                            else
+                            {
+                                status = OrderStatus.Revoke;
+                            }
+                            break;
+                        case 3:
+                        case 4:
+                            status = OrderStatus.Revoke;
+                            break;
+                    }
+
+                    JArray bets = JArray.Parse(data["bets"].Value<string>());
+                    yield return new OrderResult
+                    {
+                        OrderID = data["id"].Value<string>(),
+                        UserName = memberCode,
+                        CreateAt = WebAgent.GetTimestamps(data["createTime"].Value<DateTime>(), this.OffsetTime),
+                        FinishAt = WebAgent.GetTimestamps(data["settleTime"].Value<DateTime>(), this.OffsetTime),
+                        BetMoney = betMoney,
+                        Game = bets.Count == 1 ? bets[0]["event"]["gameType"].Value<string>() : "Combo",
+                        Money = money,
+                        Status = status,
+                        RawData = data.ToString()
+                    };
+                }
+            }
+            order.Time = WebAgent.GetTimestamps(end, this.OffsetTime);
         }
     }
 }

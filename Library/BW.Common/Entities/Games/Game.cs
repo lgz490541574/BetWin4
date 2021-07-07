@@ -29,9 +29,6 @@ namespace BW.Common.Entities.Games
             {
                 switch (reader.GetName(i))
                 {
-                    case "GameID":
-                        this.ID = (int)reader[i];
-                        break;
                     case "Type":
                         this.Type = (GameType)reader[i];
                         break;
@@ -52,9 +49,6 @@ namespace BW.Common.Entities.Games
             {
                 switch (dr.Table.Columns[i].ColumnName)
                 {
-                    case "GameID":
-                        this.ID = (int)dr[i];
-                        break;
                     case "Type":
                         this.Type = (GameType)dr[i];
                         break;
@@ -73,16 +67,9 @@ namespace BW.Common.Entities.Games
         #region  ========  数据库字段  ========
 
         /// <summary>
-        /// 游戏ID
-        /// </summary>
-        [Column("GameID"), Key]
-        public int ID { get; set; }
-
-
-        /// <summary>
         /// 所属游戏类型
         /// </summary>
-        [Column("Type")]
+        [Column("Type"), Key]
         public GameType Type { get; set; }
 
 
@@ -109,7 +96,6 @@ namespace BW.Common.Entities.Games
             if (game == null) return default;
             return new GameModel
             {
-                ID = game.ID,
                 Type = game.Type,
                 Setting = game.Setting,
                 Status = game.Status

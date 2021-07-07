@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BW.Common.Models.Games;
+using BW.Games.Models;
 
 namespace BW.Common.Entities.Games
 {
@@ -26,8 +27,8 @@ namespace BW.Common.Entities.Games
             {
                 switch (reader.GetName(i))
                 {
-                    case "GameID":
-                        this.GameID = (int)reader[i];
+                    case "Type":
+                        this.Type = (GameType)reader[i];
                         break;
                     case "SiteID":
                         this.SiteID = (int)reader[i];
@@ -61,8 +62,8 @@ namespace BW.Common.Entities.Games
             {
                 switch (dr.Table.Columns[i].ColumnName)
                 {
-                    case "GameID":
-                        this.GameID = (int)dr[i];
+                    case "Type":
+                        this.Type = (GameType)dr[i];
                         break;
                     case "SiteID":
                         this.SiteID = (int)dr[i];
@@ -93,8 +94,11 @@ namespace BW.Common.Entities.Games
 
         #region  ========  数据库字段  ========
 
-        [Column("GameID"), Key]
-        public int GameID { get; set; }
+        /// <summary>
+        /// 游戏类型
+        /// </summary>
+        [Column("Type"), Key]
+        public GameType Type { get; set; }
 
 
         [Column("SiteID"), Key]
@@ -146,7 +150,7 @@ namespace BW.Common.Entities.Games
             if (gameUser == null) return default;
             return new GameUserModel
             {
-                GameID = gameUser.GameID,
+                Type = gameUser.Type,
                 SiteID = gameUser.SiteID,
                 UserID = gameUser.UserID,
                 UserName = gameUser.UserName,

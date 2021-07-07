@@ -21,22 +21,22 @@ namespace BW.Common.Agent.Games
         /// 查询余额
         /// </summary>
         /// <returns></returns>
-        public BalanceResult GetBalance(int siteId, string userName, int gameId)
+        public BalanceResult GetBalance(int siteId, string userName, GameType type)
         {
             //#1 判断用户是否存在
             int userId = UserInfoAgent.Instance().GetUserID(siteId, userName);
             if (userId == 0) throw new APIResultException(APIResultType.NOUSER);
 
             //#1 找出用户在这个游戏里面的用户信息
-            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(gameId, siteId, userId);
+            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(type, siteId, userId);
 
             // 如果本地没有当前用户，则自动注册
             if (!gameUser)
             {
-                gameUser = LoginAgent.Instance().GameRegister(siteId, userId, gameId);
+                gameUser = LoginAgent.Instance().GameRegister(siteId, userId, type);
             }
 
-            IGameBase game = GameUtils.GetGame(gameId);
+            IGameBase game = GameUtils.GetGame(type);
             if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             return game.Balance(new BalanceRequest

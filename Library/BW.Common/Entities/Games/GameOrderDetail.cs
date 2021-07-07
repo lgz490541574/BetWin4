@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using BW.Games.Models;
 
 namespace BW.Common.Entities.Games
 {
@@ -28,8 +29,8 @@ namespace BW.Common.Entities.Games
                     case "OrderID":
                         this.OrderID = (string)reader[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)reader[i];
+                    case "Type":
+                        this.Type = (GameType)reader[i];
                         break;
                     case "SiteID":
                         this.SiteID = (int)reader[i];
@@ -51,8 +52,8 @@ namespace BW.Common.Entities.Games
                     case "OrderID":
                         this.OrderID = (string)dr[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)dr[i];
+                    case "Type":
+                        this.Type = (GameType)dr[i];
                         break;
                     case "SiteID":
                         this.SiteID = (int)dr[i];
@@ -72,8 +73,11 @@ namespace BW.Common.Entities.Games
         public string OrderID { get; set; }
 
 
-        [Column("GameID"), Key]
-        public int GameID { get; set; }
+        /// <summary>
+        /// 游戏类型
+        /// </summary>
+        [Column("Type"), Key]
+        public GameType Type { get; set; }
 
 
         [Column("SiteID")]
@@ -88,7 +92,8 @@ namespace BW.Common.Entities.Games
 
         #region  ========  扩展方法  ========
 
-        #endregion
+
+        #endregion
 
     }
 

@@ -22,6 +22,11 @@ namespace BW.Games
         /// </summary>
         protected virtual char UserSplit => '_';
 
+        /// <summary>
+        /// 当前的时区
+        /// </summary>
+        protected virtual TimeSpan OffsetTime => TimeZoneInfo.Local.BaseUtcOffset;
+
         protected string GetUserName(RegisterRequest register)
         {
             if (string.IsNullOrEmpty(register.Prefix)) return register.UserName;

@@ -14,7 +14,7 @@ namespace BW.Games.Models
         /// <summary>
         /// 所属游戏
         /// </summary>
-        public int GameID;
+        public GameType Type;
 
         /// <summary>
         /// 原始订单号
@@ -28,14 +28,14 @@ namespace BW.Games.Models
 
         public OrderDetailResult(OrderDetailRequest request, RedisValue value) : this()
         {
-            this.GameID = request.GameID;
+            this.Type = request.Game;
             this.OrderID = request.OrderID;
             this.Data = value.GetRedisValue<string>();
         }
 
         public static implicit operator RedisKey(OrderDetailResult result)
         {
-            return $"{result.GameID}:{result.OrderID}";
+            return $"{result.Type}:{result.OrderID}";
         }
 
         public static implicit operator RedisValue(OrderDetailResult result)

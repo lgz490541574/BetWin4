@@ -25,9 +25,9 @@ namespace GameService
         public static void Main(string[] args)
         {
             new ServiceCollection()
-                .AddScoped(t => new BetWinDataContext(Setting.DataContextOptions()))
-                .AddScoped<IWriteRepository>(t => Setting.WriteDbExecutor())
-                .AddScoped<IReadRepository>(t => Setting.ReadDbExecutor())
+                .AddSingleton(t => new BetWinDataContext(Setting.DataContextOptions()))
+                .AddTransient<IWriteRepository>(t => Setting.WriteDbExecutor())
+                .AddTransient<IReadRepository>(t => Setting.ReadDbExecutor())
                 .Initialize()
                 .AddService();
 

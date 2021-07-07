@@ -27,22 +27,22 @@ namespace BW.Common.Agent.Games
     /// </summary>
     public class TransferAgent : AgentBase<TransferAgent>
     {
-        public TransferResult Recharge(int siteId, string userName, int gameId, string orderId, decimal money)
+        public TransferResult Recharge(int siteId, string userName, GameType type, string orderId, decimal money)
         {
             //#1 判断用户是否存在
             int userId = UserInfoAgent.Instance().GetUserID(siteId, userName);
             if (userId == 0) throw new APIResultException(APIResultType.NOUSER);
 
             //#1 找出用户在这个游戏里面的用户信息
-            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(gameId, siteId, userId);
+            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(type, siteId, userId);
 
             // 如果本地没有当前用户，则自动注册
             if (!gameUser)
             {
-                gameUser = LoginAgent.Instance().GameRegister(siteId, userId, gameId);
+                gameUser = LoginAgent.Instance().GameRegister(siteId, userId, type);
             }
 
-            IGameBase game = GameUtils.GetGame(gameId);
+            IGameBase game = GameUtils.GetGame(type);
             if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             SiteModel site = SiteAgent.Instance().GetSiteInfo(siteId);
@@ -60,7 +60,7 @@ namespace BW.Common.Agent.Games
             {
                 OrderID = orderId,
                 SiteID = siteId,
-                GameID = gameId,
+                Type = type,
                 UserID = userId,
                 CreateAt = WebAgent.GetTimestamps(),
                 SourceID = request.SourceID,
@@ -69,7 +69,7 @@ namespace BW.Common.Agent.Games
             };
 
             //#2 检查商户额度是否足够
-            this.LockSiteCredit(siteId, gameId, money * -1M, orderId);
+            this.LockSiteCredit(siteId, type, money * -1M, orderId);
 
             //#3 创建转账订单，状态为进行中
             this.WriteDB.Insert(order);
@@ -88,7 +88,7 @@ namespace BW.Common.Agent.Games
                     this.UnlockSiteCredit(db, siteId, orderId);
 
                     // 扣除额度
-                    this.SaveUserCredit(db, siteId, gameId, money * -1M, CreditType.UserRecharge, orderId, "");
+                    this.SaveUserCredit(db, siteId, type, money * -1M, CreditType.UserRecharge, orderId, "");
                 }
                 else if (result.Code == APIResultType.Exception)
                 {
@@ -113,22 +113,22 @@ namespace BW.Common.Agent.Games
             throw new APIResultException(result.Code);
         }
 
-        public TransferResult Withdraw(int siteId, string userName, int gameId, string orderId, decimal money)
+        public TransferResult Withdraw(int siteId, string userName, GameType type, string orderId, decimal money)
         {
             //#1 判断用户是否存在
             int userId = UserInfoAgent.Instance().GetUserID(siteId, userName);
             if (userId == 0) throw new APIResultException(APIResultType.NOUSER);
 
             //#1 找出用户在这个游戏里面的用户信息
-            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(gameId, siteId, userId);
+            GameUserModel gameUser = GameUserAgent.Instance().GetGameUser(type, siteId, userId);
 
             // 如果本地没有当前用户，则自动注册
             if (!gameUser)
             {
-                gameUser = LoginAgent.Instance().GameRegister(siteId, userId, gameId);
+                gameUser = LoginAgent.Instance().GameRegister(siteId, userId, type);
             }
 
-            IGameBase game = GameUtils.GetGame(gameId);
+            IGameBase game = GameUtils.GetGame(type);
             if (game == null) throw new APIResultException(APIResultType.MAINTENANCE);
 
             SiteModel site = SiteAgent.Instance().GetSiteInfo(siteId);
@@ -147,7 +147,7 @@ namespace BW.Common.Agent.Games
             {
                 OrderID = orderId,
                 SiteID = siteId,
-                GameID = gameId,
+                Type = type,
                 UserID = userId,
                 CreateAt = WebAgent.GetTimestamps(),
                 SourceID = request.SourceID,
@@ -169,7 +169,7 @@ namespace BW.Common.Agent.Games
                     order.Status = TransferStatus.Success;
 
                     // 增加额度
-                    this.SaveUserCredit(db, siteId, gameId, money, CreditType.UserWithdraw, orderId, "");
+                    this.SaveUserCredit(db, siteId, type, money, CreditType.UserWithdraw, orderId, "");
                 }
                 else if (result.Code == APIResultType.Exception)
                 {
@@ -216,7 +216,7 @@ namespace BW.Common.Agent.Games
                         CreateAt = order.CreateAt,
                         Money = order.Money,
                         OrderID = order.OrderID,
-                        GameID = order.GameID,
+                        Game = order.Type,
                         UserName = UserInfoAgent.Instance().GetUserModel(siteId, order.UserID).UserName
                     };
             }
@@ -228,17 +228,17 @@ namespace BW.Common.Agent.Games
         /// 锁定商户额度
         /// </summary>
         /// <returns></returns>
-        private bool LockSiteCredit(int siteId, int gameId, decimal money, string orderId)
+        private bool LockSiteCredit(int siteId, GameType type, decimal money, string orderId)
         {
             if (money > 0) return true;
             money = Math.Abs(money);
             using (DbExecutor db = NewExecutor(IsolationLevel.ReadUncommitted))
             {
-                if (db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET LockCredit = LockCredit + @Money WHERE SiteID = @SiteID AND GameID = @GameID AND Credit - LockCredit - @Money >= 0", new
+                if (db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET LockCredit = LockCredit + @Money WHERE SiteID = @SiteID AND Type = @Type AND Credit - LockCredit - @Money >= 0", new
                 {
                     Money = money,
                     SiteID = siteId,
-                    GameID = gameId
+                    Type = type
                 }) == 0)
                 {
                     throw new APIResultException(APIResultType.NOCREDIT);
@@ -247,7 +247,7 @@ namespace BW.Common.Agent.Games
                 CreditLock creditLock = new CreditLock
                 {
                     SiteID = siteId,
-                    GameID = gameId,
+                    Type = type,
                     Credit = Math.Abs(money),
                     ID = orderId
                 };
@@ -266,11 +266,11 @@ namespace BW.Common.Agent.Games
         private void UnlockSiteCredit(DbExecutor db, int siteId, string orderId)
         {
             CreditLock creditLock = db.ReadInfo<CreditLock>(t => t.SiteID == siteId && t.ID == orderId);
-            db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET LockCredit = LockCredit - @Money WHERE SiteID = @SiteID AND GameID = @GameID",
+            db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET LockCredit = LockCredit - @Money WHERE SiteID = @SiteID AND Type = @Type",
                 new
                 {
                     SiteID = siteId,
-                    GameID = creditLock.GameID,
+                    Type = creditLock.Type,
                     Money = creditLock.Credit
                 });
             db.Delete(creditLock);
@@ -281,21 +281,21 @@ namespace BW.Common.Agent.Games
         /// 额度操作
         /// </summary>
         /// <returns></returns>
-        private void SaveUserCredit(DbExecutor db, int siteId, int gameId, decimal money, CreditType type, string sourceId, string description)
+        private void SaveUserCredit(DbExecutor db, int siteId, GameType gameType, decimal money, CreditType type, string sourceId, string description)
         {
-            db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET Credit = Credit + @Money WHERE SiteID = @SiteID AND GameID = @GameID",
+            db.ExecuteNonQuery(CommandType.Text, $"UPDATE [{typeof(SiteGame).GetTableName()}] SET Credit = Credit + @Money WHERE SiteID = @SiteID AND Type = @Type",
                 new
                 {
                     Money = money,
                     SiteID = siteId,
-                    GameID = gameId
+                    Type = gameType
                 });
-            decimal credit = db.ReadInfo<SiteGame, decimal>(t => t.Credit, t => t.SiteID == siteId && t.GameID == gameId);
+            decimal credit = db.ReadInfo<SiteGame, decimal>(t => t.Credit, t => t.SiteID == siteId && t.Type == gameType);
 
             CreditLog log = new CreditLog()
             {
                 SiteID = siteId,
-                GameID = gameId,
+                Game = gameType,
                 Credit = money,
                 Balance = credit,
                 CreateAt = WebAgent.GetTimestamps(),

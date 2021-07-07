@@ -22,9 +22,9 @@ namespace Web.System.Controller
         /// 获取游戏配置
         /// </summary>
         /// <returns></returns>
-        public ContentResult GetGameSetting([FromForm] GameType type, [FromForm] int? id)
+        public ContentResult GetGameSetting([FromForm] GameType type)
         {
-            GameModel game = GameAgent.Instance().GetGameModel(id ?? 0);
+            GameModel game = GameAgent.Instance().GetGameModel(type);
             IGameBase setting = GameFactory.GetGame(type, game.Setting);
             return this.GetResultContent(setting.ToSettingObject());
         }
@@ -37,10 +37,9 @@ namespace Web.System.Controller
         /// <param name="status"></param>
         /// <param name="setting"></param>
         /// <returns></returns>
-        public ContentResult SaveGameInfo([FromForm] int id, [FromForm] GameType type, [FromForm] GameStatus status, [FromForm] string setting)
+        public ContentResult SaveGameInfo([FromForm] GameType type, [FromForm] GameStatus status, [FromForm] string setting)
             => this.GetResultContent(GameAgent.Instance().SaveGameInfo(new Game
             {
-                ID = id,
                 Type = type,
                 Status = status,
                 Setting = setting
@@ -52,10 +51,9 @@ namespace Web.System.Controller
         /// <returns></returns>
         public ContentResult GetGameList()
         {
-            var list = this.BDC.Game.OrderBy(t => t.ID).AsEnumerable();
+            var list = this.BDC.Game.OrderBy(t => t.Type).ToList();
             return this.GetResultList(list, t => new
             {
-                t.ID,
                 t.Type,
                 t.Status
             });
@@ -66,19 +64,14 @@ namespace Web.System.Controller
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public ContentResult GetGameInfo([FromForm] int id)
+        public ContentResult GetGameInfo([FromForm] GameType type)
         {
-            Game game = GameAgent.Instance().GetGameInfo(id) ?? new Game();
-            IGameBase setting = null;
-            if (game.ID != 0)
-            {
-                setting = GameFactory.GetGame(game.Type, game.Setting);
-            }
+            Game game = GameAgent.Instance().GetGameInfo(type);
+            IGameBase setting = GameFactory.GetGame(type, game?.Setting);
             return this.GetResultContent(new
             {
-                game.ID,
-                game.Type,
-                game.Status,
+                Type = type,
+                game?.Status,
                 Setting = setting?.ToSettingObject()
             });
         }

@@ -26,8 +26,8 @@ namespace BW.Common.Entities.Games
                     case "OrderID":
                         this.OrderID = (string)reader[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)reader[i];
+                    case "Type":
+                        this.Type = (GameType)reader[i];
                         break;
                     case "SiteID":
                         this.SiteID = (int)reader[i];
@@ -76,8 +76,8 @@ namespace BW.Common.Entities.Games
                     case "OrderID":
                         this.OrderID = (string)dr[i];
                         break;
-                    case "GameID":
-                        this.GameID = (int)dr[i];
+                    case "Type":
+                        this.Type = (GameType)dr[i];
                         break;
                     case "SiteID":
                         this.SiteID = (int)dr[i];
@@ -123,15 +123,15 @@ namespace BW.Common.Entities.Games
         /// <summary>
         /// 游戏订单号
         /// </summary>
-        [Column("OrderID"),Key]
+        [Column("OrderID"), Key]
         public string OrderID { get; set; }
 
 
         /// <summary>
         /// 所属游戏
         /// </summary>
-        [Column("GameID")]
-        public int GameID { get; set; }
+        [Column("Type")]
+        public GameType Type { get; set; }
 
 
         /// <summary>
@@ -213,7 +213,7 @@ namespace BW.Common.Entities.Games
         #endregion
 
 
-#region  ========  扩展方法  ========
+        #region  ========  扩展方法  ========
 
 
         #endregion

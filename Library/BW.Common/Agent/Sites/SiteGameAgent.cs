@@ -1,6 +1,7 @@
 ﻿using BW.Common.Caching;
 using BW.Common.Entities.Sites;
 using BW.Common.Models.Sites;
+using BW.Games.Models;
 using SP.StudioCore.Data;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace BW.Common.Agent.Sites
         {
             SiteGame siteGame = new SiteGame
             {
-                GameID = model.GameID,
+                Type = model.Type,
                 SiteID = model.SiteID,
                 Status = model.Status,
                 Rate = model.Rate
@@ -50,15 +51,15 @@ namespace BW.Common.Agent.Sites
         /// <returns></returns>
         public List<SiteGame> GetSiteGame(int siteId)
         {
-            return this.ReadDB.ReadList<SiteGame>(t => t.SiteID == siteId).OrderBy(t => t.GameID).ToList();
+            return this.ReadDB.ReadList<SiteGame>(t => t.SiteID == siteId).OrderBy(t => t.Type).ToList();
         }
 
-        public SiteGameModel GetSiteGameModel(int siteId, int gameId)
+        public SiteGameModel GetSiteGameModel(int siteId, GameType type)
         {
-            SiteGameModel model = SiteCaching.Instance().GetSiteGame(siteId, gameId);
+            SiteGameModel model = SiteCaching.Instance().GetSiteGame(siteId, type);
             if (!model)
             {
-                model = this.ReadDB.ReadInfo<SiteGame>(t => t.SiteID == siteId && t.GameID == gameId);
+                model = this.ReadDB.ReadInfo<SiteGame>(t => t.SiteID == siteId && t.Type == type);
                 if (model) SiteCaching.Instance().SaveSiteGame(model);
             }
             return model;
