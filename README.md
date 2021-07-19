@@ -33,7 +33,16 @@ KY|开元棋牌|棋牌
 ```
 
 ## 统一错误代码
+### 错误格式
+```
+{
+	"Code":"错误代码",
+	"Message":"错误信息"
+}
+```
+代码|说明
+-- | --
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQ2MTQ0ODk2NF19
+eyJoaXN0b3J5IjpbMTg4ODY1NDQyNF19
 -->
