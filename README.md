@@ -214,4 +214,12 @@
 <td>系统异常</td>
 </tr>
 </tbody>
-</table>
+</table>|错误的类型
+MAINTENANCE|系统维护中
+PROCCESSING|订单处理中
+ORDER_FAILD|订单失败
+BUSY|系统繁忙
+Exception|系统异常
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTE3NTk4ODk4MjhdfQ==
+-->
