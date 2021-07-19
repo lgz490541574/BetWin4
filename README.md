@@ -49,7 +49,14 @@ EXISTSUSER|用户名已经存在
 BADMONEY|金额错误
 BANORDER|订单号错误
 EXISTSORDER|订单号已经存在
- NOORDER|
+NOORDER|订单号不存在
+TRANSFER_NO_ACTION|未指定转账动作
+IP|IP未授权
+USERLOCK|用户已锁定
+NOBALANCE|余额不足
+NOCREDIT|平台额度不足
+Authorization|密钥错误
+Faild|通用错误
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjkwMjA2NjQxXX0=
+eyJoaXN0b3J5IjpbNTA1NjcwMjk1XX0=
 -->
