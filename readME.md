@@ -1,7 +1,220 @@
-# BetWin 4.0
-> 综合游戏接口
-1. AG 亚游
-2. AVIA 泛亚电竞
-3. 平博体育
-4. IM体育
-5. IMOne 电竞牛
+## 贝盈API接口
+<h2 id="游戏支持">游戏支持</h2>
+
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>游戏</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>AGLive</td>
+<td>AG视讯</td>
+<td>真人视讯</td>
+</tr>
+<tr>
+<td>AVIA</td>
+<td>泛亚电竞</td>
+<td>电子竞技</td>
+</tr>
+<tr>
+<td>Pinnacle</td>
+<td>平博</td>
+<td>体育</td>
+</tr>
+<tr>
+<td>IMSport</td>
+<td>IM体育</td>
+<td>体育</td>
+</tr>
+<tr>
+<td>IMOne</td>
+<td>电竞牛</td>
+<td>电子竞技</td>
+</tr>
+<tr>
+<td>BBIN</td>
+<td>波音</td>
+<td>真人视讯</td>
+</tr>
+<tr>
+<td>XJ188</td>
+<td>小金188</td>
+<td>体育</td>
+</tr>
+<tr>
+<td>KY</td>
+<td>开元棋牌</td>
+<td>棋牌</td>
+</tr>
+</tbody>
+</table><h2 id="api接口">API接口</h2>
+<h3 id="会员注册">会员注册</h3>
+<blockquote>
+<p>地址：/v1/account/register</p>
+</blockquote>
+<h4 id="提交数据">提交数据</h4>
+<pre><code>{
+	"UserName":"test",
+	"Password":"test"
+}
+</code></pre>
+<h3 id="会员登录">会员登录</h3>
+<blockquote>
+<p>地址：/v1/account/login</p>
+</blockquote>
+<h4 id="提交数据-1">提交数据</h4>
+<pre><code>{
+	"UserName":"test",
+	"Game":"AGLive"
+}
+</code></pre>
+<h2 id="统一错误代码">统一错误代码</h2>
+<h3 id="错误格式">错误格式</h3>
+<pre><code>{
+	"Code":"错误代码",
+	"Message":"错误信息"
+}
+</code></pre>
+
+<table>
+<thead>
+<tr>
+<th>代码</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NOUSER</td>
+<td>用户不存在</td>
+</tr>
+<tr>
+<td>BADNAME</td>
+<td>用户名不符合规则</td>
+</tr>
+<tr>
+<td>BADPASSWORD</td>
+<td>密码不符合规则</td>
+</tr>
+<tr>
+<td>EXISTSUSER</td>
+<td>用户名已经存在</td>
+</tr>
+<tr>
+<td>BADMONEY</td>
+<td>金额错误</td>
+</tr>
+<tr>
+<td>BANORDER</td>
+<td>订单号错误</td>
+</tr>
+<tr>
+<td>EXISTSORDER</td>
+<td>订单号已经存在</td>
+</tr>
+<tr>
+<td>NOORDER</td>
+<td>订单号不存在</td>
+</tr>
+<tr>
+<td>TRANSFER_NO_ACTION</td>
+<td>未指定转账动作</td>
+</tr>
+<tr>
+<td>IP</td>
+<td>IP未授权</td>
+</tr>
+<tr>
+<td>USERLOCK</td>
+<td>用户已锁定</td>
+</tr>
+<tr>
+<td>NOBALANCE</td>
+<td>余额不足</td>
+</tr>
+<tr>
+<td>NOCREDIT</td>
+<td>平台额度不足</td>
+</tr>
+<tr>
+<td>Authorization</td>
+<td>密钥错误</td>
+</tr>
+<tr>
+<td>Faild</td>
+<td>通用错误</td>
+</tr>
+<tr>
+<td>DOMAIN</td>
+<td>未配置域名</td>
+</tr>
+<tr>
+<td>CONTENT</td>
+<td>内容错误</td>
+</tr>
+<tr>
+<td>Sign</td>
+<td>签名错误</td>
+</tr>
+<tr>
+<td>NOSUPPORT</td>
+<td>不支持的操作</td>
+</tr>
+<tr>
+<td>TIMEOUT</td>
+<td>超时请求</td>
+</tr>
+<tr>
+<td>STATUS</td>
+<td>状态错误</td>
+</tr>
+<tr>
+<td>CONFIGERROR</td>
+<td>配置错误</td>
+</tr>
+<tr>
+<td>DATEEROOR</td>
+<td>查询日期错误</td>
+</tr>
+<tr>
+<td>ORDER_NOTFOUND</td>
+<td>订单号不存在</td>
+</tr>
+<tr>
+<td>TYPE_ERROR</td>
+<td>错误的类型</td>
+</tr>
+<tr>
+<td>MAINTENANCE</td>
+<td>系统维护中</td>
+</tr>
+<tr>
+<td>PROCCESSING</td>
+<td>订单处理中</td>
+</tr>
+<tr>
+<td>ORDER_FAILD</td>
+<td>订单失败</td>
+</tr>
+<tr>
+<td>BUSY</td>
+<td>系统繁忙</td>
+</tr>
+<tr>
+<td>Exception</td>
+<td>系统异常</td>
+</tr>
+</tbody>
+</table>|错误的类型
+MAINTENANCE|系统维护中
+PROCCESSING|订单处理中
+ORDER_FAILD|订单失败
+BUSY|系统繁忙
+Exception|系统异常
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbMTA1MDU2MTIzNF19
+-->
