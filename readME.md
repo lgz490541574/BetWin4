@@ -7,9 +7,7 @@ AGLive|AG视讯|真人视讯
 AVIA|泛亚电竞|电子竞技
 Pinnacle|平博|体育
 IMSport|IM体育|体育
->IMOne</td>
-<td>电竞牛</td>
-<td>电子竞技</td>
+IMOne|电竞牛|电子竞技
 </tr>
 <tr>
 <td>BBIN</td>
@@ -192,5 +190,5 @@ ORDER_FAILD|订单失败
 BUSY|系统繁忙
 Exception|系统异常
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTY2NTM1OTY0LDEwNTA1NjEyMzRdfQ==
+eyJoaXN0b3J5IjpbMjA4ODA2Nzk5MywxMDUwNTYxMjM0XX0=
 -->
