@@ -56,4 +56,23 @@
 <td>棋牌</td>
 </tr>
 </tbody>
-</table>
+</table><h2 id="api接口">API接口</h2>
+<h3 id="会员注册">会员注册</h3>
+<blockquote>
+<p>地址：/v1/account/register</p>
+</blockquote>
+<h4 id="提交数据">提交数据</h4>
+<pre><code>{
+	"UserName":"test",
+	"Password":"test"
+}
+</code></pre>
+<h3 id="会员登录">会员登录</h3>
+<blockquote></blockquote>
+<pre><code>{
+	"UserName":"test",
+	"Game":"AGLive"
+}
+</code></pre>
+<h2 id="统一错误代码">统一错误代码</h2>
+
