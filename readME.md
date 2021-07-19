@@ -8,30 +8,16 @@ AVIA|泛亚电竞|电子竞技
 Pinnacle|平博|体育
 IMSport|IM体育|体育
 IMOne|电竞牛|电子竞技
-</tr>
-<tr>
-<td>BBIN</td>
-<td>波音</td>
-<td>真人视讯</td>
-</tr>
-<tr>
-<td>XJ188</td>
-<td>小金188</td>
-<td>体育</td>
-</tr>
-<tr>
-<td>KY</td>
-<td>开元棋牌</td>
-<td>棋牌</td>
-</tr>
-</tbody>
-</table><h2 id="api接口">API接口</h2>
-<h3 id="会员注册">会员注册</h3>
-<blockquote>
-<p>地址：/v1/account/register</p>
-</blockquote>
-<h4 id="提交数据">提交数据</h4>
-<pre><code>{
+BBIN|波音|真人视讯
+XJ188|小金188|体育
+KY|开元棋牌|棋牌
+
+## API接口
+### 会员注册
+> 地址：/v1/account/register
+#### 提交数据
+```
+{
 	"UserName":"test",
 	"Password":"test"
 }
@@ -190,5 +176,5 @@ ORDER_FAILD|订单失败
 BUSY|系统繁忙
 Exception|系统异常
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjA4ODA2Nzk5MywxMDUwNTYxMjM0XX0=
+eyJoaXN0b3J5IjpbLTE3NzE4MTQyNzgsMTA1MDU2MTIzNF19
 -->
