@@ -57,6 +57,16 @@ NOBALANCE|余额不足
 NOCREDIT|平台额度不足
 Authorization|密钥错误
 Faild|通用错误
+DOMAIN|未配置域名
+CONTENT|内容错误
+Sign|签名错误
+NOSUPPORT|不支持的操作
+TIMEOUT|超时请求
+STATUS|状态错误
+CONFIGERROR|配置错误
+DATEEROOR|查询日期错误
+ORDER_NOTFOUND|订单号不存在
+TYPE_ERROR
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTA1NjcwMjk1XX0=
+eyJoaXN0b3J5IjpbLTIyMjIxMDkwOF19
 -->
