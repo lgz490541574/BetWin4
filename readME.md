@@ -1,37 +1,13 @@
-## 贝盈API接口
-<h2 id="游戏支持">游戏支持</h2>
+# 贝盈API接口
+## 游戏支持
 
-<table>
-<thead>
-<tr>
-<th>代码</th>
-<th>游戏</th>
-<th>类型</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>AGLive</td>
-<td>AG视讯</td>
-<td>真人视讯</td>
-</tr>
-<tr>
-<td>AVIA</td>
-<td>泛亚电竞</td>
-<td>电子竞技</td>
-</tr>
-<tr>
-<td>Pinnacle</td>
-<td>平博</td>
-<td>体育</td>
-</tr>
-<tr>
-<td>IMSport</td>
-<td>IM体育</td>
-<td>体育</td>
-</tr>
-<tr>
-<td>IMOne</td>
+代码|游戏|类型
+--|--|--
+AGLive|AG视讯|真人视讯
+AVIA|泛亚电竞|电子竞技
+Pinnacle|平博|体育
+IMSport|IM体育|体育
+>IMOne</td>
 <td>电竞牛</td>
 <td>电子竞技</td>
 </tr>
@@ -216,5 +192,5 @@ ORDER_FAILD|订单失败
 BUSY|系统繁忙
 Exception|系统异常
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTA1MDU2MTIzNF19
+eyJoaXN0b3J5IjpbLTY2NTM1OTY0LDEwNTA1NjEyMzRdfQ==
 -->
