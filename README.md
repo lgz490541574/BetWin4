@@ -42,7 +42,14 @@ KY|开元棋牌|棋牌
 ```
 代码|说明
 -- | --
-
+NOUSER|用户不存在
+BADNAME|用户名不符合规则
+BADPASSWORD|密码不符合规则
+EXISTSUSER|用户名已经存在
+BADMONEY|金额错误
+BANORDER|订单号错误
+EXISTSORDER|订单号已经存在
+ NOORDER|
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTg4ODY1NDQyNF19
+eyJoaXN0b3J5IjpbMjkwMjA2NjQxXX0=
 -->
