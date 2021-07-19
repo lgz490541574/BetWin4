@@ -66,7 +66,12 @@ STATUS|状态错误
 CONFIGERROR|配置错误
 DATEEROOR|查询日期错误
 ORDER_NOTFOUND|订单号不存在
-TYPE_ERROR
+TYPE_ERROR|错误的类型
+MAINTENANCE|系统维护中
+PROCCESSING|订单处理中
+ORDER_FAILD|订单失败
+BUSY|系统繁忙
+Exception|系统异常
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTIyMjIxMDkwOF19
+eyJoaXN0b3J5IjpbODg5MTM4Mjc0XX0=
 -->
