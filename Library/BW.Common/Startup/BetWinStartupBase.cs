@@ -16,6 +16,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace BW.Common.Startup
 {
@@ -34,6 +35,11 @@ namespace BW.Common.Startup
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers(opt => { opt.Filters.Add<TFilterType>(); });
+
+            services.AddControllers().AddJsonOptions(opt =>
+            {
+                opt.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
             services
                 //.AddSpLogging()

@@ -23,7 +23,7 @@ using System.Xml.Linq;
 namespace BW.Games.API
 {
     /// <summary>
-    /// AG（视讯）
+    /// AG
     /// </summary>
     public abstract class AG : IGameBase
     {
