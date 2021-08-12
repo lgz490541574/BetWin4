@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using SP.StudioCore.Array;
 using SP.StudioCore.Data.Repository;
+using SP.StudioCore.Enums;
 using SP.StudioCore.Ioc;
 using SP.StudioCore.Services;
 using SP.StudioCore.Web;
@@ -36,7 +37,15 @@ namespace GameService
             if (args.Contains("-test"))
             {
                 Console.ReadLine();
-                OrderAgent.Instance().GetOrders(args.Get("-game", 0));
+                if (args.Contains("-game"))
+                {
+                    GameType game = args.Get("-game").ToEnum<GameType>();
+                    OrderAgent.Instance().GetOrders(game);
+                }
+                else
+                {
+                    OrderAgent.Instance().GetOrders();
+                }
                 return;
             }
             // 多线程执行

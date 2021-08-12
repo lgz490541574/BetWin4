@@ -14,7 +14,7 @@ namespace Web.API.Controller
 {
     public class LoginController : APIControllerBase
     {
-        [Guest, HttpGet, Route("/login")]
+        [Guest, HttpGet("/login")]
         public ContentResult Login([FromQuery] string id)
         {
             string session = UserCaching.Instance().GetSession(id);

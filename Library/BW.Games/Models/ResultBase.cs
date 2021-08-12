@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,6 +21,7 @@ namespace BW.Games.Models
         /// <summary>
         /// 返回的代码
         /// </summary>
+        [JsonProperty(Order = -1)]
         public APIResultType Code { get; set; }
 
     }
