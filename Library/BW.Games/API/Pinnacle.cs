@@ -65,17 +65,25 @@ namespace BW.Games.API
                     { "token", token }
                 }
             };
-            result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
-            JToken info = JToken.Parse(result.Result);
-            if (info.Type == JTokenType.Array)
+            try
             {
-                result.Info = (JArray)info;
-                result.Code = APIResultType.Success;
+                result.Result = NetAgent.DownloadData(result.Url, Encoding.UTF8, result.Header);
+                JToken info = JToken.Parse(result.Result);
+                if (info.Type == JTokenType.Array)
+                {
+                    result.Info = (JArray)info;
+                    result.Code = APIResultType.Success;
+                }
+                else if (info.Type == JTokenType.Object)
+                {
+                    result.Info = (JObject)info;
+                    result.Code = ((JObject)info).ContainsKey("code") ? this.GetResultType(((JObject)info)["code"].Value<int>()) : APIResultType.Success;
+                }
             }
-            else if (info.Type == JTokenType.Object)
+            catch (Exception ex)
             {
-                result.Info = (JObject)info;
-                result.Code = ((JObject)info).ContainsKey("code") ? this.GetResultType(((JObject)info)["code"].Value<int>()) : APIResultType.Success;
+                result.Code = APIResultType.Exception;
+                result.Ex = ex;
             }
             return result;
         }

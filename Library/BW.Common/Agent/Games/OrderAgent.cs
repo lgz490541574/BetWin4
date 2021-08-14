@@ -69,6 +69,7 @@ namespace BW.Common.Agent.Games
             catch (NullReferenceException ex)
             {
                 ConsoleHelper.WriteLine($"[GetOrders - {ex.GetType().Name}] {type}:{ex.Message}", ConsoleColor.Red);
+                ConsoleHelper.WriteLine(ErrorHelper.GetExceptionContent(ex), ConsoleColor.Gray);
             }
             catch (NotImplementedException ex)
             {

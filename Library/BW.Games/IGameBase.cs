@@ -6,6 +6,7 @@ using SP.StudioCore.Enums;
 using SP.StudioCore.Ioc;
 using SP.StudioCore.Json;
 using SP.StudioCore.Model;
+using SP.StudioCore.Utils;
 using System;
 using System.Collections.Generic;
 
@@ -43,17 +44,10 @@ namespace BW.Games
         protected void SaveLog(string url, string result, APIResultType resultType, PostDataModel data)
         {
             this.GameDelegate?.SaveLog(this.Type, url, result, resultType, data);
-            lock (typeof(IGameBase))
-            {
-                Console.ForegroundColor = ConsoleColor.DarkBlue;
-                Console.WriteLine(url);
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(data.ToJson());
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(result);
-                Console.ResetColor();
-                Console.WriteLine("".PadLeft(32, '='));
-            }
+            ConsoleHelper.WriteLine(url, ConsoleColor.DarkBlue);
+            ConsoleHelper.WriteLine(data.ToJson(), ConsoleColor.DarkGreen);
+            ConsoleHelper.WriteLine(result, ConsoleColor.DarkGray);
+            ConsoleHelper.WriteLine("".PadLeft(64, '='), ConsoleColor.Gray);
         }
 
         protected IGameBase(string queryString) : base(queryString)
