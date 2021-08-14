@@ -30,6 +30,7 @@ namespace Web.API.Controller
                 orderlist.Count,
                 Data = orderlist.Select(t => new
                 {
+                    t.Type,
                     t.OrderID,
                     t.Game,
                     t.UserName,

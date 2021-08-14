@@ -37,10 +37,10 @@ namespace BW.Games.API
             while (page <= total)
             {
                 APIResultType resultType = this.POST("getorders.xml", new Dictionary<string, object>()
-            {
-                { "startdate",startTime.ToString("yyyy-MM-dd HH:mm:ss") },
-                { "enddate",endTime.ToString("yyyy-MM-dd HH:mm:ss") }
-            }, out object info);
+                {
+                    { "startdate",startTime.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "enddate",endTime.ToString("yyyy-MM-dd HH:mm:ss") }
+                }, out object info);
                 if (resultType != APIResultType.Success) throw new APIResultException(resultType);
 
                 XElement root = (XElement)info;

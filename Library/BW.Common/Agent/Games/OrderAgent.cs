@@ -7,6 +7,7 @@ using BW.Games;
 using BW.Games.Exceptions;
 using BW.Games.Models;
 using SP.StudioCore.Data;
+using SP.StudioCore.Utils;
 using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
@@ -65,11 +66,17 @@ namespace BW.Common.Agent.Games
                     Data = t.RawData
                 }));
             }
+            catch (NullReferenceException ex)
+            {
+                ConsoleHelper.WriteLine($"[GetOrders - {ex.GetType().Name}] {type}:{ex.Message}", ConsoleColor.Red);
+            }
+            catch (NotImplementedException ex)
+            {
+                ConsoleHelper.WriteLine($"[GetOrders - {ex.GetType().Name}] {type}:{ex.Message}", ConsoleColor.Red);
+            }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"{type}:{ex.Message}");
-                Console.ResetColor();
+                ConsoleHelper.WriteLine($"[GetOrders - {ex.GetType().Name}] {type}:{ex.Message}", ConsoleColor.Red);
             }
             finally
             {

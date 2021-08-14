@@ -13,6 +13,7 @@ using SP.StudioCore.Data.Repository;
 using SP.StudioCore.Enums;
 using SP.StudioCore.Ioc;
 using SP.StudioCore.Services;
+using SP.StudioCore.Utils;
 using SP.StudioCore.Web;
 using System;
 using System.Collections.Generic;
@@ -36,15 +37,25 @@ namespace GameService
             GameCaching.Instance().SaveOrderQueue();
             if (args.Contains("-test"))
             {
+                ConsoleHelper.WriteLine($"按回车键开始", ConsoleColor.Gray);
                 Console.ReadLine();
+                int count = args.Get("-count", 1);
                 if (args.Contains("-game"))
                 {
                     GameType game = args.Get("-game").ToEnum<GameType>();
-                    OrderAgent.Instance().GetOrders(game);
+                    ConsoleHelper.WriteLine($"开始采集 {game}/{count}", ConsoleColor.Green);
+                    for (int i = 0; i < count; i++)
+                    {
+                        Console.WriteLine(i);
+                        OrderAgent.Instance().GetOrders(game);
+                    }
                 }
                 else
                 {
-                    OrderAgent.Instance().GetOrders();
+                    for (int i = 0; i < count; i++)
+                    {
+                        OrderAgent.Instance().GetOrders();
+                    }
                 }
                 return;
             }
